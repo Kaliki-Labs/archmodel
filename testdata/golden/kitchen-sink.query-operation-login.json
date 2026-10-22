@@ -1,0 +1,139 @@
+{
+  "version": 1,
+  "id": "login",
+  "owner": "auth",
+  "method": "POST",
+  "path": "/auth/login",
+  "tags": [
+    "auth"
+  ],
+  "security": [],
+  "rate_limit": {
+    "burst": 2,
+    "key": "email",
+    "requests": 5,
+    "scope": "identifier",
+    "window": "60s"
+  },
+  "parameters": [],
+  "request_schemas": [
+    "auth.LoginRequest"
+  ],
+  "responses": [
+    {
+      "status": "200",
+      "description": "OK",
+      "schemas": [
+        "auth.AuthResponse"
+      ]
+    },
+    {
+      "status": "401",
+      "description": "Invalid credentials",
+      "schemas": []
+    }
+  ],
+  "spec": "api/services/auth.yaml",
+  "line": 31,
+  "implementation": {
+    "function": "auth.Service.Login",
+    "file": "backend/internal/auth/service.go",
+    "line": 111
+  },
+  "schemas": [
+    {
+      "id": "auth.AuthResponse",
+      "owner": "auth",
+      "name": "AuthResponse",
+      "type": "object",
+      "properties": [
+        {
+          "name": "token",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "refresh_token",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "user",
+          "type": "User",
+          "required": true,
+          "refs": [
+            "auth.User"
+          ]
+        }
+      ],
+      "refs": [
+        "auth.User"
+      ],
+      "spec": "api/services/auth.yaml"
+    },
+    {
+      "id": "auth.LoginRequest",
+      "owner": "auth",
+      "name": "LoginRequest",
+      "type": "object",
+      "properties": [
+        {
+          "name": "email",
+          "type": "string",
+          "format": "email",
+          "required": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "refs": [],
+      "spec": "api/services/auth.yaml"
+    },
+    {
+      "id": "auth.User",
+      "owner": "auth",
+      "name": "User",
+      "type": "object",
+      "properties": [
+        {
+          "name": "id",
+          "type": "string",
+          "format": "uuid",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "format": "email",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "role",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "verified",
+          "type": "boolean",
+          "required": false
+        },
+        {
+          "name": "created_at",
+          "type": "string",
+          "format": "date-time",
+          "required": false
+        }
+      ],
+      "refs": [],
+      "spec": "api/services/auth.yaml"
+    }
+  ]
+}

@@ -1,0 +1,154 @@
+{
+  "version": 1,
+  "module": "server",
+  "relation": "depends_on",
+  "modules": [
+    {
+      "module": "auth",
+      "kind": "domain",
+      "test_only": false,
+      "sites": [
+        {
+          "file": "backend/internal/server/server.go",
+          "line": 25
+        }
+      ]
+    },
+    {
+      "module": "cache",
+      "kind": "infrastructure",
+      "test_only": false,
+      "sites": [
+        {
+          "file": "backend/internal/server/server.go",
+          "line": 29
+        }
+      ]
+    },
+    {
+      "module": "config",
+      "kind": "foundation",
+      "test_only": false,
+      "sites": [
+        {
+          "file": "backend/internal/server/server.go",
+          "line": 20
+        }
+      ]
+    },
+    {
+      "module": "events",
+      "kind": "infrastructure",
+      "test_only": false,
+      "sites": [
+        {
+          "file": "backend/internal/server/server.go",
+          "line": 30
+        }
+      ]
+    },
+    {
+      "module": "health",
+      "kind": "domain",
+      "test_only": false,
+      "sites": [
+        {
+          "file": "backend/internal/server/server.go",
+          "line": 22
+        }
+      ]
+    },
+    {
+      "module": "items",
+      "kind": "domain",
+      "test_only": false,
+      "sites": [
+        {
+          "file": "backend/internal/server/server.go",
+          "line": 24
+        },
+        {
+          "file": "backend/internal/server/server.go",
+          "line": 27
+        }
+      ]
+    },
+    {
+      "module": "mail",
+      "kind": "infrastructure",
+      "test_only": false,
+      "sites": [
+        {
+          "file": "backend/internal/server/server.go",
+          "line": 26
+        }
+      ]
+    },
+    {
+      "module": "migrate",
+      "kind": "composition_root",
+      "test_only": false,
+      "sites": [
+        {
+          "file": "backend/internal/server/server.go",
+          "line": 21
+        }
+      ]
+    },
+    {
+      "module": "observability",
+      "kind": "infrastructure",
+      "test_only": false,
+      "sites": [
+        {
+          "file": "backend/internal/server/server.go",
+          "line": 23
+        }
+      ]
+    },
+    {
+      "module": "payments",
+      "kind": "infrastructure",
+      "test_only": false,
+      "sites": [
+        {
+          "file": "backend/internal/server/server.go",
+          "line": 31
+        }
+      ]
+    },
+    {
+      "module": "push",
+      "kind": "infrastructure",
+      "test_only": false,
+      "sites": [
+        {
+          "file": "backend/internal/server/server.go",
+          "line": 32
+        }
+      ]
+    },
+    {
+      "module": "ratelimit",
+      "kind": "infrastructure",
+      "test_only": false,
+      "sites": [
+        {
+          "file": "backend/internal/server/server.go",
+          "line": 28
+        }
+      ]
+    },
+    {
+      "module": "storage",
+      "kind": "infrastructure",
+      "test_only": false,
+      "sites": [
+        {
+          "file": "backend/internal/server/server.go",
+          "line": 33
+        }
+      ]
+    }
+  ]
+}

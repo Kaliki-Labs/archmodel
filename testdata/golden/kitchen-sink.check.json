@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "id": "inward_only",
+      "severity": "error",
+      "rationale": "Dependencies point inward only: Composition root, then Domain, then Infrastructure, then Foundation. Inner modules are the stable, widely shared ones. If one of them imports an outer module, a change in the outer module can break everything that relies on the inner one, and import cycles become likely.",
+      "fix": "Move the shared code into a module at the inner Level (or into the Foundation), or invert the dependency: declare an interface in the inner module and let the outer module implement it."
+    },
+    {
+      "id": "no_domain_to_domain",
+      "severity": "error",
+      "rationale": "Each Domain is a self-contained vertical slice. When one Domain imports another, they can no longer be understood, tested or changed independently, and a feature in one starts to hide inside the other.",
+      "fix": "Declare a small interface in the consuming Domain describing only what it needs, and have the Composition root wire the other Domain into it."
+    },
+    {
+      "id": "no_import_composition_root",
+      "severity": "error",
+      "rationale": "The Composition root wires everything together at startup. If anything imports it, wiring code becomes a dependency of business code, which creates cycles and makes the dependency direction impossible to reason about.",
+      "fix": "Move whatever the importer needs out of the Composition root into a Domain, Infrastructure module or Foundation, and import it from there."
+    },
+    {
+      "id": "test_only_out_of_prod",
+      "severity": "error",
+      "rationale": "Test-only modules hold support code for tests such as fixtures and helpers. Production code that imports them ships test scaffolding in the binary, and ties real behaviour to code nobody treats as production.",
+      "fix": "Import the test-only module from _test.go files only. If production code needs the helper, move it into a regular Infrastructure module."
+    },
+    {
+      "id": "package_doc",
+      "severity": "error",
+      "rationale": "The package doc comment is the Purpose on the Module card. It is the first thing a new maintainer or an agent reads about a module, and it is cheaper to keep it accurate than to rediscover what the module is for.",
+      "fix": "Add a comment directly above the package clause that begins with \"Package <name> ...\" (or \"Command <name> ...\" for a main package) and says what the module is for."
+    }
+  ],
+  "violations": [
+    {
+      "rule": "package_doc",
+      "severity": "error",
+      "subject": "cmd/server",
+      "module": "cmd/server",
+      "message": "cmd/server has no package doc comment",
+      "rationale": "The package doc comment is the Purpose on the Module card. It is the first thing a new maintainer or an agent reads about a module, and it is cheaper to keep it accurate than to rediscover what the module is for.",
+      "fix": "Add a comment directly above the package clause that begins with \"Package <name> ...\" (or \"Command <name> ...\" for a main package) and says what the module is for.",
+      "sites": [
+        {
+          "file": "backend/cmd/server"
+        }
+      ]
+    }
+  ],
+  "ok": false
+}

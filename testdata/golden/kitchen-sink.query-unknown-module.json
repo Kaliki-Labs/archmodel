@@ -1,0 +1,6 @@
+{
+  "error": "unknown module \"auht\"",
+  "did_you_mean": [
+    "auth"
+  ]
+}
