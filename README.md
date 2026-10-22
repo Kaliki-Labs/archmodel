@@ -71,6 +71,45 @@ model like `check` does, or reads one with `--model model.json`.
   `--ref main` (or a commit). Without a template, or if it uses `{ref}` and no
   `--ref` is given, the Explorer shows copyable `path:line` text.
 
+## diff
+
+```sh
+archmodel build --root base-checkout --out base.json
+archmodel build --root . --out head.json
+archmodel diff --base base.json --head head.json \
+  --markdown comment.md --json diff.json --image diff
+archmodel explore --diff --base base.json --head head.json --out diff.html
+```
+
+The **Architecture diff** between two models: Modules, dependencies
+(production and test-only), operations (route, security, rate limit,
+responses), tables and columns added, removed or changed; **new violations**
+(matched on rule and subject, so moved lines do not count) with their
+Rationale and fix hint, and resolved ones; and notable metric changes (see
+[ADR-0010](docs/adr/0010-architecture-diff.md) for the thresholds).
+
+- `--markdown <path|->` (default `-`, stdout): a short sticky PR comment that
+  starts with `<!-- archmodel-diff -->`. Sections appear only when non-empty,
+  and long lists end in "... and N more". With no changes the whole comment is
+  `No architecture changes.` and no image is written.
+- `--image <path>`: draws only the changed subgraph and writes `<path>.svg` and
+  `<path>.png` (a `.svg` or `.png` extension is dropped first, so `--image
+  out/diff.png` writes both). Pure Go, no external tools; the PNG is at most
+  1200 px wide. The Markdown references the PNG by `--image-url` (default
+  placeholder `ARCHMODEL_IMAGE_URL`) for the CI workflow to replace after
+  uploading, and folds a Mermaid version of the same subgraph in a `<details>`
+  block (`--mermaid=false` to omit it).
+- `--json <path|->`: the diff as deterministic JSON (`"version": 1`), including
+  the subgraph.
+- `explore --diff --base base.json [--head head.json]` renders the Explorer in
+  diff mode: a diff card and the new violations at the top of the System view,
+  added things outlined green, changed ones amber, and removed ones ghosted
+  (dashed red, drawn from the base model). Without `--head` it builds or reads
+  the head like `explore` does.
+
+A GitHub workflow that posts the comment is in
+[docs/ci-example.md](docs/ci-example.md). It never fails the build.
+
 ## serve
 
 ```sh
