@@ -79,3 +79,21 @@ func Reading(kind string, m *model.Metrics) string {
 			"More abstraction than the code that depends on it needs."
 	}
 }
+
+// Zone names where a Module sits relative to the main sequence, using the
+// same cut-offs as Reading, so the diff can tell when a Module moved zone.
+// It returns "undefined", "zone of pain", "zone of uselessness",
+// "main sequence" or "off the main sequence".
+func Zone(m *model.Metrics) string {
+	switch {
+	case !m.InstabilityDefined:
+		return "undefined"
+	case m.Instability <= lowEnd && m.Abstractness <= lowEnd:
+		return "zone of pain"
+	case m.Instability >= highEnd && m.Abstractness >= highEnd:
+		return "zone of uselessness"
+	case m.Distance <= mainSequenceD:
+		return "main sequence"
+	}
+	return "off the main sequence"
+}
