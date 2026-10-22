@@ -101,5 +101,34 @@ rules:
       "Package <name> ..." (or "Command <name> ..." for a main package) and says
       what the module is for.
 
+# Why each metric is shown. Shown beside the metric on a Module card.
+metric_rationales:
+  ca: >-
+    Afferent coupling: how many other modules import this one. High Ca means
+    many things rely on it, so changing it is risky.
+  ce: >-
+    Efferent coupling: how many modules this one imports. High Ce means it
+    can break when any of them changes.
+  i: >-
+    Instability = Ce / (Ca + Ce), from 0 (everything depends on it, it depends
+    on nothing) to 1 (it depends on others, nothing depends on it). Stable
+    modules should be hard to break; unstable ones are cheap to change.
+  a: >-
+    Abstractness = interfaces / exported types. A stable module that is all
+    concrete types is hard to change without breaking its dependents;
+    interfaces give them something to hold on to.
+  d: >-
+    Distance from the main sequence = |A + I - 1|. 0 means stability and
+    abstraction are in balance; near 1 means the zone of pain (stable and
+    concrete) or the zone of uselessness (abstract and unstable).
+  cc: >-
+    Cyclomatic complexity: the number of independent paths through a
+    function. The higher it is, the more tests it needs and the harder it is
+    to read.
+  crap: >-
+    CRAP = CC^2 * (1 - coverage)^3 + CC. It combines complexity with missing
+    test coverage: a complex function with weak tests is the riskiest to
+    change.
+
 # Reserved for future metric rules. Accepted but ignored in v1.
 thresholds: {}

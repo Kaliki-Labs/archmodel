@@ -27,6 +27,9 @@ type Config struct {
 	SQL        SQLConfig       `yaml:"sql"`
 	Rules      map[string]Rule `yaml:"rules"`
 	Thresholds map[string]any  `yaml:"thresholds"`
+	// MetricRationales is the short "why" for each metric (keys ca, ce, i, a,
+	// d, cc, crap), shown beside the metric.
+	MetricRationales map[string]string `yaml:"metric_rationales"`
 }
 
 // GoConfig says where the Go code and its Modules live.
@@ -175,6 +178,11 @@ func (c *Config) validate() error {
 	for _, pat := range append(append([]string{}, c.Kinds.CompositionRoot...), c.Kinds.Foundation...) {
 		if _, err := path.Match(pat, ""); err != nil {
 			return fmt.Errorf("invalid config: bad pattern %q: %w", pat, err)
+		}
+	}
+	for id, r := range c.Rules {
+		if r.Severity != "error" && r.Severity != "warn" {
+			return fmt.Errorf("invalid config: rules.%s.severity = %q, want error or warn", id, r.Severity)
 		}
 	}
 	return nil

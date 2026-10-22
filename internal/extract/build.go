@@ -13,10 +13,13 @@ import (
 	"path"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/Kaliki-Labs/archmodel/internal/config"
+	"github.com/Kaliki-Labs/archmodel/internal/metrics"
 	"github.com/Kaliki-Labs/archmodel/internal/model"
+	"github.com/Kaliki-Labs/archmodel/internal/rules"
 )
 
 // Options configure a build.
@@ -60,6 +63,10 @@ func Build(opts Options) (*model.Model, error) {
 	b.collectSQL()
 	b.linkOperations()
 	b.computeMetrics()
+	b.m.Rules = rules.Policy(cfg)
+	b.m.MetricRationales = cfg.MetricRationales
+	b.m.Normalize()
+	b.m.Violations = rules.Evaluate(b.m, cfg)
 	b.m.Normalize()
 	return b.m, nil
 }
@@ -75,6 +82,7 @@ type depKey struct{ from, to string }
 
 type depInfo struct {
 	files    map[string]bool // rel path -> test file?
+	sites    []model.Site
 	allTests bool
 }
 
@@ -132,7 +140,11 @@ func (b *builder) collectDependencies(files []*srcFile) {
 		onDisk[f.pkgDir] = true
 	}
 	for _, f := range files {
-		for _, imp := range importsOf(f.ast) {
+		for _, spec := range f.ast.Imports {
+			imp, err := strconv.Unquote(spec.Path.Value)
+			if err != nil {
+				continue
+			}
 			loc, ok := b.lay.locateImport(imp)
 			if !ok {
 				continue
@@ -153,6 +165,7 @@ func (b *builder) collectDependencies(files []*srcFile) {
 				b.deps[k] = d
 			}
 			d.files[f.rel] = f.test
+			d.sites = append(d.sites, model.Site{File: f.rel, Line: f.fset.Position(spec.Pos()).Line, Test: f.test})
 			if !f.test {
 				d.allTests = false
 			}
@@ -551,7 +564,7 @@ func sqlFiles(dir string) []string {
 func (b *builder) computeMetrics() {
 	for k, d := range b.deps {
 		b.m.Dependencies = append(b.m.Dependencies, model.Dependency{
-			From: k.from, To: k.to, TestOnly: d.allTests, Files: sortedKeys(d.files),
+			From: k.from, To: k.to, TestOnly: d.allTests, Files: sortedKeys(d.files), Sites: d.sites,
 		})
 	}
 	sort.Slice(b.m.Dependencies, func(i, j int) bool {
@@ -592,6 +605,7 @@ func (b *builder) computeMetrics() {
 		}
 		m := ComputeMetrics(len(ca[mod.ID]), len(ce[mod.ID]), types[mod.ID], abstract[mod.ID])
 		b.rollupFunctions(mod.ID, m)
+		m.Reading = metrics.Reading(mod.Kind, m)
 		mod.Metrics = m
 	}
 }

@@ -33,6 +33,7 @@
         "abstract_types": 1,
         "abstractness": 0.25,
         "distance": 0.05,
+        "reading": "I=0.8, A=0.25: unstable and concrete, on the main sequence, which is fine for a leaf: little depends on it, so it is cheap to change.",
         "worst_cc": 14,
         "worst_cc_function": "auth.ValidatePassword"
       }
@@ -56,6 +57,7 @@
         "abstract_types": 0,
         "abstractness": 0,
         "distance": 0.5,
+        "reading": "I=0.5, A=0: moderately stable and concrete, D=0.5: off the main sequence, leaning towards the zone of pain. More depends on it, or it depends on less, than its few interfaces justify.",
         "worst_cc": 3,
         "worst_cc_function": "cache.Connect"
       }
@@ -79,6 +81,7 @@
         "abstract_types": 0,
         "abstractness": 0,
         "distance": 0,
+        "reading": "I=1, A=0: unstable and concrete (no exported types, so A=0), on the main sequence. Expected for a Composition root: it wires things together and nothing depends on it.",
         "worst_cc": 1,
         "worst_cc_function": "cmd/server.main"
       }
@@ -102,6 +105,7 @@
         "abstract_types": 0,
         "abstractness": 0,
         "distance": 0,
+        "reading": "I=1, A=0: unstable and concrete (no exported types, so A=0), on the main sequence. Expected for a Composition root: it wires things together and nothing depends on it.",
         "worst_cc": 11,
         "worst_cc_function": "cmd/workers.main"
       }
@@ -125,6 +129,7 @@
         "abstract_types": 0,
         "abstractness": 0,
         "distance": 1,
+        "reading": "I=0, A=0: near (0,0): zone of pain, stable and concrete, hard to change. Expected for a Foundation module, which many modules rely on and which should change rarely; keep it small and steady.",
         "worst_cc": 4,
         "worst_cc_function": "config.Load"
       }
@@ -148,6 +153,7 @@
         "abstract_types": 0,
         "abstractness": 0,
         "distance": 1,
+        "reading": "I=0, A=0: near (0,0): zone of pain, stable and concrete (no exported types, so A=0), hard to change. Expected for a Foundation module, which many modules rely on and which should change rarely; keep it small and steady.",
         "worst_cc": 0
       }
     },
@@ -170,6 +176,7 @@
         "abstract_types": 0,
         "abstractness": 0,
         "distance": 0.667,
+        "reading": "I=0.333, A=0: moderately stable and concrete, D=0.667: off the main sequence, leaning towards the zone of pain. More depends on it, or it depends on less, than its few interfaces justify.",
         "worst_cc": 1,
         "worst_cc_function": "events.NewPublisher"
       }
@@ -200,6 +207,7 @@
         "abstract_types": 0,
         "abstractness": 0,
         "distance": 1,
+        "reading": "I=0, A=0: near (0,0): zone of pain, stable and concrete, hard to change. Many modules depend on it but it offers no interfaces to absorb change; consider extracting an interface or reducing what depends on it.",
         "worst_cc": 1,
         "worst_cc_function": "health.New"
       }
@@ -230,6 +238,7 @@
         "abstract_types": 1,
         "abstractness": 0.5,
         "distance": 0,
+        "reading": "I=0.5, A=0.5: moderately stable and mixed concrete and abstract, on the main sequence (D=0): stability and abstraction are in balance.",
         "worst_cc": 4,
         "worst_cc_function": "items.Service.CreateItem"
       }
@@ -253,6 +262,7 @@
         "abstract_types": 1,
         "abstractness": 1,
         "distance": 0.333,
+        "reading": "I=0.333, A=1: moderately stable and abstract, D=0.333: off the main sequence, leaning towards the zone of uselessness. More abstraction than the code that depends on it needs.",
         "worst_cc": 5,
         "worst_cc_function": "mail.newSESTransport"
       }
@@ -276,6 +286,7 @@
         "abstract_types": 0,
         "abstractness": 0,
         "distance": 1,
+        "reading": "I=0, A=0: near (0,0): zone of pain, stable and concrete (no exported types, so A=0), hard to change. Many modules depend on it but it offers no interfaces to absorb change; consider extracting an interface or reducing what depends on it.",
         "worst_cc": 5,
         "worst_cc_function": "migrate.Up"
       }
@@ -299,6 +310,7 @@
         "abstract_types": 0,
         "abstractness": 0,
         "distance": 1,
+        "reading": "I=0, A=0: near (0,0): zone of pain, stable and concrete, hard to change. Many modules depend on it but it offers no interfaces to absorb change; consider extracting an interface or reducing what depends on it.",
         "worst_cc": 4,
         "worst_cc_function": "observability.Init"
       }
@@ -322,6 +334,7 @@
         "abstract_types": 0,
         "abstractness": 0,
         "distance": 0.5,
+        "reading": "I=0.5, A=0: moderately stable and concrete, D=0.5: off the main sequence, leaning towards the zone of pain. More depends on it, or it depends on less, than its few interfaces justify.",
         "worst_cc": 1,
         "worst_cc_function": "payments.New"
       }
@@ -345,6 +358,7 @@
         "abstract_types": 0,
         "abstractness": 0,
         "distance": 0.5,
+        "reading": "I=0.5, A=0: moderately stable and concrete, D=0.5: off the main sequence, leaning towards the zone of pain. More depends on it, or it depends on less, than its few interfaces justify.",
         "worst_cc": 3,
         "worst_cc_function": "push.New"
       }
@@ -368,6 +382,7 @@
         "abstract_types": 0,
         "abstractness": 0,
         "distance": 1,
+        "reading": "I=0, A=0: near (0,0): zone of pain, stable and concrete, hard to change. Many modules depend on it but it offers no interfaces to absorb change; consider extracting an interface or reducing what depends on it.",
         "worst_cc": 10,
         "worst_cc_function": "ratelimit.ParseRule"
       }
@@ -391,6 +406,7 @@
         "abstract_types": 0,
         "abstractness": 0,
         "distance": 0.071,
+        "reading": "I=0.929, A=0: unstable and concrete (no exported types, so A=0), on the main sequence. Expected for a Composition root: it wires things together and nothing depends on it.",
         "worst_cc": 16,
         "worst_cc_function": "server.Run"
       }
@@ -414,6 +430,7 @@
         "abstract_types": 0,
         "abstractness": 0,
         "distance": 0.5,
+        "reading": "I=0.5, A=0: moderately stable and concrete, D=0.5: off the main sequence, leaning towards the zone of pain. More depends on it, or it depends on less, than its few interfaces justify.",
         "worst_cc": 3,
         "worst_cc_function": "storage.New"
       }
@@ -438,6 +455,21 @@
         "backend/internal/auth/jwt.go",
         "backend/internal/auth/service.go",
         "backend/internal/auth/setup_test.go"
+      ],
+      "sites": [
+        {
+          "file": "backend/internal/auth/jwt.go",
+          "line": 9
+        },
+        {
+          "file": "backend/internal/auth/service.go",
+          "line": 14
+        },
+        {
+          "file": "backend/internal/auth/setup_test.go",
+          "line": 12,
+          "test": true
+        }
       ]
     },
     {
@@ -449,6 +481,24 @@
         "backend/internal/auth/service_tokens.go",
         "backend/internal/auth/sessions.go",
         "backend/internal/auth/store.go"
+      ],
+      "sites": [
+        {
+          "file": "backend/internal/auth/service.go",
+          "line": 15
+        },
+        {
+          "file": "backend/internal/auth/service_tokens.go",
+          "line": 16
+        },
+        {
+          "file": "backend/internal/auth/sessions.go",
+          "line": 15
+        },
+        {
+          "file": "backend/internal/auth/store.go",
+          "line": 9
+        }
       ]
     },
     {
@@ -457,6 +507,12 @@
       "test_only": false,
       "files": [
         "backend/internal/auth/service.go"
+      ],
+      "sites": [
+        {
+          "file": "backend/internal/auth/service.go",
+          "line": 16
+        }
       ]
     },
     {
@@ -466,6 +522,17 @@
       "files": [
         "backend/internal/auth/service.go",
         "backend/internal/auth/setup_test.go"
+      ],
+      "sites": [
+        {
+          "file": "backend/internal/auth/service.go",
+          "line": 17
+        },
+        {
+          "file": "backend/internal/auth/setup_test.go",
+          "line": 13,
+          "test": true
+        }
       ]
     },
     {
@@ -475,6 +542,18 @@
       "files": [
         "backend/internal/auth/service_test.go",
         "backend/internal/auth/setup_test.go"
+      ],
+      "sites": [
+        {
+          "file": "backend/internal/auth/service_test.go",
+          "line": 9,
+          "test": true
+        },
+        {
+          "file": "backend/internal/auth/setup_test.go",
+          "line": 14,
+          "test": true
+        }
       ]
     },
     {
@@ -483,6 +562,12 @@
       "test_only": false,
       "files": [
         "backend/internal/cache/cache.go"
+      ],
+      "sites": [
+        {
+          "file": "backend/internal/cache/cache.go",
+          "line": 9
+        }
       ]
     },
     {
@@ -491,6 +576,12 @@
       "test_only": false,
       "files": [
         "backend/cmd/server/main.go"
+      ],
+      "sites": [
+        {
+          "file": "backend/cmd/server/main.go",
+          "line": 3
+        }
       ]
     },
     {
@@ -499,6 +590,12 @@
       "test_only": false,
       "files": [
         "backend/cmd/workers/main.go"
+      ],
+      "sites": [
+        {
+          "file": "backend/cmd/workers/main.go",
+          "line": 20
+        }
       ]
     },
     {
@@ -507,6 +604,12 @@
       "test_only": false,
       "files": [
         "backend/cmd/workers/main.go"
+      ],
+      "sites": [
+        {
+          "file": "backend/cmd/workers/main.go",
+          "line": 21
+        }
       ]
     },
     {
@@ -515,6 +618,12 @@
       "test_only": false,
       "files": [
         "backend/cmd/workers/main.go"
+      ],
+      "sites": [
+        {
+          "file": "backend/cmd/workers/main.go",
+          "line": 22
+        }
       ]
     },
     {
@@ -523,6 +632,12 @@
       "test_only": false,
       "files": [
         "backend/cmd/workers/main.go"
+      ],
+      "sites": [
+        {
+          "file": "backend/cmd/workers/main.go",
+          "line": 23
+        }
       ]
     },
     {
@@ -531,6 +646,12 @@
       "test_only": false,
       "files": [
         "backend/internal/events/events.go"
+      ],
+      "sites": [
+        {
+          "file": "backend/internal/events/events.go",
+          "line": 11
+        }
       ]
     },
     {
@@ -540,6 +661,16 @@
       "files": [
         "backend/internal/items/service.go",
         "backend/internal/items/store.go"
+      ],
+      "sites": [
+        {
+          "file": "backend/internal/items/service.go",
+          "line": 16
+        },
+        {
+          "file": "backend/internal/items/store.go",
+          "line": 9
+        }
       ]
     },
     {
@@ -549,6 +680,18 @@
       "files": [
         "backend/internal/items/service_test.go",
         "backend/internal/items/setup_test.go"
+      ],
+      "sites": [
+        {
+          "file": "backend/internal/items/service_test.go",
+          "line": 11,
+          "test": true
+        },
+        {
+          "file": "backend/internal/items/setup_test.go",
+          "line": 10,
+          "test": true
+        }
       ]
     },
     {
@@ -559,6 +702,20 @@
         "backend/internal/mail/mail.go",
         "backend/internal/mail/ses_transport.go",
         "backend/internal/mail/smtp_transport.go"
+      ],
+      "sites": [
+        {
+          "file": "backend/internal/mail/mail.go",
+          "line": 19
+        },
+        {
+          "file": "backend/internal/mail/ses_transport.go",
+          "line": 13
+        },
+        {
+          "file": "backend/internal/mail/smtp_transport.go",
+          "line": 8
+        }
       ]
     },
     {
@@ -567,6 +724,12 @@
       "test_only": false,
       "files": [
         "backend/internal/payments/payments.go"
+      ],
+      "sites": [
+        {
+          "file": "backend/internal/payments/payments.go",
+          "line": 9
+        }
       ]
     },
     {
@@ -575,6 +738,12 @@
       "test_only": false,
       "files": [
         "backend/internal/push/push.go"
+      ],
+      "sites": [
+        {
+          "file": "backend/internal/push/push.go",
+          "line": 12
+        }
       ]
     },
     {
@@ -583,6 +752,12 @@
       "test_only": false,
       "files": [
         "backend/internal/server/server.go"
+      ],
+      "sites": [
+        {
+          "file": "backend/internal/server/server.go",
+          "line": 25
+        }
       ]
     },
     {
@@ -591,6 +766,12 @@
       "test_only": false,
       "files": [
         "backend/internal/server/server.go"
+      ],
+      "sites": [
+        {
+          "file": "backend/internal/server/server.go",
+          "line": 29
+        }
       ]
     },
     {
@@ -599,6 +780,12 @@
       "test_only": false,
       "files": [
         "backend/internal/server/server.go"
+      ],
+      "sites": [
+        {
+          "file": "backend/internal/server/server.go",
+          "line": 20
+        }
       ]
     },
     {
@@ -607,6 +794,12 @@
       "test_only": false,
       "files": [
         "backend/internal/server/server.go"
+      ],
+      "sites": [
+        {
+          "file": "backend/internal/server/server.go",
+          "line": 30
+        }
       ]
     },
     {
@@ -615,6 +808,12 @@
       "test_only": false,
       "files": [
         "backend/internal/server/server.go"
+      ],
+      "sites": [
+        {
+          "file": "backend/internal/server/server.go",
+          "line": 22
+        }
       ]
     },
     {
@@ -623,6 +822,16 @@
       "test_only": false,
       "files": [
         "backend/internal/server/server.go"
+      ],
+      "sites": [
+        {
+          "file": "backend/internal/server/server.go",
+          "line": 24
+        },
+        {
+          "file": "backend/internal/server/server.go",
+          "line": 27
+        }
       ]
     },
     {
@@ -631,6 +840,12 @@
       "test_only": false,
       "files": [
         "backend/internal/server/server.go"
+      ],
+      "sites": [
+        {
+          "file": "backend/internal/server/server.go",
+          "line": 26
+        }
       ]
     },
     {
@@ -639,6 +854,12 @@
       "test_only": false,
       "files": [
         "backend/internal/server/server.go"
+      ],
+      "sites": [
+        {
+          "file": "backend/internal/server/server.go",
+          "line": 21
+        }
       ]
     },
     {
@@ -647,6 +868,12 @@
       "test_only": false,
       "files": [
         "backend/internal/server/server.go"
+      ],
+      "sites": [
+        {
+          "file": "backend/internal/server/server.go",
+          "line": 23
+        }
       ]
     },
     {
@@ -655,6 +882,12 @@
       "test_only": false,
       "files": [
         "backend/internal/server/server.go"
+      ],
+      "sites": [
+        {
+          "file": "backend/internal/server/server.go",
+          "line": 31
+        }
       ]
     },
     {
@@ -663,6 +896,12 @@
       "test_only": false,
       "files": [
         "backend/internal/server/server.go"
+      ],
+      "sites": [
+        {
+          "file": "backend/internal/server/server.go",
+          "line": 32
+        }
       ]
     },
     {
@@ -671,6 +910,12 @@
       "test_only": false,
       "files": [
         "backend/internal/server/server.go"
+      ],
+      "sites": [
+        {
+          "file": "backend/internal/server/server.go",
+          "line": 28
+        }
       ]
     },
     {
@@ -679,6 +924,12 @@
       "test_only": false,
       "files": [
         "backend/internal/server/server.go"
+      ],
+      "sites": [
+        {
+          "file": "backend/internal/server/server.go",
+          "line": 33
+        }
       ]
     },
     {
@@ -687,6 +938,12 @@
       "test_only": false,
       "files": [
         "backend/internal/storage/storage.go"
+      ],
+      "sites": [
+        {
+          "file": "backend/internal/storage/storage.go",
+          "line": 13
+        }
       ]
     },
     {
@@ -695,6 +952,12 @@
       "test_only": false,
       "files": [
         "backend/internal/testsupport/testsupport.go"
+      ],
+      "sites": [
+        {
+          "file": "backend/internal/testsupport/testsupport.go",
+          "line": 22
+        }
       ]
     }
   ],
@@ -3523,5 +3786,62 @@
       "cc": 3
     }
   ],
-  "warnings": []
+  "warnings": [],
+  "rules": [
+    {
+      "id": "inward_only",
+      "severity": "error",
+      "rationale": "Dependencies point inward only: Composition root, then Domain, then Infrastructure, then Foundation. Inner modules are the stable, widely shared ones. If one of them imports an outer module, a change in the outer module can break everything that relies on the inner one, and import cycles become likely.",
+      "fix": "Move the shared code into a module at the inner Level (or into the Foundation), or invert the dependency: declare an interface in the inner module and let the outer module implement it."
+    },
+    {
+      "id": "no_domain_to_domain",
+      "severity": "error",
+      "rationale": "Each Domain is a self-contained vertical slice. When one Domain imports another, they can no longer be understood, tested or changed independently, and a feature in one starts to hide inside the other.",
+      "fix": "Declare a small interface in the consuming Domain describing only what it needs, and have the Composition root wire the other Domain into it."
+    },
+    {
+      "id": "no_import_composition_root",
+      "severity": "error",
+      "rationale": "The Composition root wires everything together at startup. If anything imports it, wiring code becomes a dependency of business code, which creates cycles and makes the dependency direction impossible to reason about.",
+      "fix": "Move whatever the importer needs out of the Composition root into a Domain, Infrastructure module or Foundation, and import it from there."
+    },
+    {
+      "id": "test_only_out_of_prod",
+      "severity": "error",
+      "rationale": "Test-only modules hold support code for tests such as fixtures and helpers. Production code that imports them ships test scaffolding in the binary, and ties real behaviour to code nobody treats as production.",
+      "fix": "Import the test-only module from _test.go files only. If production code needs the helper, move it into a regular Infrastructure module."
+    },
+    {
+      "id": "package_doc",
+      "severity": "error",
+      "rationale": "The package doc comment is the Purpose on the Module card. It is the first thing a new maintainer or an agent reads about a module, and it is cheaper to keep it accurate than to rediscover what the module is for.",
+      "fix": "Add a comment directly above the package clause that begins with \"Package <name> ...\" (or \"Command <name> ...\" for a main package) and says what the module is for."
+    }
+  ],
+  "violations": [
+    {
+      "rule": "package_doc",
+      "severity": "error",
+      "subject": "cmd/server",
+      "module": "cmd/server",
+      "message": "cmd/server has no package doc comment",
+      "rationale": "The package doc comment is the Purpose on the Module card. It is the first thing a new maintainer or an agent reads about a module, and it is cheaper to keep it accurate than to rediscover what the module is for.",
+      "fix": "Add a comment directly above the package clause that begins with \"Package <name> ...\" (or \"Command <name> ...\" for a main package) and says what the module is for.",
+      "sites": [
+        {
+          "file": "backend/cmd/server"
+        }
+      ]
+    }
+  ],
+  "metric_rationales": {
+    "a": "Abstractness = interfaces / exported types. A stable module that is all concrete types is hard to change without breaking its dependents; interfaces give them something to hold on to.",
+    "ca": "Afferent coupling: how many other modules import this one. High Ca means many things rely on it, so changing it is risky.",
+    "cc": "Cyclomatic complexity: the number of independent paths through a function. The higher it is, the more tests it needs and the harder it is to read.",
+    "ce": "Efferent coupling: how many modules this one imports. High Ce means it can break when any of them changes.",
+    "crap": "CRAP = CC^2 * (1 - coverage)^3 + CC. It combines complexity with missing test coverage: a complex function with weak tests is the riskiest to change.",
+    "d": "Distance from the main sequence = |A + I - 1|. 0 means stability and abstraction are in balance; near 1 means the zone of pain (stable and concrete) or the zone of uselessness (abstract and unstable).",
+    "i": "Instability = Ce / (Ca + Ce), from 0 (everything depends on it, it depends on nothing) to 1 (it depends on others, nothing depends on it). Stable modules should be hard to break; unstable ones are cheap to change."
+  }
 }
