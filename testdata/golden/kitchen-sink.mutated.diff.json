@@ -1,0 +1,174 @@
+{
+  "version": 1,
+  "changed": true,
+  "modules": {
+    "added": [],
+    "removed": [
+      {
+        "id": "push",
+        "kind": "infrastructure",
+        "summary": "Package push sends push notifications via Firebase Cloud Messaging."
+      }
+    ],
+    "kind_changed": []
+  },
+  "dependencies": {
+    "added": [
+      {
+        "from": "items",
+        "to": "auth",
+        "test_only": false
+      }
+    ],
+    "removed": [
+      {
+        "from": "push",
+        "to": "config",
+        "test_only": false
+      },
+      {
+        "from": "server",
+        "to": "push",
+        "test_only": false
+      }
+    ],
+    "changed": []
+  },
+  "operations": {
+    "added": [
+      {
+        "id": "archiveItem",
+        "owner": "items",
+        "method": "POST",
+        "path": "/items/{id}/archive"
+      }
+    ],
+    "removed": [],
+    "changed": [
+      {
+        "id": "createItem",
+        "owner": "items",
+        "method": "POST",
+        "path": "/items",
+        "changes": [
+          "security: bearerAuth -> public"
+        ]
+      }
+    ]
+  },
+  "tables": {
+    "added": [
+      {
+        "name": "widgets",
+        "columns": 3
+      }
+    ],
+    "removed": [],
+    "changed": [
+      {
+        "name": "items",
+        "columns_added": [
+          "archived_at"
+        ],
+        "columns_removed": [],
+        "columns_changed": []
+      }
+    ]
+  },
+  "violations": {
+    "new": [
+      {
+        "rule": "no_domain_to_domain",
+        "severity": "error",
+        "subject": "items -> auth",
+        "module": "items",
+        "to": "auth",
+        "message": "Domain items imports Domain auth",
+        "rationale": "Each Domain is a self-contained vertical slice. When one Domain imports another, they can no longer be understood, tested or changed independently, and a feature in one starts to hide inside the other.",
+        "fix": "Declare a small interface in the consuming Domain describing only what it needs, and have the Composition root wire the other Domain into it."
+      }
+    ],
+    "resolved": []
+  },
+  "metrics": [],
+  "subgraph": {
+    "nodes": [
+      {
+        "id": "server",
+        "kind": "composition_root",
+        "status": "context",
+        "notes": []
+      },
+      {
+        "id": "auth",
+        "kind": "domain",
+        "status": "context",
+        "notes": []
+      },
+      {
+        "id": "items",
+        "kind": "domain",
+        "status": "changed",
+        "notes": [
+          "operations +1 ~1",
+          "tables ~1"
+        ]
+      },
+      {
+        "id": "push",
+        "kind": "infrastructure",
+        "status": "removed",
+        "notes": []
+      },
+      {
+        "id": "config",
+        "kind": "foundation",
+        "status": "context",
+        "notes": []
+      },
+      {
+        "id": "database",
+        "kind": "foundation",
+        "status": "context",
+        "notes": []
+      }
+    ],
+    "edges": [
+      {
+        "from": "items",
+        "to": "auth",
+        "test_only": false,
+        "status": "added",
+        "violation": true
+      },
+      {
+        "from": "items",
+        "to": "database",
+        "test_only": false,
+        "status": "unchanged",
+        "violation": false
+      },
+      {
+        "from": "push",
+        "to": "config",
+        "test_only": false,
+        "status": "removed",
+        "violation": false
+      },
+      {
+        "from": "server",
+        "to": "push",
+        "test_only": false,
+        "status": "removed",
+        "violation": false
+      }
+    ],
+    "omitted": 0,
+    "levels": [
+      "composition_root",
+      "domain",
+      "infrastructure",
+      "foundation"
+    ]
+  }
+}
