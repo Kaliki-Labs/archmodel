@@ -282,3 +282,31 @@ func TestCoverageAndCRAP(t *testing.T) {
 		}
 	}
 }
+
+// ADR-0007: minimal's testsupport is imported by nobody but imports "testing".
+func TestMinimalTestsupportIsTestOnly(t *testing.T) {
+	m := buildExample(t, "minimal")
+	for _, mod := range m.Modules {
+		if mod.ID == "testsupport" {
+			if mod.Kind != model.KindTestOnly || mod.Metrics != nil {
+				t.Errorf("testsupport: %+v", mod)
+			}
+			return
+		}
+	}
+	t.Fatal("testsupport not found")
+}
+
+func TestSummaryIsFirstSentence(t *testing.T) {
+	m := buildExample(t, "kitchen-sink")
+	for _, mod := range m.Modules {
+		if mod.ID == "cache" {
+			if mod.Summary != "Package cache provides the Redis client used for request-time caching." {
+				t.Errorf("summary = %q", mod.Summary)
+			}
+		}
+		if mod.Purpose == "" && mod.Summary != "" {
+			t.Errorf("%s: summary without purpose", mod.ID)
+		}
+	}
+}

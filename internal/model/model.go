@@ -40,7 +40,8 @@ type Module struct {
 	ID      string `json:"id"`
 	Kind    string `json:"kind"`
 	Level   *int   `json:"level,omitempty"` // index into Model.Levels; absent for test-only
-	Purpose string `json:"purpose"`         // package doc comment
+	Purpose string `json:"purpose"`         // package doc comment, in full
+	Summary string `json:"summary"`         // first sentence of Purpose
 	Dir     string `json:"dir"`             // relative to the project root
 	// Present is false when the package is imported but has no source on disk.
 	Present bool `json:"present"`

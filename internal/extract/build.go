@@ -6,6 +6,7 @@ package extract
 import (
 	"fmt"
 	"go/ast"
+	"go/doc"
 	"go/token"
 	"io"
 	"os"
@@ -170,10 +171,23 @@ func matchAny(patterns []string, id string) bool {
 
 // classify assigns a kind to every Module by convention (BRIEF "Kind").
 // Precedence: explicit override, Composition root list, Foundation list,
-// Test-only (imported only from test files), Domain (spec exists), else
+// Test-only (ADR-0007: no prod importer, and a test file imports it or its own
+// non-test files import "testing"), Domain (spec exists), else
 // Infrastructure.
 func (b *builder) classify() {
 	prod, test := map[string]bool{}, map[string]bool{}
+	for _, mi := range b.mods {
+		for _, f := range mi.files {
+			if f.test || f.generated {
+				continue
+			}
+			for _, imp := range importsOf(f.ast) {
+				if imp == "testing" {
+					test[mi.id] = true
+				}
+			}
+		}
+	}
 	for k, d := range b.deps {
 		if d.allTests {
 			test[k.to] = true
@@ -245,6 +259,7 @@ func (b *builder) collectCode(files []*srcFile) {
 					rootGen++
 				} else if mod.Purpose == "" {
 					mod.Purpose = docText(f.ast)
+					mod.Summary = new(doc.Package).Synopsis(mod.Purpose)
 				}
 			}
 			if !f.root {
