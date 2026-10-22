@@ -33,7 +33,7 @@ Subcommands (names may change, but the capabilities may not):
 | `query <kind> …` | JSON answers (see Queries) |
 | `explore` | Write the self-contained Explorer HTML |
 | `serve --addr <host:port>` | Serve the Explorer, rebuild on file change, push reload to open pages |
-| `diff --base <model.json> --head <model.json>` | Architecture diff as Markdown (for a PR comment) and/or JSON; `explore --diff` renders the HTML in diff mode |
+| `diff --base <model.json> --head <model.json>` | Architecture diff as Markdown (for a PR comment), an SVG/PNG of the changed subgraph, and/or JSON; `explore --diff` renders the HTML in diff mode |
 
 **Everything project-specific comes from the consumer's `architecture.yaml`.**
 The tool hardcodes no kaliki-template paths or names. The template's file is the
@@ -115,9 +115,16 @@ Two artifacts, both from the `diff` command:
 
 1. **Minimal (primary): a Markdown sticky PR comment.** A short summary of
    modules, dependencies, operations and tables added or removed; new
-   violations with their Rationale; notable metric changes; and a **Mermaid
-   diagram of only the changed subgraph** (GitHub renders Mermaid, including on
-   mobile). Keep it short. When nothing changed, say so in one line.
+   violations with their Rationale; notable metric changes; and an **image of
+   only the changed subgraph**. PR comments support images, so `diff` renders
+   that subgraph to SVG and PNG (`--image <path>`), using the same styling as the
+   Explorer (Level colors, added/removed highlighting, red violation edges). The
+   Markdown references the image by a placeholder URL that the CI workflow fills
+   in after uploading. Also emit a Mermaid version of the same subgraph, folded
+   inside a `<details>` block, as a text fallback that agents can read. Keep the
+   comment short. When nothing changed, say so in one line and render no image.
+   **Open**: how to render the image (pure Go SVG layout, or headless rendering
+   of the Explorer's graph view). Prefer whatever keeps CI dependency-free.
 2. **The full Explorer HTML in diff mode**, uploaded as a CI artifact.
 
 Non-blocking: no CI gating in v1. The template wires up the GitHub workflow;
