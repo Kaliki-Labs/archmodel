@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<body style="font-family: sans-serif; color: #1a1a1a;">
+  <h2>Verify your email</h2>
+  <p>Welcome to {{ .AppName }}. Confirm your email address to activate your account.</p>
+  <p>
+    <a href="{{ .Link }}"
+       style="background:#1a1a1a;color:#fff;padding:12px 20px;border-radius:4px;text-decoration:none;">
+      Verify email
+    </a>
+  </p>
+  <p>Or paste this link into your browser:<br><a href="{{ .Link }}">{{ .Link }}</a></p>
+  <p>This link expires in 72 hours.</p>
+  <hr>
+  <p style="color:#888;font-size:12px;">&copy; {{ .Year }} {{ .AppName }}. If you didn't create an account, ignore this email.</p>
+</body>
+</html>

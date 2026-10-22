@@ -1,0 +1,264 @@
+openapi: 3.0.3
+info:
+  title: Kitchen Sink App — auth
+  version: 0.1.0
+paths:
+  /auth/signup:
+    post:
+      operationId: signup
+      tags: [auth]
+      x-rate-limit:
+        scope: ip
+        requests: 20
+        window: 60s
+        burst: 10
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignupRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SignupResponse"
+        "409":
+          description: Email already registered
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      x-rate-limit:
+        scope: identifier
+        key: email
+        requests: 5
+        window: 60s
+        burst: 2
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+  /auth/refresh:
+    post:
+      operationId: refreshToken
+      tags: [auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshRequest"
+      responses:
+        "200":
+          description: New access + refresh pair (old refresh token revoked)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid or expired refresh token
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshRequest"
+      responses:
+        "204":
+          description: Refresh token revoked
+  /auth/me:
+    get:
+      operationId: getCurrentUser
+      tags: [auth]
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: The authenticated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Missing or invalid bearer token
+  /auth/verify:
+    post:
+      operationId: verifyEmail
+      tags: [auth]
+      # Scoped to the credential being verified, not the account's email:
+      # VerifyRequest's body carries verification_token (OTP mode) or token
+      # (token-link mode) but never an email field, so "identifier/email"
+      # would silently fall back to IP-scoping for every call (see the
+      # fallback-to-IP judgment call in the rate limiting ADR) — correct but
+      # coarser than intended, and it throttles every verify attempt behind a
+      # shared IP together instead of per attempt.
+      x-rate-limit:
+        scope: identifier
+        key: token
+        requests: 5
+        window: 60s
+        burst: 2
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyRequest"
+      responses:
+        "200":
+          description: Email verified; returns a session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Invalid or expired token
+  /auth/password-reset/request:
+    post:
+      operationId: requestPasswordReset
+      tags: [auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PasswordResetRequest"
+      responses:
+        "200":
+          description: >-
+            Always returns 200 (even if the account does not exist). If it does,
+            a reset credential is emailed — never returned in the response.
+  /auth/password-reset/confirm:
+    post:
+      operationId: confirmPasswordReset
+      tags: [auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PasswordResetConfirm"
+      responses:
+        "200":
+          description: Password updated
+        "400":
+          description: Invalid or expired token
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    User:
+      type: object
+      required: [id, email, name, role]
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        role:
+          type: string
+        verified:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+    AuthResponse:
+      type: object
+      required: [token, refresh_token, user]
+      properties:
+        token:
+          type: string
+          description: Short-lived access token (JWT).
+        refresh_token:
+          type: string
+          description: Long-lived, revocable refresh token. Rotated on each use.
+        user:
+          $ref: "#/components/schemas/User"
+    SignupResponse:
+      type: object
+      required: [user]
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+    RefreshRequest:
+      type: object
+      required: [refresh_token]
+      properties:
+        refresh_token:
+          type: string
+    SignupRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+          maxLength: 72
+          description: >-
+            8-72 characters with an uppercase letter, a lowercase letter,
+            a digit, and a symbol; no leading or trailing whitespace.
+        name:
+          type: string
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+    VerifyRequest:
+      type: object
+      required: [token]
+      properties:
+        token:
+          type: string
+    PasswordResetRequest:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+    PasswordResetConfirm:
+      type: object
+      required: [token, password]
+      properties:
+        token:
+          type: string
+        password:
+          type: string
+          minLength: 8
+          maxLength: 72
+          description: >-
+            8-72 characters with an uppercase letter, a lowercase letter,
+            a digit, and a symbol; no leading or trailing whitespace.

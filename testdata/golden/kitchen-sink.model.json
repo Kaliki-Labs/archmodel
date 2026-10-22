@@ -1,0 +1,3509 @@
+{
+  "version": 1,
+  "levels": [
+    "composition_root",
+    "domain",
+    "infrastructure",
+    "foundation"
+  ],
+  "modules": [
+    {
+      "id": "auth",
+      "kind": "domain",
+      "level": 1,
+      "purpose": "Package auth is a kept (non-example) module: concrete users schema, JWT\nsignup/login, email verification and password reset, backed by sqlc queries.",
+      "dir": "backend/internal/auth",
+      "present": true,
+      "generated": false,
+      "subpackages": [
+        {
+          "dir": "backend/gen/api/auth",
+          "name": "auth",
+          "present": false,
+          "generated": true
+        }
+      ],
+      "metrics": {
+        "ca": 1,
+        "ce": 4,
+        "instability": 0.8,
+        "instability_defined": true,
+        "exported_types": 4,
+        "abstract_types": 1,
+        "abstractness": 0.25,
+        "distance": 0.05,
+        "worst_cc": 14,
+        "worst_cc_function": "auth.ValidatePassword"
+      }
+    },
+    {
+      "id": "cache",
+      "kind": "infrastructure",
+      "level": 2,
+      "purpose": "Package cache provides the Redis client used for request-time caching.",
+      "dir": "backend/internal/cache",
+      "present": true,
+      "generated": false,
+      "subpackages": [],
+      "metrics": {
+        "ca": 1,
+        "ce": 1,
+        "instability": 0.5,
+        "instability_defined": true,
+        "exported_types": 1,
+        "abstract_types": 0,
+        "abstractness": 0,
+        "distance": 0.5,
+        "worst_cc": 3,
+        "worst_cc_function": "cache.Connect"
+      }
+    },
+    {
+      "id": "cmd/server",
+      "kind": "composition_root",
+      "level": 0,
+      "purpose": "",
+      "dir": "backend/cmd/server",
+      "present": true,
+      "generated": false,
+      "subpackages": [],
+      "metrics": {
+        "ca": 0,
+        "ce": 1,
+        "instability": 1,
+        "instability_defined": true,
+        "exported_types": 0,
+        "abstract_types": 0,
+        "abstractness": 0,
+        "distance": 0,
+        "worst_cc": 1,
+        "worst_cc_function": "cmd/server.main"
+      }
+    },
+    {
+      "id": "cmd/workers",
+      "kind": "composition_root",
+      "level": 0,
+      "purpose": "Command workers runs background jobs. It currently hosts the transactional\noutbox relay: it publishes unpublished `outbox` rows to Kafka/Redpanda for\nat-least-once delivery, then marks them published.\n\nDomain code enqueues events with the EnqueueOutbox query in the SAME database\ntransaction as the domain change; this relay delivers them out-of-band.",
+      "dir": "backend/cmd/workers",
+      "present": true,
+      "generated": false,
+      "subpackages": [],
+      "metrics": {
+        "ca": 0,
+        "ce": 4,
+        "instability": 1,
+        "instability_defined": true,
+        "exported_types": 0,
+        "abstract_types": 0,
+        "abstractness": 0,
+        "distance": 0,
+        "worst_cc": 11,
+        "worst_cc_function": "cmd/workers.main"
+      }
+    },
+    {
+      "id": "config",
+      "kind": "foundation",
+      "level": 3,
+      "purpose": "Package config loads runtime configuration from a YAML file with env overrides.",
+      "dir": "backend/internal/config",
+      "present": true,
+      "generated": false,
+      "subpackages": [],
+      "metrics": {
+        "ca": 9,
+        "ce": 0,
+        "instability": 0,
+        "instability_defined": true,
+        "exported_types": 14,
+        "abstract_types": 0,
+        "abstractness": 0,
+        "distance": 1,
+        "worst_cc": 4,
+        "worst_cc_function": "config.Load"
+      }
+    },
+    {
+      "id": "database",
+      "kind": "foundation",
+      "level": 3,
+      "purpose": "",
+      "dir": "backend/internal/database",
+      "present": false,
+      "generated": true,
+      "subpackages": [],
+      "metrics": {
+        "ca": 3,
+        "ce": 0,
+        "instability": 0,
+        "instability_defined": true,
+        "exported_types": 0,
+        "abstract_types": 0,
+        "abstractness": 0,
+        "distance": 1,
+        "worst_cc": 0
+      }
+    },
+    {
+      "id": "events",
+      "kind": "infrastructure",
+      "level": 2,
+      "purpose": "Package events publishes domain events to Kafka/Redpanda. Services call\nPublisher.Publish; swap in the transactional outbox pattern for at-least-once\ndelivery (see TEMPLATE_NOTES.md).",
+      "dir": "backend/internal/events",
+      "present": true,
+      "generated": false,
+      "subpackages": [],
+      "metrics": {
+        "ca": 2,
+        "ce": 1,
+        "instability": 0.333,
+        "instability_defined": true,
+        "exported_types": 1,
+        "abstract_types": 0,
+        "abstractness": 0,
+        "distance": 0.667,
+        "worst_cc": 1,
+        "worst_cc_function": "events.NewPublisher"
+      }
+    },
+    {
+      "id": "health",
+      "kind": "domain",
+      "level": 1,
+      "purpose": "Package health implements the always-present liveness probe. Like the items\nexample, it demonstrates the full vertical slice: OpenAPI spec ->\noapi-codegen (gin-server interface) -> handler. Unlike items it has no\nstore/db dependency and is always registered, regardless of auth or\ninclude_example_domain, so a freshly generated project always shows the\ncodegen pipeline end to end.",
+      "dir": "backend/internal/health",
+      "present": true,
+      "generated": false,
+      "subpackages": [
+        {
+          "dir": "backend/gen/api/health",
+          "name": "health",
+          "present": false,
+          "generated": true
+        }
+      ],
+      "metrics": {
+        "ca": 1,
+        "ce": 0,
+        "instability": 0,
+        "instability_defined": true,
+        "exported_types": 1,
+        "abstract_types": 0,
+        "abstractness": 0,
+        "distance": 1,
+        "worst_cc": 1,
+        "worst_cc_function": "health.New"
+      }
+    },
+    {
+      "id": "items",
+      "kind": "domain",
+      "level": 1,
+      "purpose": "Package items is the disposable EXAMPLE domain. It demonstrates the full\nvertical slice: OpenAPI spec -> oapi-codegen (gin-server interface) -> handler\n-> sqlc-generated store -> postgres. Copy this pattern for real domains, then\ndelete this package (see TEMPLATE_NOTES.md).",
+      "dir": "backend/internal/items",
+      "present": true,
+      "generated": false,
+      "subpackages": [
+        {
+          "dir": "backend/gen/api/items",
+          "name": "items",
+          "present": false,
+          "generated": true
+        }
+      ],
+      "metrics": {
+        "ca": 1,
+        "ce": 1,
+        "instability": 0.5,
+        "instability_defined": true,
+        "exported_types": 2,
+        "abstract_types": 1,
+        "abstractness": 0.5,
+        "distance": 0,
+        "worst_cc": 4,
+        "worst_cc_function": "items.Service.CreateItem"
+      }
+    },
+    {
+      "id": "mail",
+      "kind": "infrastructure",
+      "level": 2,
+      "purpose": "Package mail renders and delivers transactional emails (verification and\npassword reset).\n\nSECURITY: credentials (verification tokens, reset\ntokens) are delivered here — they are NEVER returned in API\nresponses. The transport is selected at runtime from MailConfig.Provider;\nan unknown/empty provider falls back to the log transport, which prints the\nmessage to the server log so credentials stay observable in development.",
+      "dir": "backend/internal/mail",
+      "present": true,
+      "generated": false,
+      "subpackages": [],
+      "metrics": {
+        "ca": 2,
+        "ce": 1,
+        "instability": 0.333,
+        "instability_defined": true,
+        "exported_types": 1,
+        "abstract_types": 1,
+        "abstractness": 1,
+        "distance": 0.333,
+        "worst_cc": 5,
+        "worst_cc_function": "mail.newSESTransport"
+      }
+    },
+    {
+      "id": "migrate",
+      "kind": "composition_root",
+      "level": 0,
+      "purpose": "Package migrate applies goose SQL migrations at startup. It is a runtime\nconcern kept separate from internal/database, which holds only sqlc-generated\nquery code.",
+      "dir": "backend/internal/migrate",
+      "present": true,
+      "generated": false,
+      "subpackages": [],
+      "metrics": {
+        "ca": 1,
+        "ce": 0,
+        "instability": 0,
+        "instability_defined": true,
+        "exported_types": 0,
+        "abstract_types": 0,
+        "abstractness": 0,
+        "distance": 1,
+        "worst_cc": 5,
+        "worst_cc_function": "migrate.Up"
+      }
+    },
+    {
+      "id": "observability",
+      "kind": "infrastructure",
+      "level": 2,
+      "purpose": "Package observability wires OpenTelemetry tracing. By default (no endpoint) it\ninstalls nothing, so the global tracer stays a no-op and the app runs with no\nexternal dependencies. Point config.Observability.Endpoint at an OTLP/gRPC\ncollector (host:port) to export traces; otelgin and otelpgx then light up.",
+      "dir": "backend/internal/observability",
+      "present": true,
+      "generated": false,
+      "subpackages": [],
+      "metrics": {
+        "ca": 2,
+        "ce": 0,
+        "instability": 0,
+        "instability_defined": true,
+        "exported_types": 1,
+        "abstract_types": 0,
+        "abstractness": 0,
+        "distance": 1,
+        "worst_cc": 4,
+        "worst_cc_function": "observability.Init"
+      }
+    },
+    {
+      "id": "payments",
+      "kind": "infrastructure",
+      "level": 2,
+      "purpose": "Package payments wraps the Razorpay client. This is an integration point:\nadd order creation, webhook verification, and subscription handling for your\nproduct (see TEMPLATE_NOTES.md).",
+      "dir": "backend/internal/payments",
+      "present": true,
+      "generated": false,
+      "subpackages": [],
+      "metrics": {
+        "ca": 1,
+        "ce": 1,
+        "instability": 0.5,
+        "instability_defined": true,
+        "exported_types": 1,
+        "abstract_types": 0,
+        "abstractness": 0,
+        "distance": 0.5,
+        "worst_cc": 1,
+        "worst_cc_function": "payments.New"
+      }
+    },
+    {
+      "id": "push",
+      "kind": "infrastructure",
+      "level": 2,
+      "purpose": "Package push sends push notifications via Firebase Cloud Messaging. This is an\nintegration point: build your notification payloads on top of Send.",
+      "dir": "backend/internal/push",
+      "present": true,
+      "generated": false,
+      "subpackages": [],
+      "metrics": {
+        "ca": 1,
+        "ce": 1,
+        "instability": 0.5,
+        "instability_defined": true,
+        "exported_types": 1,
+        "abstract_types": 0,
+        "abstractness": 0,
+        "distance": 0.5,
+        "worst_cc": 3,
+        "worst_cc_function": "push.New"
+      }
+    },
+    {
+      "id": "ratelimit",
+      "kind": "infrastructure",
+      "level": 2,
+      "purpose": "Package ratelimit implements token-bucket rate limiting (Redis-backed via\nGCRA) declared per-operation through the OpenAPI `x-rate-limit` vendor\nextension, plus a separately-gated global per-IP floor. See CONTEXT.md and\ndocs/adr/0001-redis-and-rate-limiting-are-unconditional-infra.md for the design.",
+      "dir": "backend/internal/ratelimit",
+      "present": true,
+      "generated": false,
+      "subpackages": [],
+      "metrics": {
+        "ca": 2,
+        "ce": 0,
+        "instability": 0,
+        "instability_defined": true,
+        "exported_types": 4,
+        "abstract_types": 0,
+        "abstractness": 0,
+        "distance": 1,
+        "worst_cc": 10,
+        "worst_cc_function": "ratelimit.ParseRule"
+      }
+    },
+    {
+      "id": "server",
+      "kind": "composition_root",
+      "level": 0,
+      "purpose": "Package server wires config, observability, the database pool and the HTTP\nrouter together. New domains register their routes in Run().",
+      "dir": "backend/internal/server",
+      "present": true,
+      "generated": false,
+      "subpackages": [],
+      "metrics": {
+        "ca": 1,
+        "ce": 13,
+        "instability": 0.929,
+        "instability_defined": true,
+        "exported_types": 0,
+        "abstract_types": 0,
+        "abstractness": 0,
+        "distance": 0.071,
+        "worst_cc": 16,
+        "worst_cc_function": "server.Run"
+      }
+    },
+    {
+      "id": "storage",
+      "kind": "infrastructure",
+      "level": 2,
+      "purpose": "Package storage wraps an S3-compatible object store. This is an integration\npoint: use PresignPut/PresignGet to hand clients time-limited upload/download\nURLs. Follow the ownership-prefix convention (users/<id>/..., etc.).",
+      "dir": "backend/internal/storage",
+      "present": true,
+      "generated": false,
+      "subpackages": [],
+      "metrics": {
+        "ca": 1,
+        "ce": 1,
+        "instability": 0.5,
+        "instability_defined": true,
+        "exported_types": 1,
+        "abstract_types": 0,
+        "abstractness": 0,
+        "distance": 0.5,
+        "worst_cc": 3,
+        "worst_cc_function": "storage.New"
+      }
+    },
+    {
+      "id": "testsupport",
+      "kind": "test_only",
+      "purpose": "Package testsupport provides shared helpers for integration-style handler\ntests: a connection to the test database (docker/docker-compose-test.yaml),\nmigrations, and per-test truncation. Tests register real routes on a real\ngin router and hit real endpoint paths.\n\nEach test package gets its OWN postgres schema (via search_path), so packages\nrun in parallel without colliding. Pass a unique schema name from TestMain.",
+      "dir": "backend/internal/testsupport",
+      "present": true,
+      "generated": false,
+      "subpackages": []
+    }
+  ],
+  "dependencies": [
+    {
+      "from": "auth",
+      "to": "config",
+      "test_only": false,
+      "files": [
+        "backend/internal/auth/jwt.go",
+        "backend/internal/auth/service.go",
+        "backend/internal/auth/setup_test.go"
+      ]
+    },
+    {
+      "from": "auth",
+      "to": "database",
+      "test_only": false,
+      "files": [
+        "backend/internal/auth/service.go",
+        "backend/internal/auth/service_tokens.go",
+        "backend/internal/auth/sessions.go",
+        "backend/internal/auth/store.go"
+      ]
+    },
+    {
+      "from": "auth",
+      "to": "mail",
+      "test_only": false,
+      "files": [
+        "backend/internal/auth/service.go"
+      ]
+    },
+    {
+      "from": "auth",
+      "to": "ratelimit",
+      "test_only": false,
+      "files": [
+        "backend/internal/auth/service.go",
+        "backend/internal/auth/setup_test.go"
+      ]
+    },
+    {
+      "from": "auth",
+      "to": "testsupport",
+      "test_only": true,
+      "files": [
+        "backend/internal/auth/service_test.go",
+        "backend/internal/auth/setup_test.go"
+      ]
+    },
+    {
+      "from": "cache",
+      "to": "config",
+      "test_only": false,
+      "files": [
+        "backend/internal/cache/cache.go"
+      ]
+    },
+    {
+      "from": "cmd/server",
+      "to": "server",
+      "test_only": false,
+      "files": [
+        "backend/cmd/server/main.go"
+      ]
+    },
+    {
+      "from": "cmd/workers",
+      "to": "config",
+      "test_only": false,
+      "files": [
+        "backend/cmd/workers/main.go"
+      ]
+    },
+    {
+      "from": "cmd/workers",
+      "to": "database",
+      "test_only": false,
+      "files": [
+        "backend/cmd/workers/main.go"
+      ]
+    },
+    {
+      "from": "cmd/workers",
+      "to": "events",
+      "test_only": false,
+      "files": [
+        "backend/cmd/workers/main.go"
+      ]
+    },
+    {
+      "from": "cmd/workers",
+      "to": "observability",
+      "test_only": false,
+      "files": [
+        "backend/cmd/workers/main.go"
+      ]
+    },
+    {
+      "from": "events",
+      "to": "config",
+      "test_only": false,
+      "files": [
+        "backend/internal/events/events.go"
+      ]
+    },
+    {
+      "from": "items",
+      "to": "database",
+      "test_only": false,
+      "files": [
+        "backend/internal/items/service.go",
+        "backend/internal/items/store.go"
+      ]
+    },
+    {
+      "from": "items",
+      "to": "testsupport",
+      "test_only": true,
+      "files": [
+        "backend/internal/items/service_test.go",
+        "backend/internal/items/setup_test.go"
+      ]
+    },
+    {
+      "from": "mail",
+      "to": "config",
+      "test_only": false,
+      "files": [
+        "backend/internal/mail/mail.go",
+        "backend/internal/mail/ses_transport.go",
+        "backend/internal/mail/smtp_transport.go"
+      ]
+    },
+    {
+      "from": "payments",
+      "to": "config",
+      "test_only": false,
+      "files": [
+        "backend/internal/payments/payments.go"
+      ]
+    },
+    {
+      "from": "push",
+      "to": "config",
+      "test_only": false,
+      "files": [
+        "backend/internal/push/push.go"
+      ]
+    },
+    {
+      "from": "server",
+      "to": "auth",
+      "test_only": false,
+      "files": [
+        "backend/internal/server/server.go"
+      ]
+    },
+    {
+      "from": "server",
+      "to": "cache",
+      "test_only": false,
+      "files": [
+        "backend/internal/server/server.go"
+      ]
+    },
+    {
+      "from": "server",
+      "to": "config",
+      "test_only": false,
+      "files": [
+        "backend/internal/server/server.go"
+      ]
+    },
+    {
+      "from": "server",
+      "to": "events",
+      "test_only": false,
+      "files": [
+        "backend/internal/server/server.go"
+      ]
+    },
+    {
+      "from": "server",
+      "to": "health",
+      "test_only": false,
+      "files": [
+        "backend/internal/server/server.go"
+      ]
+    },
+    {
+      "from": "server",
+      "to": "items",
+      "test_only": false,
+      "files": [
+        "backend/internal/server/server.go"
+      ]
+    },
+    {
+      "from": "server",
+      "to": "mail",
+      "test_only": false,
+      "files": [
+        "backend/internal/server/server.go"
+      ]
+    },
+    {
+      "from": "server",
+      "to": "migrate",
+      "test_only": false,
+      "files": [
+        "backend/internal/server/server.go"
+      ]
+    },
+    {
+      "from": "server",
+      "to": "observability",
+      "test_only": false,
+      "files": [
+        "backend/internal/server/server.go"
+      ]
+    },
+    {
+      "from": "server",
+      "to": "payments",
+      "test_only": false,
+      "files": [
+        "backend/internal/server/server.go"
+      ]
+    },
+    {
+      "from": "server",
+      "to": "push",
+      "test_only": false,
+      "files": [
+        "backend/internal/server/server.go"
+      ]
+    },
+    {
+      "from": "server",
+      "to": "ratelimit",
+      "test_only": false,
+      "files": [
+        "backend/internal/server/server.go"
+      ]
+    },
+    {
+      "from": "server",
+      "to": "storage",
+      "test_only": false,
+      "files": [
+        "backend/internal/server/server.go"
+      ]
+    },
+    {
+      "from": "storage",
+      "to": "config",
+      "test_only": false,
+      "files": [
+        "backend/internal/storage/storage.go"
+      ]
+    },
+    {
+      "from": "testsupport",
+      "to": "migrate",
+      "test_only": false,
+      "files": [
+        "backend/internal/testsupport/testsupport.go"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "confirmPasswordReset",
+      "owner": "auth",
+      "method": "POST",
+      "path": "/auth/password-reset/confirm",
+      "tags": [
+        "auth"
+      ],
+      "security": [],
+      "parameters": [],
+      "request_schemas": [
+        "auth.PasswordResetConfirm"
+      ],
+      "responses": [
+        {
+          "status": "200",
+          "description": "Password updated",
+          "schemas": []
+        },
+        {
+          "status": "400",
+          "description": "Invalid or expired token",
+          "schemas": []
+        }
+      ],
+      "spec": "api/services/auth.yaml",
+      "line": 150,
+      "implementation": {
+        "function": "auth.Service.ConfirmPasswordReset",
+        "file": "backend/internal/auth/service_tokens.go",
+        "line": 82
+      }
+    },
+    {
+      "id": "createItem",
+      "owner": "items",
+      "method": "POST",
+      "path": "/items",
+      "tags": [
+        "items"
+      ],
+      "security": [
+        "bearerAuth"
+      ],
+      "parameters": [],
+      "request_schemas": [
+        "items.CreateItemRequest"
+      ],
+      "responses": [
+        {
+          "status": "201",
+          "description": "Created",
+          "schemas": [
+            "items.Item"
+          ]
+        },
+        {
+          "status": "400",
+          "description": "Malformed JSON body, or `name` is missing or empty",
+          "schemas": [
+            "items.Error"
+          ]
+        },
+        {
+          "status": "401",
+          "description": "Missing or invalid bearer token",
+          "schemas": [
+            "items.Error"
+          ]
+        }
+      ],
+      "spec": "api/services/items.yaml",
+      "line": 17,
+      "implementation": {
+        "function": "items.Service.CreateItem",
+        "file": "backend/internal/items/service.go",
+        "line": 53
+      }
+    },
+    {
+      "id": "getCurrentUser",
+      "owner": "auth",
+      "method": "GET",
+      "path": "/auth/me",
+      "tags": [
+        "auth"
+      ],
+      "security": [
+        "bearerAuth"
+      ],
+      "parameters": [],
+      "request_schemas": [],
+      "responses": [
+        {
+          "status": "200",
+          "description": "The authenticated user",
+          "schemas": [
+            "auth.User"
+          ]
+        },
+        {
+          "status": "401",
+          "description": "Missing or invalid bearer token",
+          "schemas": []
+        }
+      ],
+      "spec": "api/services/auth.yaml",
+      "line": 88,
+      "implementation": {
+        "function": "auth.Service.GetCurrentUser",
+        "file": "backend/internal/auth/sessions.go",
+        "line": 97
+      }
+    },
+    {
+      "id": "getHealth",
+      "owner": "health",
+      "method": "GET",
+      "path": "/health",
+      "summary": "Liveness probe",
+      "tags": [],
+      "security": [],
+      "parameters": [],
+      "request_schemas": [],
+      "responses": [
+        {
+          "status": "200",
+          "description": "OK",
+          "schemas": []
+        }
+      ],
+      "spec": "api/services/health.yaml",
+      "line": 7,
+      "implementation": {
+        "function": "health.Service.GetHealth",
+        "file": "backend/internal/health/service.go",
+        "line": 29
+      }
+    },
+    {
+      "id": "getItem",
+      "owner": "items",
+      "method": "GET",
+      "path": "/items/{id}",
+      "tags": [
+        "items"
+      ],
+      "security": [],
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "request_schemas": [],
+      "responses": [
+        {
+          "status": "200",
+          "description": "OK",
+          "schemas": [
+            "items.Item"
+          ]
+        },
+        {
+          "status": "400",
+          "description": "id is not a valid UUID (no JSON error body; the generated router's default handler is used)",
+          "schemas": []
+        },
+        {
+          "status": "404",
+          "description": "Not found",
+          "schemas": [
+            "items.Error"
+          ]
+        }
+      ],
+      "spec": "api/services/items.yaml",
+      "line": 48,
+      "implementation": {
+        "function": "items.Service.GetItem",
+        "file": "backend/internal/items/service.go",
+        "line": 72
+      }
+    },
+    {
+      "id": "listItems",
+      "owner": "items",
+      "method": "GET",
+      "path": "/items",
+      "tags": [
+        "items"
+      ],
+      "security": [],
+      "parameters": [],
+      "request_schemas": [],
+      "responses": [
+        {
+          "status": "200",
+          "description": "OK",
+          "schemas": [
+            "items.ItemList"
+          ]
+        }
+      ],
+      "spec": "api/services/items.yaml",
+      "line": 7,
+      "implementation": {
+        "function": "items.Service.ListItems",
+        "file": "backend/internal/items/service.go",
+        "line": 39
+      }
+    },
+    {
+      "id": "login",
+      "owner": "auth",
+      "method": "POST",
+      "path": "/auth/login",
+      "tags": [
+        "auth"
+      ],
+      "security": [],
+      "rate_limit": {
+        "burst": 2,
+        "key": "email",
+        "requests": 5,
+        "scope": "identifier",
+        "window": "60s"
+      },
+      "parameters": [],
+      "request_schemas": [
+        "auth.LoginRequest"
+      ],
+      "responses": [
+        {
+          "status": "200",
+          "description": "OK",
+          "schemas": [
+            "auth.AuthResponse"
+          ]
+        },
+        {
+          "status": "401",
+          "description": "Invalid credentials",
+          "schemas": []
+        }
+      ],
+      "spec": "api/services/auth.yaml",
+      "line": 31,
+      "implementation": {
+        "function": "auth.Service.Login",
+        "file": "backend/internal/auth/service.go",
+        "line": 111
+      }
+    },
+    {
+      "id": "logout",
+      "owner": "auth",
+      "method": "POST",
+      "path": "/auth/logout",
+      "tags": [
+        "auth"
+      ],
+      "security": [],
+      "parameters": [],
+      "request_schemas": [
+        "auth.RefreshRequest"
+      ],
+      "responses": [
+        {
+          "status": "204",
+          "description": "Refresh token revoked",
+          "schemas": []
+        }
+      ],
+      "spec": "api/services/auth.yaml",
+      "line": 75,
+      "implementation": {
+        "function": "auth.Service.Logout",
+        "file": "backend/internal/auth/sessions.go",
+        "line": 81
+      }
+    },
+    {
+      "id": "refreshToken",
+      "owner": "auth",
+      "method": "POST",
+      "path": "/auth/refresh",
+      "tags": [
+        "auth"
+      ],
+      "security": [],
+      "parameters": [],
+      "request_schemas": [
+        "auth.RefreshRequest"
+      ],
+      "responses": [
+        {
+          "status": "200",
+          "description": "New access + refresh pair (old refresh token revoked)",
+          "schemas": [
+            "auth.AuthResponse"
+          ]
+        },
+        {
+          "status": "401",
+          "description": "Invalid or expired refresh token",
+          "schemas": []
+        }
+      ],
+      "spec": "api/services/auth.yaml",
+      "line": 56,
+      "implementation": {
+        "function": "auth.Service.RefreshToken",
+        "file": "backend/internal/auth/sessions.go",
+        "line": 51
+      }
+    },
+    {
+      "id": "requestPasswordReset",
+      "owner": "auth",
+      "method": "POST",
+      "path": "/auth/password-reset/request",
+      "tags": [
+        "auth"
+      ],
+      "security": [],
+      "parameters": [],
+      "request_schemas": [
+        "auth.PasswordResetRequest"
+      ],
+      "responses": [
+        {
+          "status": "200",
+          "description": "Always returns 200 (even if the account does not exist). If it does, a reset credential is emailed — never returned in the response.",
+          "schemas": []
+        }
+      ],
+      "spec": "api/services/auth.yaml",
+      "line": 135,
+      "implementation": {
+        "function": "auth.Service.RequestPasswordReset",
+        "file": "backend/internal/auth/service_tokens.go",
+        "line": 60
+      }
+    },
+    {
+      "id": "signup",
+      "owner": "auth",
+      "method": "POST",
+      "path": "/auth/signup",
+      "tags": [
+        "auth"
+      ],
+      "security": [],
+      "rate_limit": {
+        "burst": 10,
+        "requests": 20,
+        "scope": "ip",
+        "window": "60s"
+      },
+      "parameters": [],
+      "request_schemas": [
+        "auth.SignupRequest"
+      ],
+      "responses": [
+        {
+          "status": "201",
+          "description": "Created",
+          "schemas": [
+            "auth.SignupResponse"
+          ]
+        },
+        {
+          "status": "409",
+          "description": "Email already registered",
+          "schemas": []
+        }
+      ],
+      "spec": "api/services/auth.yaml",
+      "line": 7,
+      "implementation": {
+        "function": "auth.Service.Signup",
+        "file": "backend/internal/auth/service.go",
+        "line": 59
+      }
+    },
+    {
+      "id": "verifyEmail",
+      "owner": "auth",
+      "method": "POST",
+      "path": "/auth/verify",
+      "tags": [
+        "auth"
+      ],
+      "security": [],
+      "rate_limit": {
+        "burst": 2,
+        "key": "token",
+        "requests": 5,
+        "scope": "identifier",
+        "window": "60s"
+      },
+      "parameters": [],
+      "request_schemas": [
+        "auth.VerifyRequest"
+      ],
+      "responses": [
+        {
+          "status": "200",
+          "description": "Email verified; returns a session",
+          "schemas": [
+            "auth.AuthResponse"
+          ]
+        },
+        {
+          "status": "400",
+          "description": "Invalid or expired token",
+          "schemas": []
+        }
+      ],
+      "spec": "api/services/auth.yaml",
+      "line": 103,
+      "implementation": {
+        "function": "auth.Service.VerifyEmail",
+        "file": "backend/internal/auth/service_tokens.go",
+        "line": 31
+      }
+    }
+  ],
+  "schemas": [
+    {
+      "id": "auth.AuthResponse",
+      "owner": "auth",
+      "name": "AuthResponse",
+      "type": "object",
+      "properties": [
+        {
+          "name": "token",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "refresh_token",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "user",
+          "type": "User",
+          "required": true,
+          "refs": [
+            "auth.User"
+          ]
+        }
+      ],
+      "refs": [
+        "auth.User"
+      ],
+      "spec": "api/services/auth.yaml"
+    },
+    {
+      "id": "auth.LoginRequest",
+      "owner": "auth",
+      "name": "LoginRequest",
+      "type": "object",
+      "properties": [
+        {
+          "name": "email",
+          "type": "string",
+          "format": "email",
+          "required": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "refs": [],
+      "spec": "api/services/auth.yaml"
+    },
+    {
+      "id": "auth.PasswordResetConfirm",
+      "owner": "auth",
+      "name": "PasswordResetConfirm",
+      "type": "object",
+      "properties": [
+        {
+          "name": "token",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "refs": [],
+      "spec": "api/services/auth.yaml"
+    },
+    {
+      "id": "auth.PasswordResetRequest",
+      "owner": "auth",
+      "name": "PasswordResetRequest",
+      "type": "object",
+      "properties": [
+        {
+          "name": "email",
+          "type": "string",
+          "format": "email",
+          "required": true
+        }
+      ],
+      "refs": [],
+      "spec": "api/services/auth.yaml"
+    },
+    {
+      "id": "auth.RefreshRequest",
+      "owner": "auth",
+      "name": "RefreshRequest",
+      "type": "object",
+      "properties": [
+        {
+          "name": "refresh_token",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "refs": [],
+      "spec": "api/services/auth.yaml"
+    },
+    {
+      "id": "auth.SignupRequest",
+      "owner": "auth",
+      "name": "SignupRequest",
+      "type": "object",
+      "properties": [
+        {
+          "name": "email",
+          "type": "string",
+          "format": "email",
+          "required": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "required": false
+        }
+      ],
+      "refs": [],
+      "spec": "api/services/auth.yaml"
+    },
+    {
+      "id": "auth.SignupResponse",
+      "owner": "auth",
+      "name": "SignupResponse",
+      "type": "object",
+      "properties": [
+        {
+          "name": "user",
+          "type": "User",
+          "required": true,
+          "refs": [
+            "auth.User"
+          ]
+        }
+      ],
+      "refs": [
+        "auth.User"
+      ],
+      "spec": "api/services/auth.yaml"
+    },
+    {
+      "id": "auth.User",
+      "owner": "auth",
+      "name": "User",
+      "type": "object",
+      "properties": [
+        {
+          "name": "id",
+          "type": "string",
+          "format": "uuid",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "format": "email",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "role",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "verified",
+          "type": "boolean",
+          "required": false
+        },
+        {
+          "name": "created_at",
+          "type": "string",
+          "format": "date-time",
+          "required": false
+        }
+      ],
+      "refs": [],
+      "spec": "api/services/auth.yaml"
+    },
+    {
+      "id": "auth.VerifyRequest",
+      "owner": "auth",
+      "name": "VerifyRequest",
+      "type": "object",
+      "properties": [
+        {
+          "name": "token",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "refs": [],
+      "spec": "api/services/auth.yaml"
+    },
+    {
+      "id": "items.CreateItemRequest",
+      "owner": "items",
+      "name": "CreateItemRequest",
+      "type": "object",
+      "properties": [
+        {
+          "name": "name",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "refs": [],
+      "spec": "api/services/items.yaml"
+    },
+    {
+      "id": "items.Error",
+      "owner": "items",
+      "name": "Error",
+      "type": "object",
+      "properties": [
+        {
+          "name": "error",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "refs": [],
+      "spec": "api/services/items.yaml"
+    },
+    {
+      "id": "items.Item",
+      "owner": "items",
+      "name": "Item",
+      "type": "object",
+      "properties": [
+        {
+          "name": "id",
+          "type": "string",
+          "format": "uuid",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "created_at",
+          "type": "string",
+          "format": "date-time",
+          "required": true
+        }
+      ],
+      "refs": [],
+      "spec": "api/services/items.yaml"
+    },
+    {
+      "id": "items.ItemList",
+      "owner": "items",
+      "name": "ItemList",
+      "type": "object",
+      "properties": [
+        {
+          "name": "items",
+          "type": "[]Item",
+          "required": true,
+          "refs": [
+            "items.Item"
+          ]
+        }
+      ],
+      "refs": [
+        "items.Item"
+      ],
+      "spec": "api/services/items.yaml"
+    }
+  ],
+  "tables": [
+    {
+      "name": "auth_tokens",
+      "owners": [
+        "auth"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "primary_key": true
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "nullable": false,
+          "references": "users"
+        },
+        {
+          "name": "kind",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "token_hash",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "expires_at",
+          "type": "timestamptz",
+          "nullable": false
+        },
+        {
+          "name": "used_at",
+          "type": "timestamptz",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "nullable": false
+        }
+      ],
+      "migrations": [
+        "backend/sql/schema/0003_auth_tokens.sql"
+      ]
+    },
+    {
+      "name": "items",
+      "owners": [
+        "items"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "primary_key": true
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "nullable": false
+        }
+      ],
+      "migrations": [
+        "backend/sql/schema/0005_items.sql"
+      ]
+    },
+    {
+      "name": "outbox",
+      "owners": [
+        "events"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "primary_key": true
+        },
+        {
+          "name": "topic",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "key",
+          "type": "bytea",
+          "nullable": true
+        },
+        {
+          "name": "payload",
+          "type": "bytea",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "nullable": false
+        },
+        {
+          "name": "published_at",
+          "type": "timestamptz",
+          "nullable": true
+        }
+      ],
+      "migrations": [
+        "backend/sql/schema/0006_outbox.sql"
+      ]
+    },
+    {
+      "name": "refresh_tokens",
+      "owners": [
+        "auth"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "primary_key": true
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "nullable": false,
+          "references": "users"
+        },
+        {
+          "name": "token_hash",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "expires_at",
+          "type": "timestamptz",
+          "nullable": false
+        },
+        {
+          "name": "revoked_at",
+          "type": "timestamptz",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "nullable": false
+        }
+      ],
+      "migrations": [
+        "backend/sql/schema/0004_refresh_tokens.sql"
+      ]
+    },
+    {
+      "name": "users",
+      "owners": [
+        "auth"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "primary_key": true
+        },
+        {
+          "name": "email",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "password_hash",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "role",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "verified",
+          "type": "boolean",
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz",
+          "nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "nullable": false
+        }
+      ],
+      "migrations": [
+        "backend/sql/schema/0002_users.sql"
+      ]
+    }
+  ],
+  "queries": [
+    {
+      "id": "CreateAuthToken",
+      "kind": "one",
+      "module": "auth",
+      "file": "backend/sql/queries/auth.sql",
+      "line": 30,
+      "tables": [
+        "auth_tokens"
+      ]
+    },
+    {
+      "id": "CreateItem",
+      "kind": "one",
+      "module": "items",
+      "file": "backend/sql/queries/items.sql",
+      "line": 4,
+      "tables": [
+        "items"
+      ]
+    },
+    {
+      "id": "CreateRefreshToken",
+      "kind": "one",
+      "module": "auth",
+      "file": "backend/sql/queries/auth.sql",
+      "line": 12,
+      "tables": [
+        "refresh_tokens"
+      ]
+    },
+    {
+      "id": "CreateUser",
+      "kind": "one",
+      "module": "auth",
+      "file": "backend/sql/queries/auth.sql",
+      "line": 1,
+      "tables": [
+        "users"
+      ]
+    },
+    {
+      "id": "EnqueueOutbox",
+      "kind": "one",
+      "module": "events",
+      "file": "backend/sql/queries/outbox.sql",
+      "line": 10,
+      "tables": [
+        "outbox"
+      ]
+    },
+    {
+      "id": "GetAuthToken",
+      "kind": "one",
+      "module": "auth",
+      "file": "backend/sql/queries/auth.sql",
+      "line": 35,
+      "tables": [
+        "auth_tokens"
+      ]
+    },
+    {
+      "id": "GetItem",
+      "kind": "one",
+      "module": "items",
+      "file": "backend/sql/queries/items.sql",
+      "line": 7,
+      "tables": [
+        "items"
+      ]
+    },
+    {
+      "id": "GetRefreshToken",
+      "kind": "one",
+      "module": "auth",
+      "file": "backend/sql/queries/auth.sql",
+      "line": 17,
+      "tables": [
+        "refresh_tokens"
+      ]
+    },
+    {
+      "id": "GetUserByEmail",
+      "kind": "one",
+      "module": "auth",
+      "file": "backend/sql/queries/auth.sql",
+      "line": 6,
+      "tables": [
+        "users"
+      ]
+    },
+    {
+      "id": "GetUserByID",
+      "kind": "one",
+      "module": "auth",
+      "file": "backend/sql/queries/auth.sql",
+      "line": 9,
+      "tables": [
+        "users"
+      ]
+    },
+    {
+      "id": "ListItems",
+      "kind": "many",
+      "module": "items",
+      "file": "backend/sql/queries/items.sql",
+      "line": 1,
+      "tables": [
+        "items"
+      ]
+    },
+    {
+      "id": "ListUnpublishedOutbox",
+      "kind": "many",
+      "module": "events",
+      "file": "backend/sql/queries/outbox.sql",
+      "line": 1,
+      "tables": [
+        "outbox"
+      ]
+    },
+    {
+      "id": "MarkAuthTokenUsed",
+      "kind": "exec",
+      "module": "auth",
+      "file": "backend/sql/queries/auth.sql",
+      "line": 39,
+      "tables": [
+        "auth_tokens"
+      ]
+    },
+    {
+      "id": "MarkOutboxPublished",
+      "kind": "exec",
+      "module": "events",
+      "file": "backend/sql/queries/outbox.sql",
+      "line": 7,
+      "tables": [
+        "outbox"
+      ]
+    },
+    {
+      "id": "RevokeRefreshToken",
+      "kind": "exec",
+      "module": "auth",
+      "file": "backend/sql/queries/auth.sql",
+      "line": 21,
+      "tables": [
+        "refresh_tokens"
+      ]
+    },
+    {
+      "id": "UpdateUserPassword",
+      "kind": "exec",
+      "module": "auth",
+      "file": "backend/sql/queries/auth.sql",
+      "line": 27,
+      "tables": [
+        "users"
+      ]
+    },
+    {
+      "id": "VerifyUser",
+      "kind": "exec",
+      "module": "auth",
+      "file": "backend/sql/queries/auth.sql",
+      "line": 24,
+      "tables": [
+        "users"
+      ]
+    }
+  ],
+  "symbols": [
+    {
+      "module": "auth",
+      "kind": "func",
+      "name": "HashPassword",
+      "file": "backend/internal/auth/hashing.go",
+      "line": 32
+    },
+    {
+      "module": "auth",
+      "kind": "func",
+      "name": "CheckPassword",
+      "file": "backend/internal/auth/hashing.go",
+      "line": 50
+    },
+    {
+      "module": "auth",
+      "kind": "struct",
+      "name": "TokenIssuer",
+      "file": "backend/internal/auth/jwt.go",
+      "line": 13
+    },
+    {
+      "module": "auth",
+      "kind": "func",
+      "name": "NewTokenIssuer",
+      "file": "backend/internal/auth/jwt.go",
+      "line": 18
+    },
+    {
+      "module": "auth",
+      "kind": "struct",
+      "name": "Claims",
+      "file": "backend/internal/auth/jwt.go",
+      "line": 26
+    },
+    {
+      "module": "auth",
+      "kind": "method",
+      "name": "Issue",
+      "receiver": "TokenIssuer",
+      "file": "backend/internal/auth/jwt.go",
+      "line": 31
+    },
+    {
+      "module": "auth",
+      "kind": "method",
+      "name": "Parse",
+      "receiver": "TokenIssuer",
+      "file": "backend/internal/auth/jwt.go",
+      "line": 43
+    },
+    {
+      "module": "auth",
+      "kind": "method",
+      "name": "ScopeAuth",
+      "receiver": "Service",
+      "file": "backend/internal/auth/middleware.go",
+      "line": 43
+    },
+    {
+      "module": "auth",
+      "kind": "func",
+      "name": "ValidatePassword",
+      "file": "backend/internal/auth/password.go",
+      "line": 22
+    },
+    {
+      "module": "auth",
+      "kind": "struct",
+      "name": "Service",
+      "file": "backend/internal/auth/service.go",
+      "line": 20
+    },
+    {
+      "module": "auth",
+      "kind": "func",
+      "name": "New",
+      "file": "backend/internal/auth/service.go",
+      "line": 36
+    },
+    {
+      "module": "auth",
+      "kind": "method",
+      "name": "Register",
+      "receiver": "Service",
+      "file": "backend/internal/auth/service.go",
+      "line": 49
+    },
+    {
+      "module": "auth",
+      "kind": "method",
+      "name": "Signup",
+      "receiver": "Service",
+      "file": "backend/internal/auth/service.go",
+      "line": 59
+    },
+    {
+      "module": "auth",
+      "kind": "method",
+      "name": "Login",
+      "receiver": "Service",
+      "file": "backend/internal/auth/service.go",
+      "line": 111
+    },
+    {
+      "module": "auth",
+      "kind": "method",
+      "name": "VerifyEmail",
+      "receiver": "Service",
+      "file": "backend/internal/auth/service_tokens.go",
+      "line": 31
+    },
+    {
+      "module": "auth",
+      "kind": "method",
+      "name": "RequestPasswordReset",
+      "receiver": "Service",
+      "file": "backend/internal/auth/service_tokens.go",
+      "line": 60
+    },
+    {
+      "module": "auth",
+      "kind": "method",
+      "name": "ConfirmPasswordReset",
+      "receiver": "Service",
+      "file": "backend/internal/auth/service_tokens.go",
+      "line": 82
+    },
+    {
+      "module": "auth",
+      "kind": "method",
+      "name": "RefreshToken",
+      "receiver": "Service",
+      "file": "backend/internal/auth/sessions.go",
+      "line": 51
+    },
+    {
+      "module": "auth",
+      "kind": "method",
+      "name": "Logout",
+      "receiver": "Service",
+      "file": "backend/internal/auth/sessions.go",
+      "line": 81
+    },
+    {
+      "module": "auth",
+      "kind": "method",
+      "name": "GetCurrentUser",
+      "receiver": "Service",
+      "file": "backend/internal/auth/sessions.go",
+      "line": 97
+    },
+    {
+      "module": "auth",
+      "kind": "interface",
+      "name": "Store",
+      "file": "backend/internal/auth/store.go",
+      "line": 22
+    },
+    {
+      "module": "auth",
+      "kind": "func",
+      "name": "NewStore",
+      "file": "backend/internal/auth/store.go",
+      "line": 53
+    },
+    {
+      "module": "cache",
+      "kind": "struct",
+      "name": "Cache",
+      "file": "backend/internal/cache/cache.go",
+      "line": 12
+    },
+    {
+      "module": "cache",
+      "kind": "func",
+      "name": "Connect",
+      "file": "backend/internal/cache/cache.go",
+      "line": 17
+    },
+    {
+      "module": "cache",
+      "kind": "method",
+      "name": "Close",
+      "receiver": "Cache",
+      "file": "backend/internal/cache/cache.go",
+      "line": 29
+    },
+    {
+      "module": "config",
+      "kind": "struct",
+      "name": "MailConfig",
+      "file": "backend/internal/config/config.go",
+      "line": 16
+    },
+    {
+      "module": "config",
+      "kind": "struct",
+      "name": "SMTPConfig",
+      "file": "backend/internal/config/config.go",
+      "line": 27
+    },
+    {
+      "module": "config",
+      "kind": "struct",
+      "name": "SESConfig",
+      "file": "backend/internal/config/config.go",
+      "line": 34
+    },
+    {
+      "module": "config",
+      "kind": "struct",
+      "name": "Config",
+      "file": "backend/internal/config/config.go",
+      "line": 40
+    },
+    {
+      "module": "config",
+      "kind": "struct",
+      "name": "RedisConfig",
+      "file": "backend/internal/config/config.go",
+      "line": 54
+    },
+    {
+      "module": "config",
+      "kind": "struct",
+      "name": "RateLimitConfig",
+      "file": "backend/internal/config/config.go",
+      "line": 63
+    },
+    {
+      "module": "config",
+      "kind": "struct",
+      "name": "KafkaConfig",
+      "file": "backend/internal/config/config.go",
+      "line": 70
+    },
+    {
+      "module": "config",
+      "kind": "struct",
+      "name": "RazorpayConfig",
+      "file": "backend/internal/config/config.go",
+      "line": 74
+    },
+    {
+      "module": "config",
+      "kind": "struct",
+      "name": "FirebaseConfig",
+      "file": "backend/internal/config/config.go",
+      "line": 79
+    },
+    {
+      "module": "config",
+      "kind": "struct",
+      "name": "StorageConfig",
+      "file": "backend/internal/config/config.go",
+      "line": 83
+    },
+    {
+      "module": "config",
+      "kind": "struct",
+      "name": "TokenConfig",
+      "file": "backend/internal/config/config.go",
+      "line": 90
+    },
+    {
+      "module": "config",
+      "kind": "struct",
+      "name": "ServerConfig",
+      "file": "backend/internal/config/config.go",
+      "line": 98
+    },
+    {
+      "module": "config",
+      "kind": "struct",
+      "name": "DatabaseConfig",
+      "file": "backend/internal/config/config.go",
+      "line": 102
+    },
+    {
+      "module": "config",
+      "kind": "struct",
+      "name": "ObservabilityConfig",
+      "file": "backend/internal/config/config.go",
+      "line": 109
+    },
+    {
+      "module": "config",
+      "kind": "func",
+      "name": "Load",
+      "file": "backend/internal/config/config.go",
+      "line": 148
+    },
+    {
+      "module": "events",
+      "kind": "struct",
+      "name": "Publisher",
+      "file": "backend/internal/events/events.go",
+      "line": 14
+    },
+    {
+      "module": "events",
+      "kind": "func",
+      "name": "NewPublisher",
+      "file": "backend/internal/events/events.go",
+      "line": 18
+    },
+    {
+      "module": "events",
+      "kind": "method",
+      "name": "Publish",
+      "receiver": "Publisher",
+      "file": "backend/internal/events/events.go",
+      "line": 29
+    },
+    {
+      "module": "events",
+      "kind": "method",
+      "name": "Close",
+      "receiver": "Publisher",
+      "file": "backend/internal/events/events.go",
+      "line": 37
+    },
+    {
+      "module": "health",
+      "kind": "struct",
+      "name": "Service",
+      "file": "backend/internal/health/service.go",
+      "line": 18
+    },
+    {
+      "module": "health",
+      "kind": "func",
+      "name": "New",
+      "file": "backend/internal/health/service.go",
+      "line": 20
+    },
+    {
+      "module": "health",
+      "kind": "method",
+      "name": "Register",
+      "receiver": "Service",
+      "file": "backend/internal/health/service.go",
+      "line": 24
+    },
+    {
+      "module": "health",
+      "kind": "method",
+      "name": "GetHealth",
+      "receiver": "Service",
+      "file": "backend/internal/health/service.go",
+      "line": 29
+    },
+    {
+      "module": "items",
+      "kind": "struct",
+      "name": "Service",
+      "file": "backend/internal/items/service.go",
+      "line": 20
+    },
+    {
+      "module": "items",
+      "kind": "func",
+      "name": "New",
+      "file": "backend/internal/items/service.go",
+      "line": 24
+    },
+    {
+      "module": "items",
+      "kind": "method",
+      "name": "Register",
+      "receiver": "Service",
+      "file": "backend/internal/items/service.go",
+      "line": 30
+    },
+    {
+      "module": "items",
+      "kind": "method",
+      "name": "ListItems",
+      "receiver": "Service",
+      "file": "backend/internal/items/service.go",
+      "line": 39
+    },
+    {
+      "module": "items",
+      "kind": "method",
+      "name": "CreateItem",
+      "receiver": "Service",
+      "file": "backend/internal/items/service.go",
+      "line": 53
+    },
+    {
+      "module": "items",
+      "kind": "method",
+      "name": "GetItem",
+      "receiver": "Service",
+      "file": "backend/internal/items/service.go",
+      "line": 72
+    },
+    {
+      "module": "items",
+      "kind": "interface",
+      "name": "Store",
+      "file": "backend/internal/items/store.go",
+      "line": 22
+    },
+    {
+      "module": "items",
+      "kind": "func",
+      "name": "NewStore",
+      "file": "backend/internal/items/store.go",
+      "line": 32
+    },
+    {
+      "module": "mail",
+      "kind": "interface",
+      "name": "Mailer",
+      "file": "backend/internal/mail/mail.go",
+      "line": 26
+    },
+    {
+      "module": "mail",
+      "kind": "func",
+      "name": "New",
+      "file": "backend/internal/mail/mail.go",
+      "line": 50
+    },
+    {
+      "module": "migrate",
+      "kind": "func",
+      "name": "Up",
+      "file": "backend/internal/migrate/migrate.go",
+      "line": 20
+    },
+    {
+      "module": "observability",
+      "kind": "struct",
+      "name": "Provider",
+      "file": "backend/internal/observability/observability.go",
+      "line": 21
+    },
+    {
+      "module": "observability",
+      "kind": "func",
+      "name": "Init",
+      "file": "backend/internal/observability/observability.go",
+      "line": 28
+    },
+    {
+      "module": "observability",
+      "kind": "method",
+      "name": "TracerProvider",
+      "receiver": "Provider",
+      "file": "backend/internal/observability/observability.go",
+      "line": 69
+    },
+    {
+      "module": "observability",
+      "kind": "method",
+      "name": "Shutdown",
+      "receiver": "Provider",
+      "file": "backend/internal/observability/observability.go",
+      "line": 77
+    },
+    {
+      "module": "payments",
+      "kind": "struct",
+      "name": "Service",
+      "file": "backend/internal/payments/payments.go",
+      "line": 12
+    },
+    {
+      "module": "payments",
+      "kind": "func",
+      "name": "New",
+      "file": "backend/internal/payments/payments.go",
+      "line": 16
+    },
+    {
+      "module": "payments",
+      "kind": "method",
+      "name": "Client",
+      "receiver": "Service",
+      "file": "backend/internal/payments/payments.go",
+      "line": 22
+    },
+    {
+      "module": "push",
+      "kind": "struct",
+      "name": "Service",
+      "file": "backend/internal/push/push.go",
+      "line": 15
+    },
+    {
+      "module": "push",
+      "kind": "func",
+      "name": "New",
+      "file": "backend/internal/push/push.go",
+      "line": 19
+    },
+    {
+      "module": "push",
+      "kind": "method",
+      "name": "Send",
+      "receiver": "Service",
+      "file": "backend/internal/push/push.go",
+      "line": 32
+    },
+    {
+      "module": "ratelimit",
+      "kind": "type",
+      "name": "RuleLookup",
+      "file": "backend/internal/ratelimit/context.go",
+      "line": 13
+    },
+    {
+      "module": "ratelimit",
+      "kind": "type",
+      "name": "KeyExtractor",
+      "file": "backend/internal/ratelimit/limiter.go",
+      "line": 24
+    },
+    {
+      "module": "ratelimit",
+      "kind": "struct",
+      "name": "Limiter",
+      "file": "backend/internal/ratelimit/limiter.go",
+      "line": 31
+    },
+    {
+      "module": "ratelimit",
+      "kind": "func",
+      "name": "New",
+      "file": "backend/internal/ratelimit/limiter.go",
+      "line": 39
+    },
+    {
+      "module": "ratelimit",
+      "kind": "method",
+      "name": "PerOperation",
+      "receiver": "Limiter",
+      "file": "backend/internal/ratelimit/limiter.go",
+      "line": 51
+    },
+    {
+      "module": "ratelimit",
+      "kind": "method",
+      "name": "GlobalFloor",
+      "receiver": "Limiter",
+      "file": "backend/internal/ratelimit/limiter.go",
+      "line": 75
+    },
+    {
+      "module": "ratelimit",
+      "kind": "struct",
+      "name": "Rule",
+      "file": "backend/internal/ratelimit/rule.go",
+      "line": 21
+    },
+    {
+      "module": "ratelimit",
+      "kind": "func",
+      "name": "ParseRule",
+      "file": "backend/internal/ratelimit/rule.go",
+      "line": 33
+    },
+    {
+      "module": "ratelimit",
+      "kind": "func",
+      "name": "MustParseRule",
+      "file": "backend/internal/ratelimit/rule.go",
+      "line": 69
+    },
+    {
+      "module": "server",
+      "kind": "func",
+      "name": "Run",
+      "file": "backend/internal/server/server.go",
+      "line": 37
+    },
+    {
+      "module": "storage",
+      "kind": "struct",
+      "name": "Service",
+      "file": "backend/internal/storage/storage.go",
+      "line": 16
+    },
+    {
+      "module": "storage",
+      "kind": "func",
+      "name": "New",
+      "file": "backend/internal/storage/storage.go",
+      "line": 22
+    },
+    {
+      "module": "storage",
+      "kind": "method",
+      "name": "PresignPut",
+      "receiver": "Service",
+      "file": "backend/internal/storage/storage.go",
+      "line": 41
+    },
+    {
+      "module": "testsupport",
+      "kind": "struct",
+      "name": "TestDB",
+      "file": "backend/internal/testsupport/testsupport.go",
+      "line": 26
+    },
+    {
+      "module": "testsupport",
+      "kind": "func",
+      "name": "DatabaseURL",
+      "file": "backend/internal/testsupport/testsupport.go",
+      "line": 32
+    },
+    {
+      "module": "testsupport",
+      "kind": "func",
+      "name": "RedisURL",
+      "file": "backend/internal/testsupport/testsupport.go",
+      "line": 39
+    },
+    {
+      "module": "testsupport",
+      "kind": "func",
+      "name": "Connect",
+      "file": "backend/internal/testsupport/testsupport.go",
+      "line": 45
+    },
+    {
+      "module": "testsupport",
+      "kind": "func",
+      "name": "NewRouter",
+      "file": "backend/internal/testsupport/testsupport.go",
+      "line": 75
+    },
+    {
+      "module": "testsupport",
+      "kind": "method",
+      "name": "Truncate",
+      "receiver": "TestDB",
+      "file": "backend/internal/testsupport/testsupport.go",
+      "line": 84
+    },
+    {
+      "module": "testsupport",
+      "kind": "func",
+      "name": "DoJSON",
+      "file": "backend/internal/testsupport/testsupport.go",
+      "line": 112
+    },
+    {
+      "module": "testsupport",
+      "kind": "func",
+      "name": "DoJSONAuth",
+      "file": "backend/internal/testsupport/testsupport.go",
+      "line": 117
+    }
+  ],
+  "functions": [
+    {
+      "id": "auth.CheckPassword",
+      "module": "auth",
+      "package": "backend/internal/auth",
+      "name": "CheckPassword",
+      "file": "backend/internal/auth/hashing.go",
+      "line": 50,
+      "end_line": 53,
+      "cc": 2
+    },
+    {
+      "id": "auth.HashPassword",
+      "module": "auth",
+      "package": "backend/internal/auth",
+      "name": "HashPassword",
+      "file": "backend/internal/auth/hashing.go",
+      "line": 32,
+      "end_line": 47,
+      "cc": 2
+    },
+    {
+      "id": "auth.New",
+      "module": "auth",
+      "package": "backend/internal/auth",
+      "name": "New",
+      "file": "backend/internal/auth/service.go",
+      "line": 36,
+      "end_line": 44,
+      "cc": 1
+    },
+    {
+      "id": "auth.NewStore",
+      "module": "auth",
+      "package": "backend/internal/auth",
+      "name": "NewStore",
+      "file": "backend/internal/auth/store.go",
+      "line": 53,
+      "end_line": 53,
+      "cc": 1
+    },
+    {
+      "id": "auth.NewTokenIssuer",
+      "module": "auth",
+      "package": "backend/internal/auth",
+      "name": "NewTokenIssuer",
+      "file": "backend/internal/auth/jwt.go",
+      "line": 18,
+      "end_line": 24,
+      "cc": 2
+    },
+    {
+      "id": "auth.Service.ConfirmPasswordReset",
+      "module": "auth",
+      "package": "backend/internal/auth",
+      "name": "ConfirmPasswordReset",
+      "receiver": "Service",
+      "file": "backend/internal/auth/service_tokens.go",
+      "line": 82,
+      "end_line": 110,
+      "cc": 6
+    },
+    {
+      "id": "auth.Service.GetCurrentUser",
+      "module": "auth",
+      "package": "backend/internal/auth",
+      "name": "GetCurrentUser",
+      "receiver": "Service",
+      "file": "backend/internal/auth/sessions.go",
+      "line": 97,
+      "end_line": 109,
+      "cc": 3
+    },
+    {
+      "id": "auth.Service.Login",
+      "module": "auth",
+      "package": "backend/internal/auth",
+      "name": "Login",
+      "receiver": "Service",
+      "file": "backend/internal/auth/service.go",
+      "line": 111,
+      "end_line": 146,
+      "cc": 8
+    },
+    {
+      "id": "auth.Service.Logout",
+      "module": "auth",
+      "package": "backend/internal/auth",
+      "name": "Logout",
+      "receiver": "Service",
+      "file": "backend/internal/auth/sessions.go",
+      "line": 81,
+      "end_line": 91,
+      "cc": 3
+    },
+    {
+      "id": "auth.Service.RefreshToken",
+      "module": "auth",
+      "package": "backend/internal/auth",
+      "name": "RefreshToken",
+      "receiver": "Service",
+      "file": "backend/internal/auth/sessions.go",
+      "line": 51,
+      "end_line": 77,
+      "cc": 5
+    },
+    {
+      "id": "auth.Service.Register",
+      "module": "auth",
+      "package": "backend/internal/auth",
+      "name": "Register",
+      "receiver": "Service",
+      "file": "backend/internal/auth/service.go",
+      "line": 49,
+      "end_line": 56,
+      "cc": 1
+    },
+    {
+      "id": "auth.Service.RequestPasswordReset",
+      "module": "auth",
+      "package": "backend/internal/auth",
+      "name": "RequestPasswordReset",
+      "receiver": "Service",
+      "file": "backend/internal/auth/service_tokens.go",
+      "line": 60,
+      "end_line": 79,
+      "cc": 4
+    },
+    {
+      "id": "auth.Service.ScopeAuth",
+      "module": "auth",
+      "package": "backend/internal/auth",
+      "name": "ScopeAuth",
+      "receiver": "Service",
+      "file": "backend/internal/auth/middleware.go",
+      "line": 43,
+      "end_line": 51,
+      "cc": 2
+    },
+    {
+      "id": "auth.Service.Signup",
+      "module": "auth",
+      "package": "backend/internal/auth",
+      "name": "Signup",
+      "receiver": "Service",
+      "file": "backend/internal/auth/service.go",
+      "line": 59,
+      "end_line": 108,
+      "cc": 8
+    },
+    {
+      "id": "auth.Service.VerifyEmail",
+      "module": "auth",
+      "package": "backend/internal/auth",
+      "name": "VerifyEmail",
+      "receiver": "Service",
+      "file": "backend/internal/auth/service_tokens.go",
+      "line": 31,
+      "end_line": 56,
+      "cc": 5
+    },
+    {
+      "id": "auth.Service.authenticate",
+      "module": "auth",
+      "package": "backend/internal/auth",
+      "name": "authenticate",
+      "receiver": "Service",
+      "file": "backend/internal/auth/middleware.go",
+      "line": 15,
+      "end_line": 30,
+      "cc": 3
+    },
+    {
+      "id": "auth.Service.consume",
+      "module": "auth",
+      "package": "backend/internal/auth",
+      "name": "consume",
+      "receiver": "Service",
+      "file": "backend/internal/auth/service_tokens.go",
+      "line": 146,
+      "end_line": 152,
+      "cc": 2
+    },
+    {
+      "id": "auth.Service.issueCredential",
+      "module": "auth",
+      "package": "backend/internal/auth",
+      "name": "issueCredential",
+      "receiver": "Service",
+      "file": "backend/internal/auth/service_tokens.go",
+      "line": 122,
+      "end_line": 131,
+      "cc": 1
+    },
+    {
+      "id": "auth.Service.issueReset",
+      "module": "auth",
+      "package": "backend/internal/auth",
+      "name": "issueReset",
+      "receiver": "Service",
+      "file": "backend/internal/auth/service_tokens.go",
+      "line": 118,
+      "end_line": 120,
+      "cc": 1
+    },
+    {
+      "id": "auth.Service.issueSession",
+      "module": "auth",
+      "package": "backend/internal/auth",
+      "name": "issueSession",
+      "receiver": "Service",
+      "file": "backend/internal/auth/sessions.go",
+      "line": 33,
+      "end_line": 47,
+      "cc": 3
+    },
+    {
+      "id": "auth.Service.issueVerification",
+      "module": "auth",
+      "package": "backend/internal/auth",
+      "name": "issueVerification",
+      "receiver": "Service",
+      "file": "backend/internal/auth/service_tokens.go",
+      "line": 114,
+      "end_line": 116,
+      "cc": 1
+    },
+    {
+      "id": "auth.Service.respondWithSession",
+      "module": "auth",
+      "package": "backend/internal/auth",
+      "name": "respondWithSession",
+      "receiver": "Service",
+      "file": "backend/internal/auth/sessions.go",
+      "line": 20,
+      "end_line": 31,
+      "cc": 2
+    },
+    {
+      "id": "auth.Service.sendReset",
+      "module": "auth",
+      "package": "backend/internal/auth",
+      "name": "sendReset",
+      "receiver": "Service",
+      "file": "backend/internal/auth/service_tokens.go",
+      "line": 139,
+      "end_line": 143,
+      "cc": 2
+    },
+    {
+      "id": "auth.Service.sendVerification",
+      "module": "auth",
+      "package": "backend/internal/auth",
+      "name": "sendVerification",
+      "receiver": "Service",
+      "file": "backend/internal/auth/service_tokens.go",
+      "line": 133,
+      "end_line": 137,
+      "cc": 2
+    },
+    {
+      "id": "auth.TokenIssuer.Issue",
+      "module": "auth",
+      "package": "backend/internal/auth",
+      "name": "Issue",
+      "receiver": "TokenIssuer",
+      "file": "backend/internal/auth/jwt.go",
+      "line": 31,
+      "end_line": 41,
+      "cc": 1
+    },
+    {
+      "id": "auth.TokenIssuer.Parse",
+      "module": "auth",
+      "package": "backend/internal/auth",
+      "name": "Parse",
+      "receiver": "TokenIssuer",
+      "file": "backend/internal/auth/jwt.go",
+      "line": 43,
+      "end_line": 55,
+      "cc": 4
+    },
+    {
+      "id": "auth.ValidatePassword",
+      "module": "auth",
+      "package": "backend/internal/auth",
+      "name": "ValidatePassword",
+      "file": "backend/internal/auth/password.go",
+      "line": 22,
+      "end_line": 57,
+      "cc": 14
+    },
+    {
+      "id": "auth.compareHash",
+      "module": "auth",
+      "package": "backend/internal/auth",
+      "name": "compareHash",
+      "file": "backend/internal/auth/hashing.go",
+      "line": 55,
+      "end_line": 85,
+      "cc": 7
+    },
+    {
+      "id": "auth.hashToken",
+      "module": "auth",
+      "package": "backend/internal/auth",
+      "name": "hashToken",
+      "file": "backend/internal/auth/sessions.go",
+      "line": 118,
+      "end_line": 121,
+      "cc": 1
+    },
+    {
+      "id": "auth.newCredential",
+      "module": "auth",
+      "package": "backend/internal/auth",
+      "name": "newCredential",
+      "file": "backend/internal/auth/service_tokens.go",
+      "line": 154,
+      "end_line": 159,
+      "cc": 1
+    },
+    {
+      "id": "auth.newSecret",
+      "module": "auth",
+      "package": "backend/internal/auth",
+      "name": "newSecret",
+      "file": "backend/internal/auth/sessions.go",
+      "line": 111,
+      "end_line": 116,
+      "cc": 1
+    },
+    {
+      "id": "auth.refreshTTL",
+      "module": "auth",
+      "package": "backend/internal/auth",
+      "name": "refreshTTL",
+      "file": "backend/internal/auth/service.go",
+      "line": 28,
+      "end_line": 34,
+      "cc": 2
+    },
+    {
+      "id": "auth.toAPIUser",
+      "module": "auth",
+      "package": "backend/internal/auth",
+      "name": "toAPIUser",
+      "file": "backend/internal/auth/service.go",
+      "line": 148,
+      "end_line": 158,
+      "cc": 1
+    },
+    {
+      "id": "cache.Cache.Close",
+      "module": "cache",
+      "package": "backend/internal/cache",
+      "name": "Close",
+      "receiver": "Cache",
+      "file": "backend/internal/cache/cache.go",
+      "line": 29,
+      "end_line": 29,
+      "cc": 1
+    },
+    {
+      "id": "cache.Connect",
+      "module": "cache",
+      "package": "backend/internal/cache",
+      "name": "Connect",
+      "file": "backend/internal/cache/cache.go",
+      "line": 17,
+      "end_line": 27,
+      "cc": 3
+    },
+    {
+      "id": "cmd/server.main",
+      "module": "cmd/server",
+      "package": "backend/cmd/server",
+      "name": "main",
+      "file": "backend/cmd/server/main.go",
+      "line": 5,
+      "end_line": 7,
+      "cc": 1
+    },
+    {
+      "id": "cmd/workers.main",
+      "module": "cmd/workers",
+      "package": "backend/cmd/workers",
+      "name": "main",
+      "file": "backend/cmd/workers/main.go",
+      "line": 31,
+      "end_line": 82,
+      "cc": 11
+    },
+    {
+      "id": "cmd/workers.relayOnce",
+      "module": "cmd/workers",
+      "package": "backend/cmd/workers",
+      "name": "relayOnce",
+      "file": "backend/cmd/workers/main.go",
+      "line": 85,
+      "end_line": 100,
+      "cc": 5
+    },
+    {
+      "id": "config.Load",
+      "module": "config",
+      "package": "backend/internal/config",
+      "name": "Load",
+      "file": "backend/internal/config/config.go",
+      "line": 148,
+      "end_line": 194,
+      "cc": 4
+    },
+    {
+      "id": "config.checkProductionSecret",
+      "module": "config",
+      "package": "backend/internal/config",
+      "name": "checkProductionSecret",
+      "file": "backend/internal/config/config.go",
+      "line": 198,
+      "end_line": 207,
+      "cc": 4
+    },
+    {
+      "id": "config.envOverride",
+      "module": "config",
+      "package": "backend/internal/config",
+      "name": "envOverride",
+      "file": "backend/internal/config/config.go",
+      "line": 118,
+      "end_line": 122,
+      "cc": 2
+    },
+    {
+      "id": "config.envOverrideBool",
+      "module": "config",
+      "package": "backend/internal/config",
+      "name": "envOverrideBool",
+      "file": "backend/internal/config/config.go",
+      "line": 132,
+      "end_line": 138,
+      "cc": 3
+    },
+    {
+      "id": "config.envOverrideInt",
+      "module": "config",
+      "package": "backend/internal/config",
+      "name": "envOverrideInt",
+      "file": "backend/internal/config/config.go",
+      "line": 124,
+      "end_line": 130,
+      "cc": 3
+    },
+    {
+      "id": "config.envOverrideList",
+      "module": "config",
+      "package": "backend/internal/config",
+      "name": "envOverrideList",
+      "file": "backend/internal/config/config.go",
+      "line": 140,
+      "end_line": 144,
+      "cc": 2
+    },
+    {
+      "id": "events.NewPublisher",
+      "module": "events",
+      "package": "backend/internal/events",
+      "name": "NewPublisher",
+      "file": "backend/internal/events/events.go",
+      "line": 18,
+      "end_line": 26,
+      "cc": 1
+    },
+    {
+      "id": "events.Publisher.Close",
+      "module": "events",
+      "package": "backend/internal/events",
+      "name": "Close",
+      "receiver": "Publisher",
+      "file": "backend/internal/events/events.go",
+      "line": 37,
+      "end_line": 37,
+      "cc": 1
+    },
+    {
+      "id": "events.Publisher.Publish",
+      "module": "events",
+      "package": "backend/internal/events",
+      "name": "Publish",
+      "receiver": "Publisher",
+      "file": "backend/internal/events/events.go",
+      "line": 29,
+      "end_line": 35,
+      "cc": 1
+    },
+    {
+      "id": "health.New",
+      "module": "health",
+      "package": "backend/internal/health",
+      "name": "New",
+      "file": "backend/internal/health/service.go",
+      "line": 20,
+      "end_line": 20,
+      "cc": 1
+    },
+    {
+      "id": "health.Service.GetHealth",
+      "module": "health",
+      "package": "backend/internal/health",
+      "name": "GetHealth",
+      "receiver": "Service",
+      "file": "backend/internal/health/service.go",
+      "line": 29,
+      "end_line": 31,
+      "cc": 1
+    },
+    {
+      "id": "health.Service.Register",
+      "module": "health",
+      "package": "backend/internal/health",
+      "name": "Register",
+      "receiver": "Service",
+      "file": "backend/internal/health/service.go",
+      "line": 24,
+      "end_line": 26,
+      "cc": 1
+    },
+    {
+      "id": "items.New",
+      "module": "items",
+      "package": "backend/internal/items",
+      "name": "New",
+      "file": "backend/internal/items/service.go",
+      "line": 24,
+      "end_line": 24,
+      "cc": 1
+    },
+    {
+      "id": "items.NewStore",
+      "module": "items",
+      "package": "backend/internal/items",
+      "name": "NewStore",
+      "file": "backend/internal/items/store.go",
+      "line": 32,
+      "end_line": 32,
+      "cc": 1
+    },
+    {
+      "id": "items.Service.CreateItem",
+      "module": "items",
+      "package": "backend/internal/items",
+      "name": "CreateItem",
+      "receiver": "Service",
+      "file": "backend/internal/items/service.go",
+      "line": 53,
+      "end_line": 69,
+      "cc": 4
+    },
+    {
+      "id": "items.Service.GetItem",
+      "module": "items",
+      "package": "backend/internal/items",
+      "name": "GetItem",
+      "receiver": "Service",
+      "file": "backend/internal/items/service.go",
+      "line": 72,
+      "end_line": 79,
+      "cc": 2
+    },
+    {
+      "id": "items.Service.ListItems",
+      "module": "items",
+      "package": "backend/internal/items",
+      "name": "ListItems",
+      "receiver": "Service",
+      "file": "backend/internal/items/service.go",
+      "line": 39,
+      "end_line": 50,
+      "cc": 3
+    },
+    {
+      "id": "items.Service.Register",
+      "module": "items",
+      "package": "backend/internal/items",
+      "name": "Register",
+      "receiver": "Service",
+      "file": "backend/internal/items/service.go",
+      "line": 30,
+      "end_line": 36,
+      "cc": 2
+    },
+    {
+      "id": "items.toAPIItem",
+      "module": "items",
+      "package": "backend/internal/items",
+      "name": "toAPIItem",
+      "file": "backend/internal/items/service.go",
+      "line": 84,
+      "end_line": 86,
+      "cc": 1
+    },
+    {
+      "id": "mail.New",
+      "module": "mail",
+      "package": "backend/internal/mail",
+      "name": "New",
+      "file": "backend/internal/mail/mail.go",
+      "line": 50,
+      "end_line": 56,
+      "cc": 1
+    },
+    {
+      "id": "mail.logTransport.deliver",
+      "module": "mail",
+      "package": "backend/internal/mail",
+      "name": "deliver",
+      "receiver": "logTransport",
+      "file": "backend/internal/mail/log_transport.go",
+      "line": 13,
+      "end_line": 16,
+      "cc": 1
+    },
+    {
+      "id": "mail.newSESTransport",
+      "module": "mail",
+      "package": "backend/internal/mail",
+      "name": "newSESTransport",
+      "file": "backend/internal/mail/ses_transport.go",
+      "line": 23,
+      "end_line": 40,
+      "cc": 5
+    },
+    {
+      "id": "mail.newSMTPTransport",
+      "module": "mail",
+      "package": "backend/internal/mail",
+      "name": "newSMTPTransport",
+      "file": "backend/internal/mail/smtp_transport.go",
+      "line": 20,
+      "end_line": 31,
+      "cc": 2
+    },
+    {
+      "id": "mail.pickTransport",
+      "module": "mail",
+      "package": "backend/internal/mail",
+      "name": "pickTransport",
+      "file": "backend/internal/mail/mail.go",
+      "line": 58,
+      "end_line": 67,
+      "cc": 3
+    },
+    {
+      "id": "mail.senderHeader",
+      "module": "mail",
+      "package": "backend/internal/mail",
+      "name": "senderHeader",
+      "file": "backend/internal/mail/mail.go",
+      "line": 108,
+      "end_line": 113,
+      "cc": 2
+    },
+    {
+      "id": "mail.sesTransport.deliver",
+      "module": "mail",
+      "package": "backend/internal/mail",
+      "name": "deliver",
+      "receiver": "sesTransport",
+      "file": "backend/internal/mail/ses_transport.go",
+      "line": 42,
+      "end_line": 60,
+      "cc": 3
+    },
+    {
+      "id": "mail.smtpTransport.deliver",
+      "module": "mail",
+      "package": "backend/internal/mail",
+      "name": "deliver",
+      "receiver": "smtpTransport",
+      "file": "backend/internal/mail/smtp_transport.go",
+      "line": 33,
+      "end_line": 41,
+      "cc": 2
+    },
+    {
+      "id": "mail.templatedMailer.SendPasswordReset",
+      "module": "mail",
+      "package": "backend/internal/mail",
+      "name": "SendPasswordReset",
+      "receiver": "templatedMailer",
+      "file": "backend/internal/mail/mail.go",
+      "line": 74,
+      "end_line": 77,
+      "cc": 1
+    },
+    {
+      "id": "mail.templatedMailer.SendVerification",
+      "module": "mail",
+      "package": "backend/internal/mail",
+      "name": "SendVerification",
+      "receiver": "templatedMailer",
+      "file": "backend/internal/mail/mail.go",
+      "line": 69,
+      "end_line": 72,
+      "cc": 1
+    },
+    {
+      "id": "mail.templatedMailer.appName",
+      "module": "mail",
+      "package": "backend/internal/mail",
+      "name": "appName",
+      "receiver": "templatedMailer",
+      "file": "backend/internal/mail/mail.go",
+      "line": 93,
+      "end_line": 98,
+      "cc": 2
+    },
+    {
+      "id": "mail.templatedMailer.data",
+      "module": "mail",
+      "package": "backend/internal/mail",
+      "name": "data",
+      "receiver": "templatedMailer",
+      "file": "backend/internal/mail/mail.go",
+      "line": 79,
+      "end_line": 83,
+      "cc": 1
+    },
+    {
+      "id": "mail.templatedMailer.send",
+      "module": "mail",
+      "package": "backend/internal/mail",
+      "name": "send",
+      "receiver": "templatedMailer",
+      "file": "backend/internal/mail/mail.go",
+      "line": 85,
+      "end_line": 91,
+      "cc": 2
+    },
+    {
+      "id": "mail.templatedMailer.subject",
+      "module": "mail",
+      "package": "backend/internal/mail",
+      "name": "subject",
+      "receiver": "templatedMailer",
+      "file": "backend/internal/mail/mail.go",
+      "line": 100,
+      "end_line": 105,
+      "cc": 2
+    },
+    {
+      "id": "migrate.Up",
+      "module": "migrate",
+      "package": "backend/internal/migrate",
+      "name": "Up",
+      "file": "backend/internal/migrate/migrate.go",
+      "line": 20,
+      "end_line": 40,
+      "cc": 5
+    },
+    {
+      "id": "observability.Init",
+      "module": "observability",
+      "package": "backend/internal/observability",
+      "name": "Init",
+      "file": "backend/internal/observability/observability.go",
+      "line": 28,
+      "end_line": 63,
+      "cc": 4
+    },
+    {
+      "id": "observability.Provider.Shutdown",
+      "module": "observability",
+      "package": "backend/internal/observability",
+      "name": "Shutdown",
+      "receiver": "Provider",
+      "file": "backend/internal/observability/observability.go",
+      "line": 77,
+      "end_line": 86,
+      "cc": 3
+    },
+    {
+      "id": "observability.Provider.TracerProvider",
+      "module": "observability",
+      "package": "backend/internal/observability",
+      "name": "TracerProvider",
+      "receiver": "Provider",
+      "file": "backend/internal/observability/observability.go",
+      "line": 69,
+      "end_line": 74,
+      "cc": 2
+    },
+    {
+      "id": "payments.New",
+      "module": "payments",
+      "package": "backend/internal/payments",
+      "name": "New",
+      "file": "backend/internal/payments/payments.go",
+      "line": 16,
+      "end_line": 18,
+      "cc": 1
+    },
+    {
+      "id": "payments.Service.Client",
+      "module": "payments",
+      "package": "backend/internal/payments",
+      "name": "Client",
+      "receiver": "Service",
+      "file": "backend/internal/payments/payments.go",
+      "line": 22,
+      "end_line": 22,
+      "cc": 1
+    },
+    {
+      "id": "push.New",
+      "module": "push",
+      "package": "backend/internal/push",
+      "name": "New",
+      "file": "backend/internal/push/push.go",
+      "line": 19,
+      "end_line": 29,
+      "cc": 3
+    },
+    {
+      "id": "push.Service.Send",
+      "module": "push",
+      "package": "backend/internal/push",
+      "name": "Send",
+      "receiver": "Service",
+      "file": "backend/internal/push/push.go",
+      "line": 32,
+      "end_line": 37,
+      "cc": 1
+    },
+    {
+      "id": "ratelimit.Limiter.GlobalFloor",
+      "module": "ratelimit",
+      "package": "backend/internal/ratelimit",
+      "name": "GlobalFloor",
+      "receiver": "Limiter",
+      "file": "backend/internal/ratelimit/limiter.go",
+      "line": 75,
+      "end_line": 80,
+      "cc": 1
+    },
+    {
+      "id": "ratelimit.Limiter.PerOperation",
+      "module": "ratelimit",
+      "package": "backend/internal/ratelimit",
+      "name": "PerOperation",
+      "receiver": "Limiter",
+      "file": "backend/internal/ratelimit/limiter.go",
+      "line": 51,
+      "end_line": 69,
+      "cc": 2
+    },
+    {
+      "id": "ratelimit.Limiter.enforce",
+      "module": "ratelimit",
+      "package": "backend/internal/ratelimit",
+      "name": "enforce",
+      "receiver": "Limiter",
+      "file": "backend/internal/ratelimit/limiter.go",
+      "line": 86,
+      "end_line": 109,
+      "cc": 4
+    },
+    {
+      "id": "ratelimit.Limiter.extractKey",
+      "module": "ratelimit",
+      "package": "backend/internal/ratelimit",
+      "name": "extractKey",
+      "receiver": "Limiter",
+      "file": "backend/internal/ratelimit/scope.go",
+      "line": 19,
+      "end_line": 50,
+      "cc": 9
+    },
+    {
+      "id": "ratelimit.MustParseRule",
+      "module": "ratelimit",
+      "package": "backend/internal/ratelimit",
+      "name": "MustParseRule",
+      "file": "backend/internal/ratelimit/rule.go",
+      "line": 69,
+      "end_line": 75,
+      "cc": 2
+    },
+    {
+      "id": "ratelimit.New",
+      "module": "ratelimit",
+      "package": "backend/internal/ratelimit",
+      "name": "New",
+      "file": "backend/internal/ratelimit/limiter.go",
+      "line": 39,
+      "end_line": 44,
+      "cc": 2
+    },
+    {
+      "id": "ratelimit.ParseRule",
+      "module": "ratelimit",
+      "package": "backend/internal/ratelimit",
+      "name": "ParseRule",
+      "file": "backend/internal/ratelimit/rule.go",
+      "line": 33,
+      "end_line": 64,
+      "cc": 10
+    },
+    {
+      "id": "ratelimit.clientIP",
+      "module": "ratelimit",
+      "package": "backend/internal/ratelimit",
+      "name": "clientIP",
+      "file": "backend/internal/ratelimit/scope.go",
+      "line": 52,
+      "end_line": 54,
+      "cc": 1
+    },
+    {
+      "id": "ratelimit.identifierFromBody",
+      "module": "ratelimit",
+      "package": "backend/internal/ratelimit",
+      "name": "identifierFromBody",
+      "file": "backend/internal/ratelimit/scope.go",
+      "line": 63,
+      "end_line": 83,
+      "cc": 8
+    },
+    {
+      "id": "ratelimit.toInt",
+      "module": "ratelimit",
+      "package": "backend/internal/ratelimit",
+      "name": "toInt",
+      "file": "backend/internal/ratelimit/rule.go",
+      "line": 80,
+      "end_line": 91,
+      "cc": 4
+    },
+    {
+      "id": "server.Run",
+      "module": "server",
+      "package": "backend/internal/server",
+      "name": "Run",
+      "file": "backend/internal/server/server.go",
+      "line": 37,
+      "end_line": 151,
+      "cc": 16
+    },
+    {
+      "id": "server.corsMiddleware",
+      "module": "server",
+      "package": "backend/internal/server",
+      "name": "corsMiddleware",
+      "file": "backend/internal/server/server.go",
+      "line": 158,
+      "end_line": 180,
+      "cc": 7
+    },
+    {
+      "id": "storage.New",
+      "module": "storage",
+      "package": "backend/internal/storage",
+      "name": "New",
+      "file": "backend/internal/storage/storage.go",
+      "line": 22,
+      "end_line": 38,
+      "cc": 3
+    },
+    {
+      "id": "storage.Service.PresignPut",
+      "module": "storage",
+      "package": "backend/internal/storage",
+      "name": "PresignPut",
+      "receiver": "Service",
+      "file": "backend/internal/storage/storage.go",
+      "line": 41,
+      "end_line": 50,
+      "cc": 2
+    },
+    {
+      "id": "testsupport.Connect",
+      "module": "testsupport",
+      "package": "backend/internal/testsupport",
+      "name": "Connect",
+      "file": "backend/internal/testsupport/testsupport.go",
+      "line": 45,
+      "end_line": 72,
+      "cc": 6
+    },
+    {
+      "id": "testsupport.DatabaseURL",
+      "module": "testsupport",
+      "package": "backend/internal/testsupport",
+      "name": "DatabaseURL",
+      "file": "backend/internal/testsupport/testsupport.go",
+      "line": 32,
+      "end_line": 35,
+      "cc": 1
+    },
+    {
+      "id": "testsupport.DoJSON",
+      "module": "testsupport",
+      "package": "backend/internal/testsupport",
+      "name": "DoJSON",
+      "file": "backend/internal/testsupport/testsupport.go",
+      "line": 112,
+      "end_line": 114,
+      "cc": 1
+    },
+    {
+      "id": "testsupport.DoJSONAuth",
+      "module": "testsupport",
+      "package": "backend/internal/testsupport",
+      "name": "DoJSONAuth",
+      "file": "backend/internal/testsupport/testsupport.go",
+      "line": 117,
+      "end_line": 126,
+      "cc": 2
+    },
+    {
+      "id": "testsupport.NewRouter",
+      "module": "testsupport",
+      "package": "backend/internal/testsupport",
+      "name": "NewRouter",
+      "file": "backend/internal/testsupport/testsupport.go",
+      "line": 75,
+      "end_line": 80,
+      "cc": 1
+    },
+    {
+      "id": "testsupport.RedisURL",
+      "module": "testsupport",
+      "package": "backend/internal/testsupport",
+      "name": "RedisURL",
+      "file": "backend/internal/testsupport/testsupport.go",
+      "line": 39,
+      "end_line": 41,
+      "cc": 1
+    },
+    {
+      "id": "testsupport.TestDB.Truncate",
+      "module": "testsupport",
+      "package": "backend/internal/testsupport",
+      "name": "Truncate",
+      "receiver": "TestDB",
+      "file": "backend/internal/testsupport/testsupport.go",
+      "line": 84,
+      "end_line": 109,
+      "cc": 6
+    },
+    {
+      "id": "testsupport.getenv",
+      "module": "testsupport",
+      "package": "backend/internal/testsupport",
+      "name": "getenv",
+      "file": "backend/internal/testsupport/testsupport.go",
+      "line": 128,
+      "end_line": 133,
+      "cc": 3
+    }
+  ],
+  "warnings": []
+}
