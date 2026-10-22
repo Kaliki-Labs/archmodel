@@ -38,17 +38,26 @@ func addInputFlags(fs *flag.FlagSet) *inputFlags {
 	return in
 }
 
-// build extracts a fresh model from the flags. Call after fs.Parse.
-func (in *inputFlags) build() (*model.Model, error) {
+// config loads the configuration named by the flags. Call after fs.Parse.
+func (in *inputFlags) config() (*config.Config, error) {
 	in.fs.Visit(func(f *flag.Flag) {
 		if f.Name == "config" {
 			in.explicit = true
 		}
 	})
-	cfg, err := config.Load(in.cfgPath, !in.explicit)
+	return config.Load(in.cfgPath, !in.explicit)
+}
+
+// build extracts a fresh model from the flags. Call after fs.Parse.
+func (in *inputFlags) build() (*model.Model, error) {
+	cfg, err := in.config()
 	if err != nil {
 		return nil, err
 	}
+	return in.buildWith(cfg)
+}
+
+func (in *inputFlags) buildWith(cfg *config.Config) (*model.Model, error) {
 	opts := extract.Options{Root: in.root, Config: cfg}
 	if in.cover != "" {
 		f, err := os.Open(in.cover)

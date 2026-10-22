@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Architecture Explorer</title>
+<style>/*@PALETTE@*/</style>
+<style>/*@CSS@*/</style>
+</head>
+<body>
+<header id="top">
+  <a id="brand" href="#/">Architecture</a>
+  <div id="searchwrap">
+    <input id="search" type="search" placeholder="Search modules, operations, tables, functions" autocomplete="off" aria-label="Search">
+    <div id="results" hidden></div>
+  </div>
+</header>
+<div id="banner" hidden role="alert"></div>
+<nav id="crumbs" aria-label="Breadcrumbs"></nav>
+<div id="tabs" role="tablist">
+  <button id="tab-cards" role="tab" aria-selected="true">Details</button>
+  <button id="tab-graph" role="tab" aria-selected="false">Graph</button>
+</div>
+<main id="app">
+  <section id="graphpane" aria-label="Graph">
+    <div id="graphbar"></div>
+    <div id="cy"></div>
+    <div id="legend"></div>
+    <div id="sheet" hidden></div>
+    <div id="tip" hidden></div>
+  </section>
+  <section id="panel" aria-label="Details"></section>
+</main>
+<script type="application/json" id="archmodel-model">@MODEL_JSON@</script>
+<script type="application/json" id="archmodel-config">@CONFIG_JSON@</script>
+<!--@DIFF@-->
+<script>/*@LIBS@*/</script>
+<script>/*@JS@*/</script>
+</body>
+</html>

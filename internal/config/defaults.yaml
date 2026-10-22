@@ -49,6 +49,12 @@ sql:
   # Module with the same name.
   query_modules: {}
 
+source:
+  # URL template for source links in the Explorer. Placeholders: {path}
+  # (relative to the project root), {line}, {ref} (the explore/serve --ref
+  # flag). Empty: show path:line as text.
+  url_template: ""
+
 rules:
   inward_only:
     severity: error
