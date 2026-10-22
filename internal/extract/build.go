@@ -43,6 +43,9 @@ func Build(opts Options) (*model.Model, error) {
 		mods: map[string]*modInfo{},
 		m:    &model.Model{Version: model.Version, Levels: cfg.Levels},
 	}
+	if abs, err := filepath.Abs(opts.Root); err == nil {
+		b.m.Project = filepath.Base(abs)
+	}
 	if opts.Coverage != nil {
 		if b.profile, err = ParseCoverProfile(opts.Coverage); err != nil {
 			return nil, err
@@ -606,6 +609,7 @@ func (b *builder) computeMetrics() {
 		m := ComputeMetrics(len(ca[mod.ID]), len(ce[mod.ID]), types[mod.ID], abstract[mod.ID])
 		b.rollupFunctions(mod.ID, m)
 		m.Reading = metrics.Reading(mod.Kind, m)
+		m.Zone = metrics.Zone(m)
 		mod.Metrics = m
 	}
 }
