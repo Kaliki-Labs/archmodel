@@ -21,7 +21,7 @@ func runExplore(args []string, stdout, stderr io.Writer) error {
 	fs := flag.NewFlagSet("explore", flag.ContinueOnError)
 	fs.SetOutput(stderr)
 	g := addGuardFlags(fs)
-	out := fs.String("out", ".archmodel/explorer.html", `output file ("-" for stdout)`)
+	out := fs.String("out", "", `output file ("-" for stdout; default <root>/.archmodel/explorer.html)`)
 	ref := fs.String("ref", "", "git ref for {ref} in source.url_template (branch, tag or commit)")
 	diffMode := fs.Bool("diff", false, "render in diff mode: highlight what changed since --base")
 	basePath := fs.String("base", "", "with --diff: the base model.json to compare against")
@@ -74,12 +74,13 @@ func runExplore(args []string, stdout, stderr io.Writer) error {
 		_, err = stdout.Write(html)
 		return err
 	}
-	if err := os.MkdirAll(filepath.Dir(*out), 0o755); err != nil {
+	dest := g.outPath(*out, ".archmodel/explorer.html")
+	if err := os.MkdirAll(filepath.Dir(dest), 0o755); err != nil {
 		return err
 	}
-	if err := os.WriteFile(*out, html, 0o644); err != nil {
+	if err := os.WriteFile(dest, html, 0o644); err != nil {
 		return err
 	}
-	fmt.Fprintf(stderr, "wrote %s (%.1f KB, %d modules)\n", *out, float64(len(html))/1024, len(m.Modules))
+	fmt.Fprintf(stderr, "wrote %s (%.1f KB, %d modules)\n", dest, float64(len(html))/1024, len(m.Modules))
 	return nil
 }

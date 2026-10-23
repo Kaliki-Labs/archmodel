@@ -30,3 +30,8 @@ tool ships defaults matching the template.
 
 A project that follows the template conventions needs only the few lines
 of overrides. A project that doesn't can override everything.
+
+Commands run from the directory holding `go.mod` (`go tool` requires it), so
+with no `--root` they find the project root by walking up to the nearest
+`architecture.yaml` (else `.`), and `--config` and default outputs resolve
+against that root.

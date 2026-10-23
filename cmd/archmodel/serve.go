@@ -42,6 +42,7 @@ func runServe(args []string, stdout, stderr io.Writer) error {
 	if err != nil {
 		return err
 	}
+	in.resolve()
 	watch := []string{
 		filepath.Join(in.root, cfg.Go.Dir),
 		filepath.Join(in.root, cfg.API.SpecsDir),
