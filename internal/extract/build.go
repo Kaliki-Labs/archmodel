@@ -397,9 +397,14 @@ func (b *builder) applyCoverage(fn *model.Function) {
 		cov = float64(covered) / float64(stmts)
 		fn.Statements, fn.Covered = &stmts, &covered
 	}
-	cov = Round(cov)
-	crap := Round(CRAP(fn.CC, cov))
+	cov, crap := coverageScores(fn.CC, cov)
 	fn.Coverage, fn.CRAP = &cov, &crap
+}
+
+// coverageScores rounds coverage and CRAP for the model. CRAP is computed from
+// the exact coverage: rounding first would shift it by up to a few points.
+func coverageScores(cc int, cov float64) (float64, float64) {
+	return Round(cov), Round(CRAP(cc, cov))
 }
 
 // collectAPI reads OpenAPI specs.

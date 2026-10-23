@@ -26,6 +26,15 @@ func TestCRAP(t *testing.T) {
 	}
 }
 
+func TestCoverageScoresUseExactCoverage(t *testing.T) {
+	// 31 of 52 statements covered (59.6%): CRAP from the exact value is 29.82;
+	// from coverage rounded to 0.60 it would be 29.4.
+	cov, crap := coverageScores(15, 31.0/52.0)
+	if cov != 0.6 || crap != 29.82 {
+		t.Errorf("coverageScores(15, 31/52) = %v, %v; want 0.6, 29.82", cov, crap)
+	}
+}
+
 const profile = `mode: set
 ex.com/app/backend/internal/a/a.go:10.20,12.3 2 1
 ex.com/app/backend/internal/a/a.go:12.3,14.4 3 0
