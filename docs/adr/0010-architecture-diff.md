@@ -44,7 +44,7 @@ file (its bare file name for stdout). `gh pr comment --attach diff.png` uploads
 the file and rewrites that reference to the attachment URL, so no placeholder
 is needed; `--image-url` sets any other URL. `--attach` cannot upload
 with `GITHUB_TOKEN`, so CI posts the comment without an image and the image is
-attached from a machine where `gh` runs as a person (see `docs/ci-example.md`).
+attached from a machine where `gh` runs as a person (see `docs/ci-example.md` and [ADR-0011](0011-pr-comment-image-attached-locally.md)).
 Anyone who wants CI to show the image can host the PNG elsewhere (for example
 an assets branch) and pass `--image-url`. The image line is
 emitted only when `--image` is given and an image is drawn. An unchanged diff
