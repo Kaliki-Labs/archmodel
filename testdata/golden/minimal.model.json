@@ -1,0 +1,920 @@
+{
+  "version": 1,
+  "levels": [
+    "composition_root",
+    "domain",
+    "infrastructure",
+    "foundation"
+  ],
+  "modules": [
+    {
+      "id": "cache",
+      "kind": "infrastructure",
+      "level": 2,
+      "purpose": "Package cache provides the Redis client used for request-time caching.",
+      "summary": "Package cache provides the Redis client used for request-time caching.",
+      "dir": "backend/internal/cache",
+      "present": true,
+      "generated": false,
+      "subpackages": [],
+      "metrics": {
+        "ca": 1,
+        "ce": 1,
+        "instability": 0.5,
+        "instability_defined": true,
+        "exported_types": 1,
+        "abstract_types": 0,
+        "abstractness": 0,
+        "distance": 0.5,
+        "worst_cc": 3,
+        "worst_cc_function": "cache.Connect"
+      }
+    },
+    {
+      "id": "cmd/server",
+      "kind": "composition_root",
+      "level": 0,
+      "purpose": "",
+      "summary": "",
+      "dir": "backend/cmd/server",
+      "present": true,
+      "generated": false,
+      "subpackages": [],
+      "metrics": {
+        "ca": 0,
+        "ce": 1,
+        "instability": 1,
+        "instability_defined": true,
+        "exported_types": 0,
+        "abstract_types": 0,
+        "abstractness": 0,
+        "distance": 0,
+        "worst_cc": 1,
+        "worst_cc_function": "cmd/server.main"
+      }
+    },
+    {
+      "id": "config",
+      "kind": "foundation",
+      "level": 3,
+      "purpose": "Package config loads runtime configuration from a YAML file with env overrides.",
+      "summary": "Package config loads runtime configuration from a YAML file with env overrides.",
+      "dir": "backend/internal/config",
+      "present": true,
+      "generated": false,
+      "subpackages": [],
+      "metrics": {
+        "ca": 2,
+        "ce": 0,
+        "instability": 0,
+        "instability_defined": true,
+        "exported_types": 7,
+        "abstract_types": 0,
+        "abstractness": 0,
+        "distance": 1,
+        "worst_cc": 3,
+        "worst_cc_function": "config.Load"
+      }
+    },
+    {
+      "id": "health",
+      "kind": "domain",
+      "level": 1,
+      "purpose": "Package health implements the always-present liveness probe. Like the items\nexample, it demonstrates the full vertical slice: OpenAPI spec ->\noapi-codegen (gin-server interface) -> handler. Unlike items it has no\nstore/db dependency and is always registered, regardless of auth or\ninclude_example_domain, so a freshly generated project always shows the\ncodegen pipeline end to end.",
+      "summary": "Package health implements the always-present liveness probe.",
+      "dir": "backend/internal/health",
+      "present": true,
+      "generated": false,
+      "subpackages": [
+        {
+          "dir": "backend/gen/api/health",
+          "name": "health",
+          "present": false,
+          "generated": true
+        }
+      ],
+      "metrics": {
+        "ca": 1,
+        "ce": 0,
+        "instability": 0,
+        "instability_defined": true,
+        "exported_types": 1,
+        "abstract_types": 0,
+        "abstractness": 0,
+        "distance": 1,
+        "worst_cc": 1,
+        "worst_cc_function": "health.New"
+      }
+    },
+    {
+      "id": "migrate",
+      "kind": "composition_root",
+      "level": 0,
+      "purpose": "Package migrate applies goose SQL migrations at startup. It is a runtime\nconcern kept separate from internal/database, which holds only sqlc-generated\nquery code.",
+      "summary": "Package migrate applies goose SQL migrations at startup.",
+      "dir": "backend/internal/migrate",
+      "present": true,
+      "generated": false,
+      "subpackages": [],
+      "metrics": {
+        "ca": 0,
+        "ce": 0,
+        "instability": 0,
+        "instability_defined": false,
+        "exported_types": 0,
+        "abstract_types": 0,
+        "abstractness": 0,
+        "distance": 1,
+        "worst_cc": 5,
+        "worst_cc_function": "migrate.Up"
+      }
+    },
+    {
+      "id": "observability",
+      "kind": "infrastructure",
+      "level": 2,
+      "purpose": "Package observability wires OpenTelemetry tracing. By default (no endpoint) it\ninstalls nothing, so the global tracer stays a no-op and the app runs with no\nexternal dependencies. Point config.Observability.Endpoint at an OTLP/gRPC\ncollector (host:port) to export traces; otelgin and otelpgx then light up.",
+      "summary": "Package observability wires OpenTelemetry tracing.",
+      "dir": "backend/internal/observability",
+      "present": true,
+      "generated": false,
+      "subpackages": [],
+      "metrics": {
+        "ca": 1,
+        "ce": 0,
+        "instability": 0,
+        "instability_defined": true,
+        "exported_types": 1,
+        "abstract_types": 0,
+        "abstractness": 0,
+        "distance": 1,
+        "worst_cc": 4,
+        "worst_cc_function": "observability.Init"
+      }
+    },
+    {
+      "id": "ratelimit",
+      "kind": "infrastructure",
+      "level": 2,
+      "purpose": "Package ratelimit implements token-bucket rate limiting (Redis-backed via\nGCRA) declared per-operation through the OpenAPI `x-rate-limit` vendor\nextension, plus a separately-gated global per-IP floor. See CONTEXT.md and\ndocs/adr/0001-redis-and-rate-limiting-are-unconditional-infra.md for the design.",
+      "summary": "Package ratelimit implements token-bucket rate limiting (Redis-backed via GCRA) declared per-operation through the OpenAPI `x-rate-limit` vendor extension, plus a separately-gated global per-IP floor.",
+      "dir": "backend/internal/ratelimit",
+      "present": true,
+      "generated": false,
+      "subpackages": [],
+      "metrics": {
+        "ca": 1,
+        "ce": 0,
+        "instability": 0,
+        "instability_defined": true,
+        "exported_types": 4,
+        "abstract_types": 0,
+        "abstractness": 0,
+        "distance": 1,
+        "worst_cc": 10,
+        "worst_cc_function": "ratelimit.ParseRule"
+      }
+    },
+    {
+      "id": "server",
+      "kind": "composition_root",
+      "level": 0,
+      "purpose": "Package server wires config, observability, the database pool and the HTTP\nrouter together. New domains register their routes in Run().",
+      "summary": "Package server wires config, observability, the database pool and the HTTP router together.",
+      "dir": "backend/internal/server",
+      "present": true,
+      "generated": false,
+      "subpackages": [],
+      "metrics": {
+        "ca": 1,
+        "ce": 5,
+        "instability": 0.833,
+        "instability_defined": true,
+        "exported_types": 0,
+        "abstract_types": 0,
+        "abstractness": 0,
+        "distance": 0.167,
+        "worst_cc": 9,
+        "worst_cc_function": "server.Run"
+      }
+    },
+    {
+      "id": "testsupport",
+      "kind": "test_only",
+      "purpose": "Package testsupport provides shared helpers for integration-style handler\ntests: a connection to the test database (docker/docker-compose-test.yaml),\nmigrations, and per-test truncation. Tests register real routes on a real\ngin router and hit real endpoint paths.\n\nEach test package gets its OWN postgres schema (via search_path), so packages\nrun in parallel without colliding. Pass a unique schema name from TestMain.",
+      "summary": "Package testsupport provides shared helpers for integration-style handler tests: a connection to the test database (docker/docker-compose-test.yaml), migrations, and per-test truncation.",
+      "dir": "backend/internal/testsupport",
+      "present": true,
+      "generated": false,
+      "subpackages": []
+    }
+  ],
+  "dependencies": [
+    {
+      "from": "cache",
+      "to": "config",
+      "test_only": false,
+      "files": [
+        "backend/internal/cache/cache.go"
+      ]
+    },
+    {
+      "from": "cmd/server",
+      "to": "server",
+      "test_only": false,
+      "files": [
+        "backend/cmd/server/main.go"
+      ]
+    },
+    {
+      "from": "server",
+      "to": "cache",
+      "test_only": false,
+      "files": [
+        "backend/internal/server/server.go"
+      ]
+    },
+    {
+      "from": "server",
+      "to": "config",
+      "test_only": false,
+      "files": [
+        "backend/internal/server/server.go"
+      ]
+    },
+    {
+      "from": "server",
+      "to": "health",
+      "test_only": false,
+      "files": [
+        "backend/internal/server/server.go"
+      ]
+    },
+    {
+      "from": "server",
+      "to": "observability",
+      "test_only": false,
+      "files": [
+        "backend/internal/server/server.go"
+      ]
+    },
+    {
+      "from": "server",
+      "to": "ratelimit",
+      "test_only": false,
+      "files": [
+        "backend/internal/server/server.go"
+      ]
+    },
+    {
+      "from": "testsupport",
+      "to": "migrate",
+      "test_only": false,
+      "files": [
+        "backend/internal/testsupport/testsupport.go"
+      ]
+    }
+  ],
+  "operations": [
+    {
+      "id": "getHealth",
+      "owner": "health",
+      "method": "GET",
+      "path": "/health",
+      "summary": "Liveness probe",
+      "tags": [],
+      "security": [],
+      "parameters": [],
+      "request_schemas": [],
+      "responses": [
+        {
+          "status": "200",
+          "description": "OK",
+          "schemas": []
+        }
+      ],
+      "spec": "api/services/health.yaml",
+      "line": 7,
+      "implementation": {
+        "function": "health.Service.GetHealth",
+        "file": "backend/internal/health/service.go",
+        "line": 29
+      }
+    }
+  ],
+  "schemas": [],
+  "tables": [],
+  "queries": [],
+  "symbols": [
+    {
+      "module": "cache",
+      "kind": "struct",
+      "name": "Cache",
+      "file": "backend/internal/cache/cache.go",
+      "line": 12
+    },
+    {
+      "module": "cache",
+      "kind": "func",
+      "name": "Connect",
+      "file": "backend/internal/cache/cache.go",
+      "line": 17
+    },
+    {
+      "module": "cache",
+      "kind": "method",
+      "name": "Close",
+      "receiver": "Cache",
+      "file": "backend/internal/cache/cache.go",
+      "line": 29
+    },
+    {
+      "module": "config",
+      "kind": "struct",
+      "name": "Config",
+      "file": "backend/internal/config/config.go",
+      "line": 11
+    },
+    {
+      "module": "config",
+      "kind": "struct",
+      "name": "RedisConfig",
+      "file": "backend/internal/config/config.go",
+      "line": 20
+    },
+    {
+      "module": "config",
+      "kind": "struct",
+      "name": "RateLimitConfig",
+      "file": "backend/internal/config/config.go",
+      "line": 29
+    },
+    {
+      "module": "config",
+      "kind": "struct",
+      "name": "TokenConfig",
+      "file": "backend/internal/config/config.go",
+      "line": 37
+    },
+    {
+      "module": "config",
+      "kind": "struct",
+      "name": "ServerConfig",
+      "file": "backend/internal/config/config.go",
+      "line": 45
+    },
+    {
+      "module": "config",
+      "kind": "struct",
+      "name": "DatabaseConfig",
+      "file": "backend/internal/config/config.go",
+      "line": 49
+    },
+    {
+      "module": "config",
+      "kind": "struct",
+      "name": "ObservabilityConfig",
+      "file": "backend/internal/config/config.go",
+      "line": 56
+    },
+    {
+      "module": "config",
+      "kind": "func",
+      "name": "Load",
+      "file": "backend/internal/config/config.go",
+      "line": 89
+    },
+    {
+      "module": "health",
+      "kind": "struct",
+      "name": "Service",
+      "file": "backend/internal/health/service.go",
+      "line": 18
+    },
+    {
+      "module": "health",
+      "kind": "func",
+      "name": "New",
+      "file": "backend/internal/health/service.go",
+      "line": 20
+    },
+    {
+      "module": "health",
+      "kind": "method",
+      "name": "Register",
+      "receiver": "Service",
+      "file": "backend/internal/health/service.go",
+      "line": 24
+    },
+    {
+      "module": "health",
+      "kind": "method",
+      "name": "GetHealth",
+      "receiver": "Service",
+      "file": "backend/internal/health/service.go",
+      "line": 29
+    },
+    {
+      "module": "migrate",
+      "kind": "func",
+      "name": "Up",
+      "file": "backend/internal/migrate/migrate.go",
+      "line": 20
+    },
+    {
+      "module": "observability",
+      "kind": "struct",
+      "name": "Provider",
+      "file": "backend/internal/observability/observability.go",
+      "line": 21
+    },
+    {
+      "module": "observability",
+      "kind": "func",
+      "name": "Init",
+      "file": "backend/internal/observability/observability.go",
+      "line": 28
+    },
+    {
+      "module": "observability",
+      "kind": "method",
+      "name": "TracerProvider",
+      "receiver": "Provider",
+      "file": "backend/internal/observability/observability.go",
+      "line": 69
+    },
+    {
+      "module": "observability",
+      "kind": "method",
+      "name": "Shutdown",
+      "receiver": "Provider",
+      "file": "backend/internal/observability/observability.go",
+      "line": 77
+    },
+    {
+      "module": "ratelimit",
+      "kind": "type",
+      "name": "RuleLookup",
+      "file": "backend/internal/ratelimit/context.go",
+      "line": 13
+    },
+    {
+      "module": "ratelimit",
+      "kind": "type",
+      "name": "KeyExtractor",
+      "file": "backend/internal/ratelimit/limiter.go",
+      "line": 24
+    },
+    {
+      "module": "ratelimit",
+      "kind": "struct",
+      "name": "Limiter",
+      "file": "backend/internal/ratelimit/limiter.go",
+      "line": 31
+    },
+    {
+      "module": "ratelimit",
+      "kind": "func",
+      "name": "New",
+      "file": "backend/internal/ratelimit/limiter.go",
+      "line": 39
+    },
+    {
+      "module": "ratelimit",
+      "kind": "method",
+      "name": "PerOperation",
+      "receiver": "Limiter",
+      "file": "backend/internal/ratelimit/limiter.go",
+      "line": 51
+    },
+    {
+      "module": "ratelimit",
+      "kind": "method",
+      "name": "GlobalFloor",
+      "receiver": "Limiter",
+      "file": "backend/internal/ratelimit/limiter.go",
+      "line": 75
+    },
+    {
+      "module": "ratelimit",
+      "kind": "struct",
+      "name": "Rule",
+      "file": "backend/internal/ratelimit/rule.go",
+      "line": 21
+    },
+    {
+      "module": "ratelimit",
+      "kind": "func",
+      "name": "ParseRule",
+      "file": "backend/internal/ratelimit/rule.go",
+      "line": 33
+    },
+    {
+      "module": "ratelimit",
+      "kind": "func",
+      "name": "MustParseRule",
+      "file": "backend/internal/ratelimit/rule.go",
+      "line": 69
+    },
+    {
+      "module": "server",
+      "kind": "func",
+      "name": "Run",
+      "file": "backend/internal/server/server.go",
+      "line": 26
+    },
+    {
+      "module": "testsupport",
+      "kind": "struct",
+      "name": "TestDB",
+      "file": "backend/internal/testsupport/testsupport.go",
+      "line": 26
+    },
+    {
+      "module": "testsupport",
+      "kind": "func",
+      "name": "DatabaseURL",
+      "file": "backend/internal/testsupport/testsupport.go",
+      "line": 32
+    },
+    {
+      "module": "testsupport",
+      "kind": "func",
+      "name": "Connect",
+      "file": "backend/internal/testsupport/testsupport.go",
+      "line": 39
+    },
+    {
+      "module": "testsupport",
+      "kind": "func",
+      "name": "NewRouter",
+      "file": "backend/internal/testsupport/testsupport.go",
+      "line": 69
+    },
+    {
+      "module": "testsupport",
+      "kind": "method",
+      "name": "Truncate",
+      "receiver": "TestDB",
+      "file": "backend/internal/testsupport/testsupport.go",
+      "line": 78
+    },
+    {
+      "module": "testsupport",
+      "kind": "func",
+      "name": "DoJSON",
+      "file": "backend/internal/testsupport/testsupport.go",
+      "line": 106
+    },
+    {
+      "module": "testsupport",
+      "kind": "func",
+      "name": "DoJSONAuth",
+      "file": "backend/internal/testsupport/testsupport.go",
+      "line": 111
+    }
+  ],
+  "functions": [
+    {
+      "id": "cache.Cache.Close",
+      "module": "cache",
+      "package": "backend/internal/cache",
+      "name": "Close",
+      "receiver": "Cache",
+      "file": "backend/internal/cache/cache.go",
+      "line": 29,
+      "end_line": 29,
+      "cc": 1
+    },
+    {
+      "id": "cache.Connect",
+      "module": "cache",
+      "package": "backend/internal/cache",
+      "name": "Connect",
+      "file": "backend/internal/cache/cache.go",
+      "line": 17,
+      "end_line": 27,
+      "cc": 3
+    },
+    {
+      "id": "cmd/server.main",
+      "module": "cmd/server",
+      "package": "backend/cmd/server",
+      "name": "main",
+      "file": "backend/cmd/server/main.go",
+      "line": 5,
+      "end_line": 7,
+      "cc": 1
+    },
+    {
+      "id": "config.Load",
+      "module": "config",
+      "package": "backend/internal/config",
+      "name": "Load",
+      "file": "backend/internal/config/config.go",
+      "line": 89,
+      "end_line": 114,
+      "cc": 3
+    },
+    {
+      "id": "config.envOverride",
+      "module": "config",
+      "package": "backend/internal/config",
+      "name": "envOverride",
+      "file": "backend/internal/config/config.go",
+      "line": 65,
+      "end_line": 69,
+      "cc": 2
+    },
+    {
+      "id": "config.envOverrideBool",
+      "module": "config",
+      "package": "backend/internal/config",
+      "name": "envOverrideBool",
+      "file": "backend/internal/config/config.go",
+      "line": 79,
+      "end_line": 85,
+      "cc": 3
+    },
+    {
+      "id": "config.envOverrideInt",
+      "module": "config",
+      "package": "backend/internal/config",
+      "name": "envOverrideInt",
+      "file": "backend/internal/config/config.go",
+      "line": 71,
+      "end_line": 77,
+      "cc": 3
+    },
+    {
+      "id": "health.New",
+      "module": "health",
+      "package": "backend/internal/health",
+      "name": "New",
+      "file": "backend/internal/health/service.go",
+      "line": 20,
+      "end_line": 20,
+      "cc": 1
+    },
+    {
+      "id": "health.Service.GetHealth",
+      "module": "health",
+      "package": "backend/internal/health",
+      "name": "GetHealth",
+      "receiver": "Service",
+      "file": "backend/internal/health/service.go",
+      "line": 29,
+      "end_line": 31,
+      "cc": 1
+    },
+    {
+      "id": "health.Service.Register",
+      "module": "health",
+      "package": "backend/internal/health",
+      "name": "Register",
+      "receiver": "Service",
+      "file": "backend/internal/health/service.go",
+      "line": 24,
+      "end_line": 26,
+      "cc": 1
+    },
+    {
+      "id": "migrate.Up",
+      "module": "migrate",
+      "package": "backend/internal/migrate",
+      "name": "Up",
+      "file": "backend/internal/migrate/migrate.go",
+      "line": 20,
+      "end_line": 40,
+      "cc": 5
+    },
+    {
+      "id": "observability.Init",
+      "module": "observability",
+      "package": "backend/internal/observability",
+      "name": "Init",
+      "file": "backend/internal/observability/observability.go",
+      "line": 28,
+      "end_line": 63,
+      "cc": 4
+    },
+    {
+      "id": "observability.Provider.Shutdown",
+      "module": "observability",
+      "package": "backend/internal/observability",
+      "name": "Shutdown",
+      "receiver": "Provider",
+      "file": "backend/internal/observability/observability.go",
+      "line": 77,
+      "end_line": 86,
+      "cc": 3
+    },
+    {
+      "id": "observability.Provider.TracerProvider",
+      "module": "observability",
+      "package": "backend/internal/observability",
+      "name": "TracerProvider",
+      "receiver": "Provider",
+      "file": "backend/internal/observability/observability.go",
+      "line": 69,
+      "end_line": 74,
+      "cc": 2
+    },
+    {
+      "id": "ratelimit.Limiter.GlobalFloor",
+      "module": "ratelimit",
+      "package": "backend/internal/ratelimit",
+      "name": "GlobalFloor",
+      "receiver": "Limiter",
+      "file": "backend/internal/ratelimit/limiter.go",
+      "line": 75,
+      "end_line": 80,
+      "cc": 1
+    },
+    {
+      "id": "ratelimit.Limiter.PerOperation",
+      "module": "ratelimit",
+      "package": "backend/internal/ratelimit",
+      "name": "PerOperation",
+      "receiver": "Limiter",
+      "file": "backend/internal/ratelimit/limiter.go",
+      "line": 51,
+      "end_line": 69,
+      "cc": 2
+    },
+    {
+      "id": "ratelimit.Limiter.enforce",
+      "module": "ratelimit",
+      "package": "backend/internal/ratelimit",
+      "name": "enforce",
+      "receiver": "Limiter",
+      "file": "backend/internal/ratelimit/limiter.go",
+      "line": 86,
+      "end_line": 109,
+      "cc": 4
+    },
+    {
+      "id": "ratelimit.Limiter.extractKey",
+      "module": "ratelimit",
+      "package": "backend/internal/ratelimit",
+      "name": "extractKey",
+      "receiver": "Limiter",
+      "file": "backend/internal/ratelimit/scope.go",
+      "line": 19,
+      "end_line": 50,
+      "cc": 9
+    },
+    {
+      "id": "ratelimit.MustParseRule",
+      "module": "ratelimit",
+      "package": "backend/internal/ratelimit",
+      "name": "MustParseRule",
+      "file": "backend/internal/ratelimit/rule.go",
+      "line": 69,
+      "end_line": 75,
+      "cc": 2
+    },
+    {
+      "id": "ratelimit.New",
+      "module": "ratelimit",
+      "package": "backend/internal/ratelimit",
+      "name": "New",
+      "file": "backend/internal/ratelimit/limiter.go",
+      "line": 39,
+      "end_line": 44,
+      "cc": 2
+    },
+    {
+      "id": "ratelimit.ParseRule",
+      "module": "ratelimit",
+      "package": "backend/internal/ratelimit",
+      "name": "ParseRule",
+      "file": "backend/internal/ratelimit/rule.go",
+      "line": 33,
+      "end_line": 64,
+      "cc": 10
+    },
+    {
+      "id": "ratelimit.clientIP",
+      "module": "ratelimit",
+      "package": "backend/internal/ratelimit",
+      "name": "clientIP",
+      "file": "backend/internal/ratelimit/scope.go",
+      "line": 52,
+      "end_line": 54,
+      "cc": 1
+    },
+    {
+      "id": "ratelimit.identifierFromBody",
+      "module": "ratelimit",
+      "package": "backend/internal/ratelimit",
+      "name": "identifierFromBody",
+      "file": "backend/internal/ratelimit/scope.go",
+      "line": 63,
+      "end_line": 83,
+      "cc": 8
+    },
+    {
+      "id": "ratelimit.toInt",
+      "module": "ratelimit",
+      "package": "backend/internal/ratelimit",
+      "name": "toInt",
+      "file": "backend/internal/ratelimit/rule.go",
+      "line": 80,
+      "end_line": 91,
+      "cc": 4
+    },
+    {
+      "id": "server.Run",
+      "module": "server",
+      "package": "backend/internal/server",
+      "name": "Run",
+      "file": "backend/internal/server/server.go",
+      "line": 26,
+      "end_line": 94,
+      "cc": 9
+    },
+    {
+      "id": "server.corsMiddleware",
+      "module": "server",
+      "package": "backend/internal/server",
+      "name": "corsMiddleware",
+      "file": "backend/internal/server/server.go",
+      "line": 101,
+      "end_line": 123,
+      "cc": 7
+    },
+    {
+      "id": "testsupport.Connect",
+      "module": "testsupport",
+      "package": "backend/internal/testsupport",
+      "name": "Connect",
+      "file": "backend/internal/testsupport/testsupport.go",
+      "line": 39,
+      "end_line": 66,
+      "cc": 6
+    },
+    {
+      "id": "testsupport.DatabaseURL",
+      "module": "testsupport",
+      "package": "backend/internal/testsupport",
+      "name": "DatabaseURL",
+      "file": "backend/internal/testsupport/testsupport.go",
+      "line": 32,
+      "end_line": 35,
+      "cc": 1
+    },
+    {
+      "id": "testsupport.DoJSON",
+      "module": "testsupport",
+      "package": "backend/internal/testsupport",
+      "name": "DoJSON",
+      "file": "backend/internal/testsupport/testsupport.go",
+      "line": 106,
+      "end_line": 108,
+      "cc": 1
+    },
+    {
+      "id": "testsupport.DoJSONAuth",
+      "module": "testsupport",
+      "package": "backend/internal/testsupport",
+      "name": "DoJSONAuth",
+      "file": "backend/internal/testsupport/testsupport.go",
+      "line": 111,
+      "end_line": 120,
+      "cc": 2
+    },
+    {
+      "id": "testsupport.NewRouter",
+      "module": "testsupport",
+      "package": "backend/internal/testsupport",
+      "name": "NewRouter",
+      "file": "backend/internal/testsupport/testsupport.go",
+      "line": 69,
+      "end_line": 74,
+      "cc": 1
+    },
+    {
+      "id": "testsupport.TestDB.Truncate",
+      "module": "testsupport",
+      "package": "backend/internal/testsupport",
+      "name": "Truncate",
+      "receiver": "TestDB",
+      "file": "backend/internal/testsupport/testsupport.go",
+      "line": 78,
+      "end_line": 103,
+      "cc": 6
+    },
+    {
+      "id": "testsupport.getenv",
+      "module": "testsupport",
+      "package": "backend/internal/testsupport",
+      "name": "getenv",
+      "file": "backend/internal/testsupport/testsupport.go",
+      "line": 122,
+      "end_line": 127,
+      "cc": 3
+    }
+  ],
+  "warnings": []
+}

@@ -1,0 +1,34 @@
+# Reference architecture.yaml for kaliki-template projects.
+#
+# archmodel embeds the template's conventions as defaults (see
+# internal/config/defaults.yaml): Go module in backend/, Modules under
+# internal/* and cmd/*, OpenAPI specs at api/services/<name>.yaml, goose
+# migrations in backend/sql/schema, sqlc queries in backend/sql/queries,
+# Composition roots (server, cmd/*, migrate), Foundation (config, database)
+# and the Rationale for each rule. This file is merged over those defaults:
+# maps merge key by key, scalars and lists replace. Unknown keys are an error.
+#
+# So a project that follows the template needs only what is NOT a convention.
+version: 1
+
+sql:
+  # sqlc query files belong to the Module with the same name (auth.sql ->
+  # auth). outbox.sql is the exception: the transactional outbox is owned by
+  # the events Module, so the tables and queries it touches are attributed
+  # there.
+  query_modules:
+    outbox: events
+
+# Other things you can override (shown with their defaults; delete the
+# leading "#" to change them):
+#
+# kinds:
+#   composition_root: [server, "cmd/*", migrate]
+#   foundation: [config, database]
+#   overrides: {}            # {module-id: domain|infrastructure|...}
+# api:
+#   specs_dir: api/services
+#   implementer: Service     # the type whose methods implement operations
+# rules:
+#   package_doc:
+#     severity: warn         # error | warn

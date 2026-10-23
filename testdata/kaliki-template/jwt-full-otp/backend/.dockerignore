@@ -1,0 +1,8 @@
+# Local dev-only config (gitignored, may contain real credentials on the
+# developer's machine). Docker's build context is filtered by .dockerignore,
+# not .gitignore. Config.Load falls back to defaults + env vars when missing.
+config/env.yaml
+
+bin/
+app
+*.log
