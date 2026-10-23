@@ -173,7 +173,7 @@ func TestDiffGoldenMutatedSink(t *testing.T) {
 	golden(t, "kitchen-sink.mutated.diff.svg", svg)
 
 	for _, want := range []string{"<!-- archmodel-diff -->", "no_domain_to_domain", "`items -> auth`", "archiveItem",
-		"`widgets`", "archived_at", "removed `push`", "![changed subgraph](ARCHMODEL_IMAGE_URL)", "<details>", "```mermaid"} {
+		"`widgets`", "archived_at", "removed `push`", "![changed subgraph](diff.png)", "<details>", "```mermaid"} {
 		if !strings.Contains(md, want) {
 			t.Errorf("Markdown lacks %q:\n%s", want, md)
 		}
@@ -196,12 +196,12 @@ func TestDiffGoldenMutatedSink(t *testing.T) {
 		t.Errorf("PNG is %dx%d", cfg.Width, cfg.Height)
 	}
 	// Deterministic: a second run is byte-identical.
-	md2, _ := runDiffCmd(t, "--base", base, "--head", head, "--image", filepath.Join(tmp, "again"))
+	md2, _ := runDiffCmd(t, "--base", base, "--head", head, "--image", filepath.Join(tmp, "again", "diff"))
 	if md2 != md {
 		t.Error("Markdown differs between runs")
 	}
 	a, _ := os.ReadFile(img + ".png")
-	b, _ := os.ReadFile(filepath.Join(tmp, "again.png"))
+	b, _ := os.ReadFile(filepath.Join(tmp, "again", "diff.png"))
 	if !bytes.Equal(a, b) {
 		t.Error("PNG differs between runs")
 	}

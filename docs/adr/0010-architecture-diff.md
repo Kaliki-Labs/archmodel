@@ -38,9 +38,15 @@ head. Fewer than two Modules means no image.
 dependency lines are grouped per importing Module, Rationales and fix hints are
 cut after a whole sentence (260 and 170 characters).
 
-**Placeholder contract**: the Markdown references the image as
-`![changed subgraph](ARCHMODEL_IMAGE_URL)` (`--image-url` changes it). The
-workflow uploads the PNG and replaces the literal text. The image line is
+**Image reference**: the Markdown references the image as
+`![changed subgraph](diff.png)`: the PNG's path relative to the `--markdown`
+file (its bare file name for stdout). `gh pr comment --attach diff.png` uploads
+the file and rewrites that reference to the attachment URL, so no placeholder
+is needed; `--image-url` sets any other URL. `--attach` cannot upload
+with `GITHUB_TOKEN`, so CI posts the comment without an image and the image is
+attached from a machine where `gh` runs as a person (see `docs/ci-example.md` and [ADR-0011](0011-pr-comment-image-attached-locally.md)).
+Anyone who wants CI to show the image can host the PNG elsewhere (for example
+an assets branch) and pass `--image-url`. The image line is
 emitted only when `--image` is given and an image is drawn. An unchanged diff
 is `<!-- archmodel-diff -->` plus `No architecture changes.` and writes no
 image.

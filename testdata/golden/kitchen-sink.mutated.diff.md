@@ -21,7 +21,7 @@
 - added `widgets` (3 columns)
 - `items` columns: +`archived_at`
 
-![changed subgraph](ARCHMODEL_IMAGE_URL)
+![changed subgraph](diff.png)
 
 <details><summary>Changed subgraph as Mermaid (text version)</summary>
 

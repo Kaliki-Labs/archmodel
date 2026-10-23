@@ -17,6 +17,17 @@ func init() {
 	register("diff", command{summary: "Architecture diff of two models: Markdown, JSON, SVG/PNG", run: runDiff})
 }
 
+// relativeImage is the PNG's path relative to the Markdown file, or just its
+// file name when the Markdown goes to stdout.
+func relativeImage(mdPath, png string) string {
+	if mdPath != "-" {
+		if rel, err := filepath.Rel(filepath.Dir(mdPath), png); err == nil {
+			return filepath.ToSlash(rel)
+		}
+	}
+	return filepath.Base(png)
+}
+
 // imageBase strips a .svg or .png extension, so --image out/diff, out/diff.svg
 // and out/diff.png all write out/diff.svg and out/diff.png.
 func imageBase(path string) string {
@@ -44,7 +55,7 @@ func runDiff(args []string, stdout, stderr io.Writer) error {
 	mdPath := fs.String("markdown", "-", `Markdown PR comment: file, or "-" for stdout`)
 	jsonPath := fs.String("json", "", `diff JSON: file, or "-" for stdout`)
 	imagePath := fs.String("image", "", "changed-subgraph image: writes <path>.svg and <path>.png (a .svg or .png extension is dropped first); nothing is written when nothing changed")
-	imageURL := fs.String("image-url", diff.DefaultImageURL, "URL of the image in the Markdown; the CI workflow replaces the default placeholder after uploading the PNG")
+	imageURL := fs.String("image-url", "", "URL of the image in the Markdown (default: the PNG's path relative to the --markdown file, so `gh pr comment --attach` can upload it)")
 	mermaid := fs.Bool("mermaid", true, "add the Mermaid version of the subgraph, folded in <details>")
 	if err := fs.Parse(args); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
@@ -77,6 +88,9 @@ func runDiff(args []string, stdout, stderr io.Writer) error {
 	draw := *imagePath != "" && d.Changed && d.Subgraph.Drawable()
 	if draw {
 		opts.ImageURL = *imageURL
+		if opts.ImageURL == "" {
+			opts.ImageURL = relativeImage(*mdPath, imageBase(*imagePath)+".png")
+		}
 	}
 	md := d.Markdown(opts)
 

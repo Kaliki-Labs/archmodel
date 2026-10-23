@@ -15,10 +15,6 @@ const Marker = "<!-- archmodel-diff -->"
 // NoChanges is the whole comment when nothing changed.
 const NoChanges = "No architecture changes."
 
-// DefaultImageURL is the placeholder the CI workflow replaces with the real
-// URL after uploading the PNG.
-const DefaultImageURL = "ARCHMODEL_IMAGE_URL"
-
 // Caps that keep the comment short.
 const (
 	// MaxListItems is the most bullets in one section; the rest become "+N more".
@@ -33,7 +29,7 @@ const (
 
 // MarkdownOptions control the PR comment.
 type MarkdownOptions struct {
-	// ImageURL is the URL (or placeholder) of the subgraph image; empty omits
+	// ImageURL is the URL or relative path of the subgraph image; empty omits
 	// the image.
 	ImageURL string
 	// Mermaid adds the folded Mermaid version of the subgraph.
