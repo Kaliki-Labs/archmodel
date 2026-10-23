@@ -1,0 +1,156 @@
+{
+  "version": 1,
+  "id": "events",
+  "kind": "infrastructure",
+  "level": "infrastructure",
+  "summary": "Package events publishes domain events to Kafka/Redpanda.",
+  "purpose": "Package events publishes domain events to Kafka/Redpanda. Services call\nPublisher.Publish; swap in the transactional outbox pattern for at-least-once\ndelivery (see TEMPLATE_NOTES.md).",
+  "dir": "backend/internal/events",
+  "present": true,
+  "generated": false,
+  "public_surface": [
+    {
+      "module": "events",
+      "kind": "struct",
+      "name": "Publisher",
+      "file": "backend/internal/events/events.go",
+      "line": 14
+    },
+    {
+      "module": "events",
+      "kind": "func",
+      "name": "NewPublisher",
+      "file": "backend/internal/events/events.go",
+      "line": 18
+    },
+    {
+      "module": "events",
+      "kind": "method",
+      "name": "Publish",
+      "receiver": "Publisher",
+      "file": "backend/internal/events/events.go",
+      "line": 29
+    },
+    {
+      "module": "events",
+      "kind": "method",
+      "name": "Close",
+      "receiver": "Publisher",
+      "file": "backend/internal/events/events.go",
+      "line": 37
+    }
+  ],
+  "depends_on": [
+    {
+      "module": "config",
+      "kind": "foundation",
+      "test_only": false,
+      "sites": [
+        {
+          "file": "backend/internal/events/events.go",
+          "line": 11
+        }
+      ]
+    }
+  ],
+  "depended_on_by": [
+    {
+      "module": "cmd/workers",
+      "kind": "composition_root",
+      "test_only": false,
+      "sites": [
+        {
+          "file": "backend/cmd/workers/main.go",
+          "line": 22
+        }
+      ]
+    },
+    {
+      "module": "server",
+      "kind": "composition_root",
+      "test_only": false,
+      "sites": [
+        {
+          "file": "backend/internal/server/server.go",
+          "line": 30
+        }
+      ]
+    }
+  ],
+  "owns": {
+    "operations": [],
+    "tables": [
+      "outbox"
+    ],
+    "queries": [
+      {
+        "id": "EnqueueOutbox",
+        "kind": "one",
+        "module": "events",
+        "file": "backend/sql/queries/outbox.sql",
+        "line": 10,
+        "tables": [
+          "outbox"
+        ]
+      },
+      {
+        "id": "ListUnpublishedOutbox",
+        "kind": "many",
+        "module": "events",
+        "file": "backend/sql/queries/outbox.sql",
+        "line": 1,
+        "tables": [
+          "outbox"
+        ]
+      },
+      {
+        "id": "MarkOutboxPublished",
+        "kind": "exec",
+        "module": "events",
+        "file": "backend/sql/queries/outbox.sql",
+        "line": 7,
+        "tables": [
+          "outbox"
+        ]
+      }
+    ]
+  },
+  "metrics": {
+    "ca": 2,
+    "ce": 1,
+    "instability": 0.333,
+    "instability_defined": true,
+    "exported_types": 1,
+    "abstract_types": 0,
+    "abstractness": 0,
+    "distance": 0.667,
+    "reading": "I=0.333, A=0: moderately stable and concrete, D=0.667: off the main sequence, leaning towards the zone of pain. More depends on it, or it depends on less, than its few interfaces justify.",
+    "worst_cc": 1,
+    "worst_cc_function": "events.NewPublisher"
+  },
+  "worst_functions": {
+    "by_cc": [
+      {
+        "id": "events.NewPublisher",
+        "file": "backend/internal/events/events.go",
+        "line": 18,
+        "cc": 1
+      },
+      {
+        "id": "events.Publisher.Close",
+        "file": "backend/internal/events/events.go",
+        "line": 37,
+        "cc": 1
+      },
+      {
+        "id": "events.Publisher.Publish",
+        "file": "backend/internal/events/events.go",
+        "line": 29,
+        "cc": 1
+      }
+    ],
+    "by_crap": []
+  },
+  "subpackages": [],
+  "violations": []
+}

@@ -85,3 +85,22 @@ func TestThresholdsAcceptedAndIgnored(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestMetricRationalesAndSeverity(t *testing.T) {
+	c, err := Defaults()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, k := range []string{"ca", "ce", "i", "a", "d", "cc", "crap"} {
+		if c.MetricRationales[k] == "" {
+			t.Errorf("no rationale for %s", k)
+		}
+	}
+	c, err = Merge([]byte("metric_rationales:\n  crap: custom\n"))
+	if err != nil || c.MetricRationales["crap"] != "custom" || c.MetricRationales["cc"] == "" {
+		t.Errorf("metric rationales should merge key by key: %v %v", err, c)
+	}
+	if _, err := Merge([]byte("rules:\n  package_doc:\n    severity: fatal\n")); err == nil {
+		t.Error("bad severity should be rejected")
+	}
+}

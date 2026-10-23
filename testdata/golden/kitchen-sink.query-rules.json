@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "levels": [
+    "composition_root",
+    "domain",
+    "infrastructure",
+    "foundation"
+  ],
+  "rules": [
+    {
+      "id": "inward_only",
+      "severity": "error",
+      "rationale": "Dependencies point inward only: Composition root, then Domain, then Infrastructure, then Foundation. Inner modules are the stable, widely shared ones. If one of them imports an outer module, a change in the outer module can break everything that relies on the inner one, and import cycles become likely.",
+      "fix": "Move the shared code into a module at the inner Level (or into the Foundation), or invert the dependency: declare an interface in the inner module and let the outer module implement it."
+    },
+    {
+      "id": "no_domain_to_domain",
+      "severity": "error",
+      "rationale": "Each Domain is a self-contained vertical slice. When one Domain imports another, they can no longer be understood, tested or changed independently, and a feature in one starts to hide inside the other.",
+      "fix": "Declare a small interface in the consuming Domain describing only what it needs, and have the Composition root wire the other Domain into it."
+    },
+    {
+      "id": "no_import_composition_root",
+      "severity": "error",
+      "rationale": "The Composition root wires everything together at startup. If anything imports it, wiring code becomes a dependency of business code, which creates cycles and makes the dependency direction impossible to reason about.",
+      "fix": "Move whatever the importer needs out of the Composition root into a Domain, Infrastructure module or Foundation, and import it from there."
+    },
+    {
+      "id": "test_only_out_of_prod",
+      "severity": "error",
+      "rationale": "Test-only modules hold support code for tests such as fixtures and helpers. Production code that imports them ships test scaffolding in the binary, and ties real behaviour to code nobody treats as production.",
+      "fix": "Import the test-only module from _test.go files only. If production code needs the helper, move it into a regular Infrastructure module."
+    },
+    {
+      "id": "package_doc",
+      "severity": "error",
+      "rationale": "The package doc comment is the Purpose on the Module card. It is the first thing a new maintainer or an agent reads about a module, and it is cheaper to keep it accurate than to rediscover what the module is for.",
+      "fix": "Add a comment directly above the package clause that begins with \"Package <name> ...\" (or \"Command <name> ...\" for a main package) and says what the module is for."
+    }
+  ],
+  "metric_rationales": {
+    "a": "Abstractness = interfaces / exported types. A stable module that is all concrete types is hard to change without breaking its dependents; interfaces give them something to hold on to.",
+    "ca": "Afferent coupling: how many other modules import this one. High Ca means many things rely on it, so changing it is risky.",
+    "cc": "Cyclomatic complexity: the number of independent paths through a function. The higher it is, the more tests it needs and the harder it is to read.",
+    "ce": "Efferent coupling: how many modules this one imports. High Ce means it can break when any of them changes.",
+    "crap": "CRAP = CC^2 * (1 - coverage)^3 + CC. It combines complexity with missing test coverage: a complex function with weak tests is the riskiest to change.",
+    "d": "Distance from the main sequence = |A + I - 1|. 0 means stability and abstraction are in balance; near 1 means the zone of pain (stable and concrete) or the zone of uselessness (abstract and unstable).",
+    "i": "Instability = Ce / (Ca + Ce), from 0 (everything depends on it, it depends on nothing) to 1 (it depends on others, nothing depends on it). Stable modules should be hard to break; unstable ones are cheap to change."
+  }
+}

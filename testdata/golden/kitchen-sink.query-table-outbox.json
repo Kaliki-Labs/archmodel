@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "name": "outbox",
+  "owners": [
+    "events"
+  ],
+  "columns": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "nullable": false,
+      "primary_key": true
+    },
+    {
+      "name": "topic",
+      "type": "text",
+      "nullable": false
+    },
+    {
+      "name": "key",
+      "type": "bytea",
+      "nullable": true
+    },
+    {
+      "name": "payload",
+      "type": "bytea",
+      "nullable": false
+    },
+    {
+      "name": "created_at",
+      "type": "timestamptz",
+      "nullable": false
+    },
+    {
+      "name": "published_at",
+      "type": "timestamptz",
+      "nullable": true
+    }
+  ],
+  "migrations": [
+    "backend/sql/schema/0006_outbox.sql"
+  ],
+  "queries": [
+    {
+      "id": "EnqueueOutbox",
+      "kind": "one",
+      "module": "events",
+      "file": "backend/sql/queries/outbox.sql",
+      "line": 10,
+      "tables": [
+        "outbox"
+      ]
+    },
+    {
+      "id": "ListUnpublishedOutbox",
+      "kind": "many",
+      "module": "events",
+      "file": "backend/sql/queries/outbox.sql",
+      "line": 1,
+      "tables": [
+        "outbox"
+      ]
+    },
+    {
+      "id": "MarkOutboxPublished",
+      "kind": "exec",
+      "module": "events",
+      "file": "backend/sql/queries/outbox.sql",
+      "line": 7,
+      "tables": [
+        "outbox"
+      ]
+    }
+  ],
+  "modules": [
+    "events"
+  ]
+}

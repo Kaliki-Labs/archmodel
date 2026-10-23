@@ -1,0 +1,123 @@
+{
+  "version": 1,
+  "module": "config",
+  "relation": "depended_on_by",
+  "modules": [
+    {
+      "module": "auth",
+      "kind": "domain",
+      "test_only": false,
+      "sites": [
+        {
+          "file": "backend/internal/auth/jwt.go",
+          "line": 9
+        },
+        {
+          "file": "backend/internal/auth/service.go",
+          "line": 14
+        },
+        {
+          "file": "backend/internal/auth/setup_test.go",
+          "line": 12,
+          "test": true
+        }
+      ]
+    },
+    {
+      "module": "cache",
+      "kind": "infrastructure",
+      "test_only": false,
+      "sites": [
+        {
+          "file": "backend/internal/cache/cache.go",
+          "line": 9
+        }
+      ]
+    },
+    {
+      "module": "cmd/workers",
+      "kind": "composition_root",
+      "test_only": false,
+      "sites": [
+        {
+          "file": "backend/cmd/workers/main.go",
+          "line": 20
+        }
+      ]
+    },
+    {
+      "module": "events",
+      "kind": "infrastructure",
+      "test_only": false,
+      "sites": [
+        {
+          "file": "backend/internal/events/events.go",
+          "line": 11
+        }
+      ]
+    },
+    {
+      "module": "mail",
+      "kind": "infrastructure",
+      "test_only": false,
+      "sites": [
+        {
+          "file": "backend/internal/mail/mail.go",
+          "line": 19
+        },
+        {
+          "file": "backend/internal/mail/ses_transport.go",
+          "line": 13
+        },
+        {
+          "file": "backend/internal/mail/smtp_transport.go",
+          "line": 8
+        }
+      ]
+    },
+    {
+      "module": "payments",
+      "kind": "infrastructure",
+      "test_only": false,
+      "sites": [
+        {
+          "file": "backend/internal/payments/payments.go",
+          "line": 9
+        }
+      ]
+    },
+    {
+      "module": "push",
+      "kind": "infrastructure",
+      "test_only": false,
+      "sites": [
+        {
+          "file": "backend/internal/push/push.go",
+          "line": 12
+        }
+      ]
+    },
+    {
+      "module": "server",
+      "kind": "composition_root",
+      "test_only": false,
+      "sites": [
+        {
+          "file": "backend/internal/server/server.go",
+          "line": 20
+        }
+      ]
+    },
+    {
+      "module": "storage",
+      "kind": "infrastructure",
+      "test_only": false,
+      "sites": [
+        {
+          "file": "backend/internal/storage/storage.go",
+          "line": 13
+        }
+      ]
+    }
+  ]
+}

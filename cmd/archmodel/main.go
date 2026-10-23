@@ -40,8 +40,11 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return 2
 	}
 	if err := c.run(args[1:], stdout, stderr); err != nil {
-		if err == errUsage {
+		switch err {
+		case errUsage:
 			return 2
+		case errFailed:
+			return 1
 		}
 		fmt.Fprintf(stderr, "archmodel %s: %v\n", args[0], err)
 		return 1

@@ -1,0 +1,495 @@
+{
+  "version": 1,
+  "id": "auth",
+  "kind": "domain",
+  "level": "domain",
+  "summary": "Package auth is a kept (non-example) module: concrete users schema, JWT signup/login, email verification and password reset, backed by sqlc queries.",
+  "purpose": "Package auth is a kept (non-example) module: concrete users schema, JWT\nsignup/login, email verification and password reset, backed by sqlc queries.",
+  "dir": "backend/internal/auth",
+  "present": true,
+  "generated": false,
+  "public_surface": [
+    {
+      "module": "auth",
+      "kind": "func",
+      "name": "HashPassword",
+      "file": "backend/internal/auth/hashing.go",
+      "line": 32
+    },
+    {
+      "module": "auth",
+      "kind": "func",
+      "name": "CheckPassword",
+      "file": "backend/internal/auth/hashing.go",
+      "line": 50
+    },
+    {
+      "module": "auth",
+      "kind": "struct",
+      "name": "TokenIssuer",
+      "file": "backend/internal/auth/jwt.go",
+      "line": 13
+    },
+    {
+      "module": "auth",
+      "kind": "func",
+      "name": "NewTokenIssuer",
+      "file": "backend/internal/auth/jwt.go",
+      "line": 18
+    },
+    {
+      "module": "auth",
+      "kind": "struct",
+      "name": "Claims",
+      "file": "backend/internal/auth/jwt.go",
+      "line": 26
+    },
+    {
+      "module": "auth",
+      "kind": "method",
+      "name": "Issue",
+      "receiver": "TokenIssuer",
+      "file": "backend/internal/auth/jwt.go",
+      "line": 31
+    },
+    {
+      "module": "auth",
+      "kind": "method",
+      "name": "Parse",
+      "receiver": "TokenIssuer",
+      "file": "backend/internal/auth/jwt.go",
+      "line": 43
+    },
+    {
+      "module": "auth",
+      "kind": "method",
+      "name": "ScopeAuth",
+      "receiver": "Service",
+      "file": "backend/internal/auth/middleware.go",
+      "line": 43
+    },
+    {
+      "module": "auth",
+      "kind": "func",
+      "name": "ValidatePassword",
+      "file": "backend/internal/auth/password.go",
+      "line": 22
+    },
+    {
+      "module": "auth",
+      "kind": "struct",
+      "name": "Service",
+      "file": "backend/internal/auth/service.go",
+      "line": 20
+    },
+    {
+      "module": "auth",
+      "kind": "func",
+      "name": "New",
+      "file": "backend/internal/auth/service.go",
+      "line": 36
+    },
+    {
+      "module": "auth",
+      "kind": "method",
+      "name": "Register",
+      "receiver": "Service",
+      "file": "backend/internal/auth/service.go",
+      "line": 49
+    },
+    {
+      "module": "auth",
+      "kind": "method",
+      "name": "Signup",
+      "receiver": "Service",
+      "file": "backend/internal/auth/service.go",
+      "line": 59
+    },
+    {
+      "module": "auth",
+      "kind": "method",
+      "name": "Login",
+      "receiver": "Service",
+      "file": "backend/internal/auth/service.go",
+      "line": 111
+    },
+    {
+      "module": "auth",
+      "kind": "method",
+      "name": "VerifyEmail",
+      "receiver": "Service",
+      "file": "backend/internal/auth/service_tokens.go",
+      "line": 31
+    },
+    {
+      "module": "auth",
+      "kind": "method",
+      "name": "RequestPasswordReset",
+      "receiver": "Service",
+      "file": "backend/internal/auth/service_tokens.go",
+      "line": 60
+    },
+    {
+      "module": "auth",
+      "kind": "method",
+      "name": "ConfirmPasswordReset",
+      "receiver": "Service",
+      "file": "backend/internal/auth/service_tokens.go",
+      "line": 82
+    },
+    {
+      "module": "auth",
+      "kind": "method",
+      "name": "RefreshToken",
+      "receiver": "Service",
+      "file": "backend/internal/auth/sessions.go",
+      "line": 51
+    },
+    {
+      "module": "auth",
+      "kind": "method",
+      "name": "Logout",
+      "receiver": "Service",
+      "file": "backend/internal/auth/sessions.go",
+      "line": 81
+    },
+    {
+      "module": "auth",
+      "kind": "method",
+      "name": "GetCurrentUser",
+      "receiver": "Service",
+      "file": "backend/internal/auth/sessions.go",
+      "line": 97
+    },
+    {
+      "module": "auth",
+      "kind": "interface",
+      "name": "Store",
+      "file": "backend/internal/auth/store.go",
+      "line": 22
+    },
+    {
+      "module": "auth",
+      "kind": "func",
+      "name": "NewStore",
+      "file": "backend/internal/auth/store.go",
+      "line": 53
+    }
+  ],
+  "depends_on": [
+    {
+      "module": "config",
+      "kind": "foundation",
+      "test_only": false,
+      "sites": [
+        {
+          "file": "backend/internal/auth/jwt.go",
+          "line": 9
+        },
+        {
+          "file": "backend/internal/auth/service.go",
+          "line": 14
+        },
+        {
+          "file": "backend/internal/auth/setup_test.go",
+          "line": 12,
+          "test": true
+        }
+      ]
+    },
+    {
+      "module": "database",
+      "kind": "foundation",
+      "test_only": false,
+      "sites": [
+        {
+          "file": "backend/internal/auth/service.go",
+          "line": 15
+        },
+        {
+          "file": "backend/internal/auth/service_tokens.go",
+          "line": 16
+        },
+        {
+          "file": "backend/internal/auth/sessions.go",
+          "line": 15
+        },
+        {
+          "file": "backend/internal/auth/store.go",
+          "line": 9
+        }
+      ]
+    },
+    {
+      "module": "mail",
+      "kind": "infrastructure",
+      "test_only": false,
+      "sites": [
+        {
+          "file": "backend/internal/auth/service.go",
+          "line": 16
+        }
+      ]
+    },
+    {
+      "module": "ratelimit",
+      "kind": "infrastructure",
+      "test_only": false,
+      "sites": [
+        {
+          "file": "backend/internal/auth/service.go",
+          "line": 17
+        },
+        {
+          "file": "backend/internal/auth/setup_test.go",
+          "line": 13,
+          "test": true
+        }
+      ]
+    },
+    {
+      "module": "testsupport",
+      "kind": "test_only",
+      "test_only": true,
+      "sites": [
+        {
+          "file": "backend/internal/auth/service_test.go",
+          "line": 9,
+          "test": true
+        },
+        {
+          "file": "backend/internal/auth/setup_test.go",
+          "line": 14,
+          "test": true
+        }
+      ]
+    }
+  ],
+  "depended_on_by": [
+    {
+      "module": "server",
+      "kind": "composition_root",
+      "test_only": false,
+      "sites": [
+        {
+          "file": "backend/internal/server/server.go",
+          "line": 25
+        }
+      ]
+    }
+  ],
+  "owns": {
+    "operations": [
+      {
+        "id": "confirmPasswordReset",
+        "method": "POST",
+        "path": "/auth/password-reset/confirm",
+        "owner": "auth"
+      },
+      {
+        "id": "getCurrentUser",
+        "method": "GET",
+        "path": "/auth/me",
+        "owner": "auth"
+      },
+      {
+        "id": "login",
+        "method": "POST",
+        "path": "/auth/login",
+        "owner": "auth"
+      },
+      {
+        "id": "logout",
+        "method": "POST",
+        "path": "/auth/logout",
+        "owner": "auth"
+      },
+      {
+        "id": "refreshToken",
+        "method": "POST",
+        "path": "/auth/refresh",
+        "owner": "auth"
+      },
+      {
+        "id": "requestPasswordReset",
+        "method": "POST",
+        "path": "/auth/password-reset/request",
+        "owner": "auth"
+      },
+      {
+        "id": "signup",
+        "method": "POST",
+        "path": "/auth/signup",
+        "owner": "auth"
+      },
+      {
+        "id": "verifyEmail",
+        "method": "POST",
+        "path": "/auth/verify",
+        "owner": "auth"
+      }
+    ],
+    "tables": [
+      "auth_tokens",
+      "refresh_tokens",
+      "users"
+    ],
+    "queries": [
+      {
+        "id": "CreateAuthToken",
+        "kind": "one",
+        "module": "auth",
+        "file": "backend/sql/queries/auth.sql",
+        "line": 30,
+        "tables": [
+          "auth_tokens"
+        ]
+      },
+      {
+        "id": "CreateRefreshToken",
+        "kind": "one",
+        "module": "auth",
+        "file": "backend/sql/queries/auth.sql",
+        "line": 12,
+        "tables": [
+          "refresh_tokens"
+        ]
+      },
+      {
+        "id": "CreateUser",
+        "kind": "one",
+        "module": "auth",
+        "file": "backend/sql/queries/auth.sql",
+        "line": 1,
+        "tables": [
+          "users"
+        ]
+      },
+      {
+        "id": "GetAuthToken",
+        "kind": "one",
+        "module": "auth",
+        "file": "backend/sql/queries/auth.sql",
+        "line": 35,
+        "tables": [
+          "auth_tokens"
+        ]
+      },
+      {
+        "id": "GetRefreshToken",
+        "kind": "one",
+        "module": "auth",
+        "file": "backend/sql/queries/auth.sql",
+        "line": 17,
+        "tables": [
+          "refresh_tokens"
+        ]
+      },
+      {
+        "id": "GetUserByEmail",
+        "kind": "one",
+        "module": "auth",
+        "file": "backend/sql/queries/auth.sql",
+        "line": 6,
+        "tables": [
+          "users"
+        ]
+      },
+      {
+        "id": "GetUserByID",
+        "kind": "one",
+        "module": "auth",
+        "file": "backend/sql/queries/auth.sql",
+        "line": 9,
+        "tables": [
+          "users"
+        ]
+      },
+      {
+        "id": "MarkAuthTokenUsed",
+        "kind": "exec",
+        "module": "auth",
+        "file": "backend/sql/queries/auth.sql",
+        "line": 39,
+        "tables": [
+          "auth_tokens"
+        ]
+      },
+      {
+        "id": "RevokeRefreshToken",
+        "kind": "exec",
+        "module": "auth",
+        "file": "backend/sql/queries/auth.sql",
+        "line": 21,
+        "tables": [
+          "refresh_tokens"
+        ]
+      },
+      {
+        "id": "UpdateUserPassword",
+        "kind": "exec",
+        "module": "auth",
+        "file": "backend/sql/queries/auth.sql",
+        "line": 27,
+        "tables": [
+          "users"
+        ]
+      },
+      {
+        "id": "VerifyUser",
+        "kind": "exec",
+        "module": "auth",
+        "file": "backend/sql/queries/auth.sql",
+        "line": 24,
+        "tables": [
+          "users"
+        ]
+      }
+    ]
+  },
+  "metrics": {
+    "ca": 1,
+    "ce": 4,
+    "instability": 0.8,
+    "instability_defined": true,
+    "exported_types": 4,
+    "abstract_types": 1,
+    "abstractness": 0.25,
+    "distance": 0.05,
+    "reading": "I=0.8, A=0.25: unstable and concrete, on the main sequence, which is fine for a leaf: little depends on it, so it is cheap to change.",
+    "worst_cc": 14,
+    "worst_cc_function": "auth.ValidatePassword"
+  },
+  "worst_functions": {
+    "by_cc": [
+      {
+        "id": "auth.ValidatePassword",
+        "file": "backend/internal/auth/password.go",
+        "line": 22,
+        "cc": 14
+      },
+      {
+        "id": "auth.Service.Login",
+        "file": "backend/internal/auth/service.go",
+        "line": 111,
+        "cc": 8
+      },
+      {
+        "id": "auth.Service.Signup",
+        "file": "backend/internal/auth/service.go",
+        "line": 59,
+        "cc": 8
+      }
+    ],
+    "by_crap": []
+  },
+  "subpackages": [
+    {
+      "dir": "backend/gen/api/auth",
+      "name": "auth",
+      "present": false,
+      "generated": true
+    }
+  ],
+  "violations": []
+}

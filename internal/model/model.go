@@ -33,6 +33,45 @@ type Model struct {
 	Symbols      []Symbol     `json:"symbols"`
 	Functions    []Function   `json:"functions"`
 	Warnings     []Warning    `json:"warnings"`
+
+	// Guardrails (ADR-0008): the policy the model was checked against, the
+	// violations found, and the metric Rationales, so the Explorer and the
+	// diff read them from the model alone.
+	Rules            []Rule            `json:"rules"`
+	Violations       []Violation       `json:"violations"`
+	MetricRationales map[string]string `json:"metric_rationales"`
+}
+
+// Rule is a Guardrails rule's policy.
+type Rule struct {
+	ID        string `json:"id"`
+	Severity  string `json:"severity"` // error | warn
+	Rationale string `json:"rationale"`
+	Fix       string `json:"fix"`
+}
+
+// Violation is one rule broken by one edge or one Module.
+type Violation struct {
+	Rule     string `json:"rule"`
+	Severity string `json:"severity"`
+	// Subject names the offending edge ("auth -> server") or Module.
+	Subject string `json:"subject"`
+	// Module is the Module at fault: the importing side of an edge.
+	Module string `json:"module"`
+	// To is the imported Module for edge violations.
+	To        string `json:"to,omitempty"`
+	Message   string `json:"message"`
+	Rationale string `json:"rationale"`
+	Fix       string `json:"fix"`
+	// Sites are the import lines (or, for a Module, its directory).
+	Sites []Site `json:"sites"`
+}
+
+// Site is a place in the source: file:line (Line 0 = the whole file or directory).
+type Site struct {
+	File string `json:"file"`
+	Line int    `json:"line,omitempty"`
+	Test bool   `json:"test,omitempty"` // the file is a _test.go file
 }
 
 // Module is a node in the model.
@@ -71,6 +110,9 @@ type Metrics struct {
 	AbstractTypes      int     `json:"abstract_types"`
 	Abstractness       float64 `json:"abstractness"`
 	Distance           float64 `json:"distance"`
+	// Reading is a plain-language interpretation of I, A and D for this
+	// Module (see internal/metrics).
+	Reading string `json:"reading"`
 
 	WorstCC           int      `json:"worst_cc"`
 	WorstCCFunction   string   `json:"worst_cc_function,omitempty"`
@@ -86,6 +128,8 @@ type Dependency struct {
 	TestOnly bool   `json:"test_only"`
 	// Files are the source files (relative to the project root) with the import.
 	Files []string `json:"files"`
+	// Sites are the import lines behind Files.
+	Sites []Site `json:"sites"`
 }
 
 // Operation is one OpenAPI operation.
@@ -230,7 +274,31 @@ func (m *Model) Normalize() {
 		return a.To < b.To
 	})
 	for i := range m.Dependencies {
-		sort.Strings(m.Dependencies[i].Files)
+		d := &m.Dependencies[i]
+		sort.Strings(d.Files)
+		sort.Slice(d.Sites, func(a, b int) bool {
+			if d.Sites[a].File != d.Sites[b].File {
+				return d.Sites[a].File < d.Sites[b].File
+			}
+			return d.Sites[a].Line < d.Sites[b].Line
+		})
+		if d.Sites == nil {
+			d.Sites = []Site{}
+		}
+	}
+	if m.Rules == nil {
+		m.Rules = []Rule{}
+	}
+	if m.Violations == nil {
+		m.Violations = []Violation{}
+	}
+	for i := range m.Violations {
+		if m.Violations[i].Sites == nil {
+			m.Violations[i].Sites = []Site{}
+		}
+	}
+	if m.MetricRationales == nil {
+		m.MetricRationales = map[string]string{}
 	}
 	sort.Slice(m.Operations, func(i, j int) bool { return m.Operations[i].ID < m.Operations[j].ID })
 	for i := range m.Operations {
