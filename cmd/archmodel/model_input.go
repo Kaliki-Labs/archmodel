@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/Kaliki-Labs/archmodel/internal/config"
 	"github.com/Kaliki-Labs/archmodel/internal/model"
 )
 
@@ -23,8 +24,17 @@ func addGuardFlags(fs *flag.FlagSet) *guardFlags {
 }
 
 func (g *guardFlags) load() (*model.Model, error) {
+	cfg, err := g.config()
+	if err != nil {
+		return nil, err
+	}
+	return g.loadWith(cfg)
+}
+
+// loadWith is load for a caller that already has the config.
+func (g *guardFlags) loadWith(cfg *config.Config) (*model.Model, error) {
 	if g.modelPath == "" {
-		return g.build()
+		return g.buildWith(cfg)
 	}
 	data, err := os.ReadFile(g.modelPath)
 	if err != nil {

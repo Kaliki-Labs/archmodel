@@ -25,6 +25,7 @@ type Config struct {
 	Kinds      KindsConfig     `yaml:"kinds"`
 	API        APIConfig       `yaml:"api"`
 	SQL        SQLConfig       `yaml:"sql"`
+	Source     SourceConfig    `yaml:"source"`
 	Rules      map[string]Rule `yaml:"rules"`
 	Thresholds map[string]any  `yaml:"thresholds"`
 	// MetricRationales is the short "why" for each metric (keys ca, ce, i, a,
@@ -69,6 +70,14 @@ type SQLConfig struct {
 	SchemaDir    string            `yaml:"schema_dir"`
 	QueriesDir   string            `yaml:"queries_dir"`
 	QueryModules map[string]string `yaml:"query_modules"`
+}
+
+// SourceConfig says how the Explorer links to source code.
+type SourceConfig struct {
+	// URLTemplate has {path}, {line} and {ref} placeholders, for example
+	// https://github.com/ORG/REPO/blob/{ref}/{path}#L{line}. Empty means the
+	// Explorer shows path:line as text.
+	URLTemplate string `yaml:"url_template"`
 }
 
 // Rule is a Guardrails rule's policy: severity, Rationale and fix hint.

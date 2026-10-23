@@ -19,6 +19,14 @@ sql:
   query_modules:
     outbox: events
 
+# Source links in the Explorer. Without a template the Explorer shows
+# path:line as copyable text. {ref} is filled from the --ref flag of
+# `explore` and `serve`; if the template uses {ref} and no --ref is given, the
+# Explorer falls back to path:line text.
+#
+# source:
+#   url_template: "https://github.com/ORG/REPO/blob/{ref}/{path}#L{line}"
+
 # Other things you can override (shown with their defaults; delete the
 # leading "#" to change them):
 #

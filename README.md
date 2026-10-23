@@ -16,7 +16,7 @@ conventions in the consuming project's `architecture.yaml`. The first consumer i
 [kaliki-template](https://github.com/Kaliki-Labs/kaliki-template).
 
 Status: **partly implemented.** The Architecture model and `archmodel build`
-work; rules, queries, the Explorer, `serve` and `diff` are still to come. See
+work, as do the rules, queries, the Explorer and `serve`; `diff` is still to come. See
 [`docs/BRIEF.md`](docs/BRIEF.md).
 
 ## build
@@ -35,6 +35,62 @@ The extractor never needs codegen, network access or a complete `go.sum`:
 generated packages that are missing on disk still show up as Modules (with
 `present: false`), and anything it could not read is reported in the model's
 `warnings` array and on stderr.
+
+## explore
+
+```sh
+go run ./cmd/archmodel explore --root path/to/project --config architecture.yaml
+```
+
+Writes the **Explorer** as one self-contained HTML file (`--out`, default
+`.archmodel/explorer.html`; about 0.8 MB, no network needed). It builds a fresh
+model like `check` does, or reads one with `--model model.json`.
+
+- **System** view: Modules coloured by Level (Composition root, Domain,
+  Infrastructure module, Foundation), layered top to bottom. Test-only modules
+  sit apart and dimmed; both they and test-only edges (dashed) can be toggled.
+- Click or tap a Module to drill in: its **Module card** (purpose, Level,
+  metrics with a plain-language reading and the metric Rationales, depends-on,
+  depended-on-by, what it owns, public surface, worst functions, violations)
+  and a graph of its subpackages (including generated ones that are "gen, not
+  built"), operations, tables and queries. Operations drill down to their
+  schemas along `$ref`; tables to their columns, foreign keys and queries; and
+  functions to CC, coverage and CRAP. Infrastructure modules are exactly as
+  drillable as Domains.
+- **Teaching**: an edge that breaks a rule is red. Hover it, or tap it (a sheet
+  opens, so this works on a phone), to see the Rationale and a fix hint. All
+  teaching text comes from the model.
+- Every view has a URL (`#/module/auth`, `#/operation/login`, `#/table/users`,
+  `#/function/auth.Service.Login`), so links are shareable and the back button
+  works. The search box finds Modules, operations, tables, schemas and
+  functions (press `/`).
+- **On a phone** (below 700px) navigation is cards and breadcrumbs, and the
+  graph is the second tab.
+- **Source links**: set `source.url_template` in `architecture.yaml`, for
+  example `https://github.com/ORG/REPO/blob/{ref}/{path}#L{line}`, and pass
+  `--ref main` (or a commit). Without a template, or if it uses `{ref}` and no
+  `--ref` is given, the Explorer shows copyable `path:line` text.
+
+## serve
+
+```sh
+go run ./cmd/archmodel serve --root path/to/project --addr 127.0.0.1:7878
+```
+
+Serves the Explorer at `/`, the current model at `/model.json` and a
+Server-Sent Events stream at `/events`. It polls the Go, spec, SQL and config
+files about once a second, rebuilds when they change, and open pages reload
+themselves, keeping their route. If a rebuild fails it keeps serving the last
+good model and shows the error in a banner. Ctrl-C stops it. See
+[ADR 0009](docs/adr/0009-serve-watch-and-reload.md).
+
+There is **no authentication**, so it binds to localhost unless you say
+otherwise. To use it from a phone or another machine over a tailnet, bind to
+the machine's tailnet address (or `0.0.0.0` on a network you trust):
+
+```sh
+archmodel serve --addr 100.101.102.103:7878   # then open http://<mac-mini>:7878/ on the phone
+```
 
 ## Config
 
