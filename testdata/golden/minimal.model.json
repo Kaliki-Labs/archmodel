@@ -1,5 +1,6 @@
 {
   "version": 1,
+  "project": "minimal",
   "levels": [
     "composition_root",
     "domain",
@@ -27,6 +28,7 @@
         "abstractness": 0,
         "distance": 0.5,
         "reading": "I=0.5, A=0: moderately stable and concrete, D=0.5: off the main sequence, leaning towards the zone of pain. More depends on it, or it depends on less, than its few interfaces justify.",
+        "zone": "off the main sequence",
         "worst_cc": 3,
         "worst_cc_function": "cache.Connect"
       }
@@ -51,6 +53,7 @@
         "abstractness": 0,
         "distance": 0,
         "reading": "I=1, A=0: unstable and concrete (no exported types, so A=0), on the main sequence. Expected for a Composition root: it wires things together and nothing depends on it.",
+        "zone": "main sequence",
         "worst_cc": 1,
         "worst_cc_function": "cmd/server.main"
       }
@@ -75,6 +78,7 @@
         "abstractness": 0,
         "distance": 1,
         "reading": "I=0, A=0: near (0,0): zone of pain, stable and concrete, hard to change. Expected for a Foundation module, which many modules rely on and which should change rarely; keep it small and steady.",
+        "zone": "zone of pain",
         "worst_cc": 3,
         "worst_cc_function": "config.Load"
       }
@@ -106,6 +110,7 @@
         "abstractness": 0,
         "distance": 1,
         "reading": "I=0, A=0: near (0,0): zone of pain, stable and concrete, hard to change. Many modules depend on it but it offers no interfaces to absorb change; consider extracting an interface or reducing what depends on it.",
+        "zone": "zone of pain",
         "worst_cc": 1,
         "worst_cc_function": "health.New"
       }
@@ -130,6 +135,7 @@
         "abstractness": 0,
         "distance": 1,
         "reading": "Ca=0 and Ce=0: nothing imports it and it imports no other module, so instability is undefined (shown as 0) and its position on the main sequence says nothing. Check whether it is unused.",
+        "zone": "undefined",
         "worst_cc": 5,
         "worst_cc_function": "migrate.Up"
       }
@@ -154,6 +160,7 @@
         "abstractness": 0,
         "distance": 1,
         "reading": "I=0, A=0: near (0,0): zone of pain, stable and concrete, hard to change. Many modules depend on it but it offers no interfaces to absorb change; consider extracting an interface or reducing what depends on it.",
+        "zone": "zone of pain",
         "worst_cc": 4,
         "worst_cc_function": "observability.Init"
       }
@@ -178,6 +185,7 @@
         "abstractness": 0,
         "distance": 1,
         "reading": "I=0, A=0: near (0,0): zone of pain, stable and concrete, hard to change. Many modules depend on it but it offers no interfaces to absorb change; consider extracting an interface or reducing what depends on it.",
+        "zone": "zone of pain",
         "worst_cc": 10,
         "worst_cc_function": "ratelimit.ParseRule"
       }
@@ -202,6 +210,7 @@
         "abstractness": 0,
         "distance": 0.167,
         "reading": "I=0.833, A=0: unstable and concrete (no exported types, so A=0), on the main sequence. Expected for a Composition root: it wires things together and nothing depends on it.",
+        "zone": "main sequence",
         "worst_cc": 9,
         "worst_cc_function": "server.Run"
       }

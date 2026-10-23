@@ -22,7 +22,10 @@ const (
 
 // Model is the whole Architecture model.
 type Model struct {
-	Version      int          `json:"version"`
+	Version int `json:"version"`
+	// Project is the project's name (its root directory's base name), shown in
+	// the Explorer's top bar. Optional: older models omit it.
+	Project      string       `json:"project,omitempty"`
 	Levels       []string     `json:"levels"`
 	Modules      []Module     `json:"modules"`
 	Dependencies []Dependency `json:"dependencies"`
@@ -113,6 +116,10 @@ type Metrics struct {
 	// Reading is a plain-language interpretation of I, A and D for this
 	// Module (see internal/metrics).
 	Reading string `json:"reading"`
+	// Zone is where the Module sits relative to the main sequence ("zone of
+	// pain", "zone of uselessness", "main sequence", "off the main sequence"
+	// or "undefined"); the Explorer uses it to flag Modules in the zone of pain.
+	Zone string `json:"zone,omitempty"`
 
 	WorstCC           int      `json:"worst_cc"`
 	WorstCCFunction   string   `json:"worst_cc_function,omitempty"`

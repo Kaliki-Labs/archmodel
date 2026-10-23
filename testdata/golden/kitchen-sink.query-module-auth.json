@@ -457,6 +457,7 @@
     "abstractness": 0.25,
     "distance": 0.05,
     "reading": "I=0.8, A=0.25: unstable and concrete, on the main sequence, which is fine for a leaf: little depends on it, so it is cheap to change.",
+    "zone": "main sequence",
     "worst_cc": 14,
     "worst_cc_function": "auth.ValidatePassword"
   },

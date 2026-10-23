@@ -125,6 +125,7 @@
     "abstractness": 0,
     "distance": 0.667,
     "reading": "I=0.333, A=0: moderately stable and concrete, D=0.667: off the main sequence, leaning towards the zone of pain. More depends on it, or it depends on less, than its few interfaces justify.",
+    "zone": "off the main sequence",
     "worst_cc": 1,
     "worst_cc_function": "events.NewPublisher"
   },
