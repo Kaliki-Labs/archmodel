@@ -25,7 +25,7 @@ modules +5 · dependencies +12 · operations -1 ~1 · tables +1 ~1
 - added `outbox` (6 columns)
 - `auth_tokens` columns: -`attempts`
 
-![changed subgraph](ARCHMODEL_IMAGE_URL)
+![changed subgraph](large.png)
 
 <details><summary>Changed subgraph as Mermaid (text version)</summary>
 

@@ -18,8 +18,10 @@ public URL. Two options:
    but the image is not inline: use `--image-url` with the run URL and accept a
    link. Use this if you do not want a branch of binaries.
 
-`archmodel diff` writes the literal `ARCHMODEL_IMAGE_URL` into the Markdown; the
-workflow replaces it with `sed` once it knows the URL.
+`archmodel diff` references the PNG by its path relative to the Markdown
+(`diff.png` here), so the `sed` step below rewrites that name to the hosted URL.
+`gh pr comment --attach` (gh 2.99+) is being evaluated as a simpler path; see
+issue #7.
 
 ## Workflow
 
@@ -70,7 +72,7 @@ jobs:
             commit -m "archmodel diff for #${{ github.event.pull_request.number }}"
           git -C assets push
           url="https://github.com/${{ github.repository }}/raw/archmodel-assets/$name"
-          sed -i "s|ARCHMODEL_IMAGE_URL|$url|g" comment.md
+          sed -i "s|(diff.png)|($url)|g" comment.md
 
       - uses: marocchino/sticky-pull-request-comment@v2
         with:

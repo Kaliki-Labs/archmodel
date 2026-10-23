@@ -112,9 +112,11 @@ Rationale and fix hint, and resolved ones; and notable metric changes (see
 - `--image <path>`: draws only the changed subgraph and writes `<path>.svg` and
   `<path>.png` (a `.svg` or `.png` extension is dropped first, so `--image
   out/diff.png` writes both). Pure Go, no external tools; the PNG is at most
-  1200 px wide. The Markdown references the PNG by `--image-url` (default
-  placeholder `ARCHMODEL_IMAGE_URL`) for the CI workflow to replace after
-  uploading, and folds a Mermaid version of the same subgraph in a `<details>`
+  1200 px wide. The Markdown references the PNG by `--image-url`, which defaults to
+  the PNG's path relative to the `--markdown` file (`diff.png` for `--image
+  out/diff --markdown out/diff.md`, or for Markdown on stdout). That renders
+  next to the image locally and lets `gh pr comment --body-file diff.md --attach
+  diff.png` upload it with no rewriting. It folds a Mermaid version of the same subgraph in a `<details>`
   block (`--mermaid=false` to omit it).
 - `--json <path|->`: the diff as deterministic JSON (`"version": 1`), including
   the subgraph.

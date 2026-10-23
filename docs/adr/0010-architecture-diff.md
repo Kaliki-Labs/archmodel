@@ -38,9 +38,14 @@ head. Fewer than two Modules means no image.
 dependency lines are grouped per importing Module, Rationales and fix hints are
 cut after a whole sentence (260 and 170 characters).
 
-**Placeholder contract**: the Markdown references the image as
-`![changed subgraph](ARCHMODEL_IMAGE_URL)` (`--image-url` changes it). The
-workflow uploads the PNG and replaces the literal text. The image line is
+**Image reference**: the Markdown references the image as
+`![changed subgraph](diff.png)`: the PNG's path relative to the `--markdown`
+file (its bare file name for stdout). `gh pr comment --attach diff.png` uploads
+the file and rewrites that reference to the attachment URL, so no placeholder
+is needed; `--image-url` sets any other URL. Attachments are served from an
+unguessable URL that needs no login, even for private repos; anyone who cannot
+accept that should host the PNG elsewhere (for example an assets branch) and
+pass `--image-url`. The image line is
 emitted only when `--image` is given and an image is drawn. An unchanged diff
 is `<!-- archmodel-diff -->` plus `No architecture changes.` and writes no
 image.
