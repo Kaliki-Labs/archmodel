@@ -19,10 +19,27 @@ Status: **partly implemented.** The Architecture model and `archmodel build`
 work, as do the rules, queries, the Explorer and `serve`; `diff` is still to come. See
 [`docs/BRIEF.md`](docs/BRIEF.md).
 
+## Running it
+
+A consumer pins the tool with a `tool` directive in `backend/go.mod` and runs
+it from `backend/`, the directory holding `go.mod`:
+
+```sh
+cd backend && go tool archmodel check
+```
+
+With no `--root`, the project root is the nearest directory above the current
+one that holds `architecture.yaml` (else `.`). `--config` defaults to
+`<root>/architecture.yaml`; an explicit `--config` or `--out` is relative to
+the current directory, while default outputs such as `.archmodel/model.json`
+land under the root. An explicit `--root` disables the search. The examples
+below use `go run ./cmd/archmodel` to work on this repository itself.
+
 ## build
 
 ```sh
 go run ./cmd/archmodel build --root path/to/project --config architecture.yaml
+# or, in a consumer project: cd backend && go tool archmodel build
 ```
 
 Extracts the Architecture model and writes it as JSON (`--out`, default

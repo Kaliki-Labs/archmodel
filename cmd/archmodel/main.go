@@ -53,7 +53,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 }
 
 func usage(w io.Writer) {
-	fmt.Fprintln(w, "usage: archmodel <command> [flags]\n\ncommands:")
+	fmt.Fprintln(w, "usage: archmodel <command> [flags]\n\nIn a consumer project run it from the directory holding go.mod, for example\n  cd backend && go tool archmodel check\nThe project root is found by walking up to the nearest architecture.yaml\n(override with --root); default output paths are relative to it.\n\ncommands:")
 	names := make([]string, 0, len(commands))
 	for n := range commands {
 		names = append(names, n)
