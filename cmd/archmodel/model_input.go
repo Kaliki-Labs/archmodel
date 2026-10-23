@@ -36,19 +36,24 @@ func (g *guardFlags) loadWith(cfg *config.Config) (*model.Model, error) {
 	if g.modelPath == "" {
 		return g.buildWith(cfg)
 	}
-	data, err := os.ReadFile(g.modelPath)
+	return readModel(g.modelPath)
+}
+
+// readModel reads and validates a model.json.
+func readModel(path string) (*model.Model, error) {
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
 	var m model.Model
 	if err := json.Unmarshal(data, &m); err != nil {
-		return nil, fmt.Errorf("%s: %w", g.modelPath, err)
+		return nil, fmt.Errorf("%s: %w", path, err)
 	}
 	if m.Version != model.Version {
-		return nil, fmt.Errorf("%s: model version %d, this tool reads version %d", g.modelPath, m.Version, model.Version)
+		return nil, fmt.Errorf("%s: model version %d, this tool reads version %d", path, m.Version, model.Version)
 	}
 	if len(m.Rules) == 0 {
-		return nil, fmt.Errorf("%s: no rules in the model; rebuild it with this version of archmodel", g.modelPath)
+		return nil, fmt.Errorf("%s: no rules in the model; rebuild it with this version of archmodel", path)
 	}
 	m.Normalize()
 	return &m, nil

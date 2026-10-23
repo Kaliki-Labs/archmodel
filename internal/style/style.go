@@ -34,6 +34,7 @@ var Palette = []Color{
 
 	{"added", "#1a8f3c"},
 	{"removed", "#c0392b"},
+	{"changed", "#d97706"},
 	{"violation", "#d92d20"},
 	{"edge", "#7a828e"},
 }
@@ -54,6 +55,7 @@ func Level(kind string) string { return Get("c-" + kind) }
 // Added, Removed and Violation are the highlight colors.
 func Added() string     { return Get("added") }
 func Removed() string   { return Get("removed") }
+func Changed() string   { return Get("changed") }
 func Violation() string { return Get("violation") }
 
 // CSSVars renders the palette as a :root rule of CSS variables.

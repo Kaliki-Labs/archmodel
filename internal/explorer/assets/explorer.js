@@ -81,10 +81,78 @@
   function pct(n) { return typeof n === 'number' ? Math.round(n * 1000) / 10 + '%' : '-'; }
   function diffClass(kind, id) {
     if (!diff) return '';
-    var a = diff.added && diff.added[kind], r = diff.removed && diff.removed[kind];
+    var a = diff.added && diff.added[kind], r = diff.removed && diff.removed[kind], c = diff.changed && diff.changed[kind];
     if (a && a.indexOf(id) >= 0) return 'diff-added';
     if (r && r.indexOf(id) >= 0) return 'diff-removed';
+    if (c && c.indexOf(id) >= 0) return 'diff-changed';
     return '';
+  }
+  function diffChip(kind, id) {
+    var c = diffClass(kind, id);
+    return c ? chip(c.slice(5), 'diff ' + c) : null;
+  }
+
+  // Diff mode: the summary card on the system view. Everything is a link into
+  // the live model; removed things are ghosted entries that still open.
+  function diffCard() {
+    var d = diff && diff.diff;
+    if (!d) return null;
+    var out = [h('div', { class: 'card diffcard' }, [
+      h('h3', null, 'Architecture diff'),
+      h('p', null, diff.headline || 'No changes.'),
+      h('p', { class: 'sub' }, 'Green = added, dashed red = removed (shown ghosted from the base model), amber = changed.')
+    ])];
+    var nv = d.violations.new || [];
+    if (nv.length) {
+      out.push(h('h3', { class: 'bad-text' }, 'New violations (' + nv.length + ')'));
+      nv.forEach(function (v) {
+        out.push(h('div', null, [violationBox(v),
+          h('p', null, v.to ? link(R.edge(v.module, v.to), 'Show edge ' + v.subject) : link(R.module(v.module), 'Open ' + v.module))]));
+      });
+    }
+    if ((d.violations.resolved || []).length) {
+      out.push(h('p', null, chip((d.violations.resolved.length) + ' violation(s) resolved', 'kind', 'background:var(--added)')));
+    }
+    function group(title, items) {
+      if (!items.length) return;
+      out.push(h('h4', null, title));
+      out.push(list(items));
+    }
+    function row(cls, label, kids) { return h('div', { class: 'item ' + cls }, [chip(label, 'diff ' + cls)].concat(kids)); }
+    var items = [];
+    d.modules.added.forEach(function (m) { items.push(row('diff-added', 'added', [link(R.module(m.id), m.id)])); });
+    d.modules.removed.forEach(function (m) { items.push(row('diff-removed', 'removed', [link(R.module(m.id), m.id)])); });
+    d.modules.kind_changed.forEach(function (k) {
+      items.push(row('diff-changed', 'changed', [link(R.module(k.id), k.id), h('span', { class: 'sub' }, kindLabel(k.from) + ' to ' + kindLabel(k.to))]));
+    });
+    group('Modules', items);
+    items = [];
+    function dep(cls, label, e) {
+      items.push(row(cls, label, [link(R.edge(e.from, e.to), e.from + ' -> ' + e.to), e.test_only ? chip('test-only') : null]));
+    }
+    d.dependencies.added.forEach(function (e) { dep('diff-added', 'added', e); });
+    d.dependencies.removed.forEach(function (e) { dep('diff-removed', 'removed', e); });
+    d.dependencies.changed.forEach(function (e) {
+      items.push(row('diff-changed', 'changed', [link(R.edge(e.from, e.to), e.from + ' -> ' + e.to), h('span', { class: 'sub' }, e.now_test_only ? 'now test-only' : 'now production')]));
+    });
+    group('Dependencies', items);
+    items = [];
+    d.operations.added.forEach(function (o) { items.push(row('diff-added', 'added', [link(R.operation(o.id), o.method + ' ' + o.path), h('span', { class: 'sub' }, o.id)])); });
+    d.operations.removed.forEach(function (o) { items.push(row('diff-removed', 'removed', [link(R.operation(o.id), o.method + ' ' + o.path), h('span', { class: 'sub' }, o.id)])); });
+    d.operations.changed.forEach(function (o) { items.push(row('diff-changed', 'changed', [link(R.operation(o.id), o.method + ' ' + o.path), h('span', { class: 'sub' }, o.changes.join('; '))])); });
+    group('Operations', items);
+    items = [];
+    d.tables.added.forEach(function (t) { items.push(row('diff-added', 'added', [link(R.table(t.name), t.name)])); });
+    d.tables.removed.forEach(function (t) { items.push(row('diff-removed', 'removed', [link(R.table(t.name), t.name)])); });
+    d.tables.changed.forEach(function (t) {
+      var parts = t.columns_added.map(function (c) { return '+' + c; }).concat(t.columns_removed.map(function (c) { return '-' + c; }), t.columns_changed.map(function (c) { return '~' + c; }));
+      items.push(row('diff-changed', 'changed', [link(R.table(t.name), t.name), h('span', { class: 'sub' }, parts.join(' '))]));
+    });
+    group('Tables', items);
+    items = [];
+    d.metrics.forEach(function (m) { items.push(row('diff-changed', 'metrics', [link(R.module(m.module), m.module), h('span', { class: 'sub' }, m.reasons.join('; '))])); });
+    group('Metric changes', items);
+    return out;
   }
 
   // Source link: a configured URL template, else copyable path:line text.
@@ -273,6 +341,7 @@
     inEdges.forEach(function (d) { (violByEdge[d.from + '>' + d.to] || []).forEach(function (v) { if (bad.indexOf(v) < 0) bad.push(v); }); });
     return [
       h('h2', { class: diffClass('modules', m.id) }, m.id),
+      diffChip('modules', m.id),
       h('div', { class: 'meta' }, [kindChip(m.kind), chip(levelText(m)),
         m.generated ? chip(m.present ? 'generated' : 'gen, not built', m.present ? '' : 'warn') : null]),
       m.purpose ? h('p', { class: 'purpose' }, m.purpose)
@@ -294,6 +363,7 @@
     var prodEdges = model.dependencies.filter(function (d) { return !d.test_only; }).length;
     var out = [
       h('h2', null, 'System'),
+      diffCard(),
       h('p', { class: 'sub' }, model.modules.length + ' modules, ' + prodEdges + ' production dependencies, ' +
         model.operations.length + ' operations, ' + model.tables.length + ' tables.')
     ];
@@ -654,7 +724,7 @@
     if (cy) return;
     if (typeof cytoscape === 'undefined') { $('cy').textContent = 'The graph library failed to load.'; return; }
     try { if (!cytoscape('layout', 'dagre') && window.cytoscapeDagre) window.cytoscapeDagre(cytoscape); } catch (e) { /* already registered */ }
-    var violation = cssVar('--violation'), edgeColor = cssVar('--edge'), added = cssVar('--added'), removed = cssVar('--removed');
+    var violation = cssVar('--violation'), edgeColor = cssVar('--edge'), added = cssVar('--added'), removed = cssVar('--removed'), changedColor = cssVar('--changed');
     cy = cytoscape({
       container: $('cy'), minZoom: 0.15, maxZoom: 2.5,
       style: [
@@ -665,6 +735,7 @@
         { selector: 'node.dashed', style: { 'border-width': 2, 'border-style': 'dashed', 'border-color': '#1c2330', 'opacity': 0.8 } },
         { selector: 'node.testonly', style: { 'opacity': 0.45 } },
         { selector: 'node.diff-added', style: { 'border-width': 4, 'border-color': added } },
+        { selector: 'node.diff-changed', style: { 'border-width': 4, 'border-color': changedColor } },
         { selector: 'node.diff-removed', style: { 'border-width': 4, 'border-color': removed, 'border-style': 'dashed', 'opacity': 0.7 } },
         { selector: 'edge', style: { 'curve-style': 'bezier', 'width': 2, 'line-color': edgeColor, 'target-arrow-color': edgeColor,
           'target-arrow-shape': 'triangle', 'arrow-scale': 1.3, 'label': 'data(label)', 'font-size': 11, 'color': '#4b5563',
@@ -672,6 +743,7 @@
         { selector: 'edge.test', style: { 'line-style': 'dashed', 'opacity': 0.6 } },
         { selector: 'edge.violation', style: { 'line-color': violation, 'target-arrow-color': violation, 'width': 5, 'opacity': 1, 'z-index': 10 } },
         { selector: 'edge.diff-added', style: { 'line-color': added, 'target-arrow-color': added, 'width': 4 } },
+        { selector: 'edge.diff-changed', style: { 'line-color': changedColor, 'target-arrow-color': changedColor, 'width': 4 } },
         { selector: 'edge.diff-removed', style: { 'line-color': removed, 'target-arrow-color': removed, 'line-style': 'dashed' } },
         { selector: 'edge.selected', style: { 'width': 6, 'overlay-color': '#1858b8', 'overlay-opacity': 0.25, 'overlay-padding': 6 } }
       ]
