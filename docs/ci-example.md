@@ -2,26 +2,14 @@
 
 `diff` is non-blocking: nothing here fails the build on a violation. The
 workflow below builds a model of the base and of the head, posts one sticky
-comment with the changed-subgraph image, and uploads the diff-mode Explorer as
-an artifact.
+comment (text plus a folded Mermaid version of the changed subgraph), and
+uploads the diff-mode Explorer as an artifact.
 
-## Getting the image into the comment
-
-A PR comment can only show an image from a URL, and Actions artifacts have no
-public URL. Two options:
-
-1. **Commit the PNG to an orphan `archmodel-assets` branch** and point the
-   comment at its raw URL (used below). Works for private repos too, since
-   GitHub renders images in comments with the viewer's access. Create the branch
-   once: `git switch --orphan archmodel-assets && git commit --allow-empty -m init && git push origin archmodel-assets`.
-2. **Upload as an artifact and link it** in the comment. Nothing to maintain,
-   but the image is not inline: use `--image-url` with the run URL and accept a
-   link. Use this if you do not want a branch of binaries.
-
-`archmodel diff` references the PNG by its path relative to the Markdown
-(`diff.png` here), so the `sed` step below rewrites that name to the hosted URL.
-`gh pr comment --attach` (gh 2.99+) is being evaluated as a simpler path; see
-issue #7.
+CI does not draw the image. A PR comment can only show an image from a URL, and
+`gh pr comment --attach` cannot upload with `GITHUB_TOKEN` (it fails with
+`unsupported authentication type`; it works with a user token). So the image is
+added from a machine where `gh` runs as a person, see
+[Adding the image locally](#adding-the-image-locally).
 
 ## Workflow
 
@@ -31,7 +19,7 @@ on:
   pull_request:
 
 permissions:
-  contents: write        # push the PNG to archmodel-assets
+  contents: read
   pull-requests: write   # comment
 
 jobs:
@@ -55,24 +43,9 @@ jobs:
         run: |
           cd head/backend
           go tool archmodel diff --base "$GITHUB_WORKSPACE/base.json" --head "$GITHUB_WORKSPACE/head.json" \
-            --markdown "$GITHUB_WORKSPACE/comment.md" --json "$GITHUB_WORKSPACE/diff.json" \
-            --image "$GITHUB_WORKSPACE/diff"
+            --markdown "$GITHUB_WORKSPACE/comment.md" --json "$GITHUB_WORKSPACE/diff.json"
           go tool archmodel explore --diff --base "$GITHUB_WORKSPACE/base.json" --head "$GITHUB_WORKSPACE/head.json" \
             --ref "${{ github.event.pull_request.head.sha }}" --out "$GITHUB_WORKSPACE/explorer-diff.html"
-
-      - name: Publish the image
-        run: |
-          [ -f diff.png ] || exit 0     # nothing changed: no image was written
-          name="pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}.png"
-          git clone --depth 1 --branch archmodel-assets \
-            "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" assets
-          cp diff.png "assets/$name"
-          git -C assets add "$name"
-          git -C assets -c user.name=archmodel -c user.email=archmodel@users.noreply.github.com \
-            commit -m "archmodel diff for #${{ github.event.pull_request.number }}"
-          git -C assets push
-          url="https://github.com/${{ github.repository }}/raw/archmodel-assets/$name"
-          sed -i "s|(diff.png)|($url)|g" comment.md
 
       - uses: marocchino/sticky-pull-request-comment@v2
         with:
@@ -85,17 +58,39 @@ jobs:
           path: |
             explorer-diff.html
             diff.json
-            diff.svg
 ```
 
 Notes:
 
-- Forks: `GITHUB_TOKEN` is read-only on fork PRs, so pushing the image and
-  commenting both fail. Guard the job with
+- Forks: `GITHUB_TOKEN` is read-only on fork PRs, so commenting fails. Guard the job with
   `if: github.event.pull_request.head.repo.full_name == github.repository`, or
   accept no comment on forks.
 - For a gh-only comment instead of the action, find the comment containing
   `<!-- archmodel-diff -->` with `gh api repos/{owner}/{repo}/issues/{n}/comments`
   and PATCH it, else `gh pr comment --body-file comment.md`.
 - Add `--coverprofile` to both builds if you want CRAP changes in the diff.
-- Old PNGs accumulate on `archmodel-assets`; prune it occasionally.
+
+## Adding the image locally
+
+An agent or developer with `gh` 2.99+ logged in as themselves builds the same two
+models, draws the image, and attaches it. `gh` uploads the PNG as a native
+attachment and rewrites the `![...](diff.png)` reference, which `archmodel diff`
+writes by default (the PNG's path relative to the Markdown):
+
+```sh
+archmodel build --root <base-worktree> --out base.json
+archmodel build --root .               --out head.json
+archmodel diff --base base.json --head head.json --markdown diff.md --image diff
+[ -f diff.png ] && gh pr comment --body-file diff.md --attach diff.png
+```
+
+This posts a second comment next to the CI one. To keep a single comment, delete
+earlier ones that start with `<!-- archmodel-diff -->` first (`gh api
+repos/{owner}/{repo}/issues/{n}/comments`), and have the CI job skip its own
+comment, or use a different `header` for it. Do not use `--edit-last`: it edits
+the last comment by the current user, which may not be the archmodel one.
+
+Put the commands in the agent instructions (for example "after changing module
+dependencies, post the architecture diff image to the PR") so it runs without
+anyone remembering. GitHub serves attachments from an unguessable URL; on a
+private repo an anonymous request got a 404 in our test.
