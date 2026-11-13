@@ -288,6 +288,14 @@ type Query struct {
 	// Score is the static SQL optimization score: derived from the query text
 	// and the table indexes, never from a running database.
 	Score *QueryScore `json:"score,omitempty"`
+	// Hash fingerprints the statement text (whitespace and case ignored), so a
+	// change to a query is visible even when its score does not move.
+	Hash string `json:"hash,omitempty"`
+	// Columns are what the query returns. ColumnsFrom says where the list came
+	// from: "generated" (sqlc's generated Go, which has already expanded *),
+	// "schema" (a * expanded from the migrations) or "text" (listed in the query).
+	Columns     []string `json:"columns,omitempty"`
+	ColumnsFrom string   `json:"columns_from,omitempty"`
 }
 
 // QueryScore rates a query 0-100 (100 = nothing to flag). It is displayed, not

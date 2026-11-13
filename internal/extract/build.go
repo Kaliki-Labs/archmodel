@@ -520,6 +520,7 @@ func (b *builder) collectSQL() {
 	owners := map[string]map[string]bool{}
 	queriesDir := filepath.Join(b.root, b.cfg.SQL.QueriesDir)
 	seen := map[string]string{}
+	gen := generatedSQL(filepath.Join(b.root, b.cfg.Go.Dir))
 	for _, name := range sqlFiles(queriesDir) {
 		rel := path.Join(b.cfg.SQL.QueriesDir, name)
 		data, err := os.ReadFile(filepath.Join(queriesDir, name))
@@ -542,9 +543,17 @@ func (b *builder) collectSQL() {
 			}
 			seen[q.Name] = rel
 			score := ScoreQuery(q, byName)
-			b.m.Queries = append(b.m.Queries, model.Query{
+			mq := model.Query{
 				ID: q.Name, Kind: q.Kind, Module: module, File: rel, Line: q.Line, Tables: q.Tables, Score: &score,
-			})
+				Hash: textHash(q.Body),
+			}
+			mq.Columns, mq.ColumnsFrom = outputColumns(q.Body, byName)
+			if g, ok := gen[q.Name]; ok {
+				if cols, _ := outputColumns(g, byName); len(cols) > 0 {
+					mq.Columns, mq.ColumnsFrom = cols, colsGenerated
+				}
+			}
+			b.m.Queries = append(b.m.Queries, mq)
 			for _, t := range q.Tables {
 				if owners[t] == nil {
 					owners[t] = map[string]bool{}

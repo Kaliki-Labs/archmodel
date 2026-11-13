@@ -71,7 +71,17 @@
         "value": 100,
         "grade": "A",
         "findings": []
-      }
+      },
+      "hash": "2982945c7f7a",
+      "columns": [
+        "id",
+        "topic",
+        "key",
+        "payload",
+        "created_at",
+        "published_at"
+      ],
+      "columns_from": "schema"
     },
     {
       "id": "ListUnpublishedOutbox",
@@ -95,7 +105,17 @@
             "fix": "list only the columns the caller needs"
           }
         ]
-      }
+      },
+      "hash": "df8ad1460b53",
+      "columns": [
+        "id",
+        "topic",
+        "key",
+        "payload",
+        "created_at",
+        "published_at"
+      ],
+      "columns_from": "schema"
     },
     {
       "id": "MarkOutboxPublished",
@@ -110,7 +130,8 @@
         "value": 100,
         "grade": "A",
         "findings": []
-      }
+      },
+      "hash": "db0279d5cadf"
     }
   ],
   "modules": [

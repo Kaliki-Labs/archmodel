@@ -37,6 +37,16 @@ sql-operations`, `query sql-attention` (the work queue: queries below
 **SQL** section (query score drops, new low scorers, estimate changes, new
 N+1, improvements).
 
+**What the diff says.** Per operation: the estimate change plus the query calls
+added and removed (`3 → 4: + GetShipment (via load)`), so a count change names
+its cause. Per query: score changes with the penalty of each finding, text edits
+(`Query.hash`, whitespace and case ignored) and changes in what the query
+returns (`Query.columns`), with the operations that reach it. *Returned
+columns* are read from sqlc's generated Go when it is on disk (sqlc has already
+expanded `*` there, so a table gaining a column shows up in every star query);
+otherwise a `*` is expanded from the migrations and labelled "inferred".
+`Query.columns_from` says which.
+
 **Agent workflow lives outside archmodel.** archmodel reports; a template
 `CLAUDE.md` or skill tells an agent: take the first `sql-attention` item, change
 only that query or call site, rebuild, and confirm the item left the list (score

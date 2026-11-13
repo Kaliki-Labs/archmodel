@@ -2142,7 +2142,19 @@
         "value": 100,
         "grade": "A",
         "findings": []
-      }
+      },
+      "hash": "8a697248a6ef",
+      "columns": [
+        "id",
+        "user_id",
+        "kind",
+        "token_hash",
+        "expires_at",
+        "used_at",
+        "created_at",
+        "attempts"
+      ],
+      "columns_from": "schema"
     },
     {
       "id": "CreateItem",
@@ -2157,7 +2169,14 @@
         "value": 100,
         "grade": "A",
         "findings": []
-      }
+      },
+      "hash": "b8378c9648be",
+      "columns": [
+        "id",
+        "name",
+        "created_at"
+      ],
+      "columns_from": "text"
     },
     {
       "id": "CreateRefreshToken",
@@ -2172,7 +2191,17 @@
         "value": 100,
         "grade": "A",
         "findings": []
-      }
+      },
+      "hash": "784522f0b0c2",
+      "columns": [
+        "id",
+        "user_id",
+        "token_hash",
+        "expires_at",
+        "revoked_at",
+        "created_at"
+      ],
+      "columns_from": "schema"
     },
     {
       "id": "CreateUser",
@@ -2187,7 +2216,19 @@
         "value": 100,
         "grade": "A",
         "findings": []
-      }
+      },
+      "hash": "cbaf66c937d5",
+      "columns": [
+        "id",
+        "email",
+        "password_hash",
+        "name",
+        "role",
+        "verified",
+        "created_at",
+        "updated_at"
+      ],
+      "columns_from": "schema"
     },
     {
       "id": "GetItem",
@@ -2202,7 +2243,14 @@
         "value": 100,
         "grade": "A",
         "findings": []
-      }
+      },
+      "hash": "950d441babf9",
+      "columns": [
+        "id",
+        "name",
+        "created_at"
+      ],
+      "columns_from": "text"
     },
     {
       "id": "GetRefreshToken",
@@ -2226,7 +2274,17 @@
             "fix": "list only the columns the caller needs"
           }
         ]
-      }
+      },
+      "hash": "a2dcc348ac56",
+      "columns": [
+        "id",
+        "user_id",
+        "token_hash",
+        "expires_at",
+        "revoked_at",
+        "created_at"
+      ],
+      "columns_from": "schema"
     },
     {
       "id": "GetUserByEmail",
@@ -2250,7 +2308,19 @@
             "fix": "list only the columns the caller needs"
           }
         ]
-      }
+      },
+      "hash": "079332766b13",
+      "columns": [
+        "id",
+        "email",
+        "password_hash",
+        "name",
+        "role",
+        "verified",
+        "created_at",
+        "updated_at"
+      ],
+      "columns_from": "schema"
     },
     {
       "id": "GetUserByID",
@@ -2274,7 +2344,19 @@
             "fix": "list only the columns the caller needs"
           }
         ]
-      }
+      },
+      "hash": "7609165d94c8",
+      "columns": [
+        "id",
+        "email",
+        "password_hash",
+        "name",
+        "role",
+        "verified",
+        "created_at",
+        "updated_at"
+      ],
+      "columns_from": "schema"
     },
     {
       "id": "IncrementAuthTokenAttempts",
@@ -2289,7 +2371,19 @@
         "value": 100,
         "grade": "A",
         "findings": []
-      }
+      },
+      "hash": "07b37d560dbb",
+      "columns": [
+        "id",
+        "user_id",
+        "kind",
+        "token_hash",
+        "expires_at",
+        "used_at",
+        "created_at",
+        "attempts"
+      ],
+      "columns_from": "schema"
     },
     {
       "id": "ListItems",
@@ -2321,7 +2415,14 @@
             "fix": "CREATE INDEX idx_items_created_at ON items (created_at)"
           }
         ]
-      }
+      },
+      "hash": "be197c6ab3f4",
+      "columns": [
+        "id",
+        "name",
+        "created_at"
+      ],
+      "columns_from": "text"
     },
     {
       "id": "MarkAuthTokenUsed",
@@ -2336,7 +2437,8 @@
         "value": 100,
         "grade": "A",
         "findings": []
-      }
+      },
+      "hash": "9780b244e3a4"
     },
     {
       "id": "RevokeRefreshToken",
@@ -2351,7 +2453,8 @@
         "value": 100,
         "grade": "A",
         "findings": []
-      }
+      },
+      "hash": "cba04640f6d7"
     },
     {
       "id": "UpdateUserPassword",
@@ -2366,7 +2469,8 @@
         "value": 100,
         "grade": "A",
         "findings": []
-      }
+      },
+      "hash": "49b168c8cad5"
     },
     {
       "id": "VerifyUser",
@@ -2381,7 +2485,8 @@
         "value": 100,
         "grade": "A",
         "findings": []
-      }
+      },
+      "hash": "0a141b297c90"
     }
   ],
   "symbols": [
