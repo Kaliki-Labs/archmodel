@@ -1011,6 +1011,45 @@
         "function": "auth.Service.ConfirmPasswordReset",
         "file": "backend/internal/auth/service_tokens.go",
         "line": 82
+      },
+      "sql": {
+        "queries": [
+          {
+            "query": "GetAuthToken",
+            "in_loop": false,
+            "times": 1,
+            "via": [
+              "ConfirmPasswordReset",
+              "consume"
+            ],
+            "file": "backend/internal/auth/service_tokens.go",
+            "line": 147
+          },
+          {
+            "query": "UpdateUserPassword",
+            "in_loop": false,
+            "times": 1,
+            "via": [
+              "ConfirmPasswordReset"
+            ],
+            "file": "backend/internal/auth/service_tokens.go",
+            "line": 104
+          },
+          {
+            "query": "MarkAuthTokenUsed",
+            "in_loop": false,
+            "times": 1,
+            "via": [
+              "ConfirmPasswordReset"
+            ],
+            "file": "backend/internal/auth/service_tokens.go",
+            "line": 108
+          }
+        ],
+        "fixed": 3,
+        "per_item": 0,
+        "estimate": "3",
+        "findings": []
       }
     },
     {
@@ -1057,6 +1096,24 @@
         "function": "items.Service.CreateItem",
         "file": "backend/internal/items/service.go",
         "line": 53
+      },
+      "sql": {
+        "queries": [
+          {
+            "query": "CreateItem",
+            "in_loop": false,
+            "times": 1,
+            "via": [
+              "CreateItem"
+            ],
+            "file": "backend/internal/items/service.go",
+            "line": 63
+          }
+        ],
+        "fixed": 1,
+        "per_item": 0,
+        "estimate": "1",
+        "findings": []
       }
     },
     {
@@ -1092,6 +1149,24 @@
         "function": "auth.Service.GetCurrentUser",
         "file": "backend/internal/auth/sessions.go",
         "line": 97
+      },
+      "sql": {
+        "queries": [
+          {
+            "query": "GetUserByID",
+            "in_loop": false,
+            "times": 1,
+            "via": [
+              "GetCurrentUser"
+            ],
+            "file": "backend/internal/auth/sessions.go",
+            "line": 103
+          }
+        ],
+        "fixed": 1,
+        "per_item": 0,
+        "estimate": "1",
+        "findings": []
       }
     },
     {
@@ -1117,6 +1192,13 @@
         "function": "health.Service.GetHealth",
         "file": "backend/internal/health/service.go",
         "line": 29
+      },
+      "sql": {
+        "queries": [],
+        "fixed": 0,
+        "per_item": 0,
+        "estimate": "0",
+        "findings": []
       }
     },
     {
@@ -1164,6 +1246,24 @@
         "function": "items.Service.GetItem",
         "file": "backend/internal/items/service.go",
         "line": 72
+      },
+      "sql": {
+        "queries": [
+          {
+            "query": "GetItem",
+            "in_loop": false,
+            "times": 1,
+            "via": [
+              "GetItem"
+            ],
+            "file": "backend/internal/items/service.go",
+            "line": 73
+          }
+        ],
+        "fixed": 1,
+        "per_item": 0,
+        "estimate": "1",
+        "findings": []
       }
     },
     {
@@ -1192,6 +1292,24 @@
         "function": "items.Service.ListItems",
         "file": "backend/internal/items/service.go",
         "line": 39
+      },
+      "sql": {
+        "queries": [
+          {
+            "query": "ListItems",
+            "in_loop": false,
+            "times": 1,
+            "via": [
+              "ListItems"
+            ],
+            "file": "backend/internal/items/service.go",
+            "line": 40
+          }
+        ],
+        "fixed": 1,
+        "per_item": 0,
+        "estimate": "1",
+        "findings": []
       }
     },
     {
@@ -1234,6 +1352,48 @@
         "function": "auth.Service.Login",
         "file": "backend/internal/auth/service.go",
         "line": 111
+      },
+      "sql": {
+        "queries": [
+          {
+            "query": "GetUserByEmail",
+            "in_loop": false,
+            "times": 1,
+            "via": [
+              "Login"
+            ],
+            "file": "backend/internal/auth/service.go",
+            "line": 122
+          },
+          {
+            "query": "CreateAuthToken",
+            "in_loop": false,
+            "times": 1,
+            "via": [
+              "Login",
+              "issueVerification",
+              "issueCredential"
+            ],
+            "file": "backend/internal/auth/service_tokens.go",
+            "line": 124
+          },
+          {
+            "query": "CreateRefreshToken",
+            "in_loop": false,
+            "times": 1,
+            "via": [
+              "Login",
+              "respondWithSession",
+              "issueSession"
+            ],
+            "file": "backend/internal/auth/sessions.go",
+            "line": 39
+          }
+        ],
+        "fixed": 3,
+        "per_item": 0,
+        "estimate": "3",
+        "findings": []
       }
     },
     {
@@ -1262,6 +1422,34 @@
         "function": "auth.Service.Logout",
         "file": "backend/internal/auth/sessions.go",
         "line": 81
+      },
+      "sql": {
+        "queries": [
+          {
+            "query": "GetRefreshToken",
+            "in_loop": false,
+            "times": 1,
+            "via": [
+              "Logout"
+            ],
+            "file": "backend/internal/auth/sessions.go",
+            "line": 87
+          },
+          {
+            "query": "RevokeRefreshToken",
+            "in_loop": false,
+            "times": 1,
+            "via": [
+              "Logout"
+            ],
+            "file": "backend/internal/auth/sessions.go",
+            "line": 88
+          }
+        ],
+        "fixed": 2,
+        "per_item": 0,
+        "estimate": "2",
+        "findings": []
       }
     },
     {
@@ -1297,6 +1485,56 @@
         "function": "auth.Service.RefreshToken",
         "file": "backend/internal/auth/sessions.go",
         "line": 51
+      },
+      "sql": {
+        "queries": [
+          {
+            "query": "GetRefreshToken",
+            "in_loop": false,
+            "times": 1,
+            "via": [
+              "RefreshToken"
+            ],
+            "file": "backend/internal/auth/sessions.go",
+            "line": 58
+          },
+          {
+            "query": "RevokeRefreshToken",
+            "in_loop": false,
+            "times": 1,
+            "via": [
+              "RefreshToken"
+            ],
+            "file": "backend/internal/auth/sessions.go",
+            "line": 63
+          },
+          {
+            "query": "GetUserByID",
+            "in_loop": false,
+            "times": 1,
+            "via": [
+              "RefreshToken"
+            ],
+            "file": "backend/internal/auth/sessions.go",
+            "line": 65
+          },
+          {
+            "query": "CreateRefreshToken",
+            "in_loop": false,
+            "times": 1,
+            "via": [
+              "RefreshToken",
+              "respondWithSession",
+              "issueSession"
+            ],
+            "file": "backend/internal/auth/sessions.go",
+            "line": 39
+          }
+        ],
+        "fixed": 4,
+        "per_item": 0,
+        "estimate": "4",
+        "findings": []
       }
     },
     {
@@ -1325,6 +1563,36 @@
         "function": "auth.Service.RequestPasswordReset",
         "file": "backend/internal/auth/service_tokens.go",
         "line": 60
+      },
+      "sql": {
+        "queries": [
+          {
+            "query": "GetUserByEmail",
+            "in_loop": false,
+            "times": 1,
+            "via": [
+              "RequestPasswordReset"
+            ],
+            "file": "backend/internal/auth/service_tokens.go",
+            "line": 67
+          },
+          {
+            "query": "CreateAuthToken",
+            "in_loop": false,
+            "times": 1,
+            "via": [
+              "RequestPasswordReset",
+              "issueReset",
+              "issueCredential"
+            ],
+            "file": "backend/internal/auth/service_tokens.go",
+            "line": 124
+          }
+        ],
+        "fixed": 2,
+        "per_item": 0,
+        "estimate": "2",
+        "findings": []
       }
     },
     {
@@ -1366,6 +1634,36 @@
         "function": "auth.Service.Signup",
         "file": "backend/internal/auth/service.go",
         "line": 59
+      },
+      "sql": {
+        "queries": [
+          {
+            "query": "CreateUser",
+            "in_loop": false,
+            "times": 1,
+            "via": [
+              "Signup"
+            ],
+            "file": "backend/internal/auth/service.go",
+            "line": 85
+          },
+          {
+            "query": "CreateAuthToken",
+            "in_loop": false,
+            "times": 1,
+            "via": [
+              "Signup",
+              "issueVerification",
+              "issueCredential"
+            ],
+            "file": "backend/internal/auth/service_tokens.go",
+            "line": 124
+          }
+        ],
+        "fixed": 2,
+        "per_item": 0,
+        "estimate": "2",
+        "findings": []
       }
     },
     {
@@ -1408,6 +1706,67 @@
         "function": "auth.Service.VerifyEmail",
         "file": "backend/internal/auth/service_tokens.go",
         "line": 31
+      },
+      "sql": {
+        "queries": [
+          {
+            "query": "GetAuthToken",
+            "in_loop": false,
+            "times": 1,
+            "via": [
+              "VerifyEmail",
+              "consume"
+            ],
+            "file": "backend/internal/auth/service_tokens.go",
+            "line": 147
+          },
+          {
+            "query": "VerifyUser",
+            "in_loop": false,
+            "times": 1,
+            "via": [
+              "VerifyEmail"
+            ],
+            "file": "backend/internal/auth/service_tokens.go",
+            "line": 44
+          },
+          {
+            "query": "MarkAuthTokenUsed",
+            "in_loop": false,
+            "times": 1,
+            "via": [
+              "VerifyEmail"
+            ],
+            "file": "backend/internal/auth/service_tokens.go",
+            "line": 48
+          },
+          {
+            "query": "GetUserByID",
+            "in_loop": false,
+            "times": 1,
+            "via": [
+              "VerifyEmail"
+            ],
+            "file": "backend/internal/auth/service_tokens.go",
+            "line": 50
+          },
+          {
+            "query": "CreateRefreshToken",
+            "in_loop": false,
+            "times": 1,
+            "via": [
+              "VerifyEmail",
+              "respondWithSession",
+              "issueSession"
+            ],
+            "file": "backend/internal/auth/sessions.go",
+            "line": 39
+          }
+        ],
+        "fixed": 5,
+        "per_item": 0,
+        "estimate": "5",
+        "findings": []
       }
     }
   ],
@@ -2018,18 +2377,9 @@
         "auth_tokens"
       ],
       "score": {
-        "value": 95,
+        "value": 100,
         "grade": "A",
-        "findings": [
-          {
-            "code": "select-star",
-            "severity": "info",
-            "penalty": 5,
-            "message": "selects or returns every column (*)",
-            "rationale": "SELECT * (or RETURNING *) couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
-            "fix": "list only the columns the caller needs"
-          }
-        ]
+        "findings": []
       }
     },
     {
@@ -2057,18 +2407,9 @@
         "refresh_tokens"
       ],
       "score": {
-        "value": 95,
+        "value": 100,
         "grade": "A",
-        "findings": [
-          {
-            "code": "select-star",
-            "severity": "info",
-            "penalty": 5,
-            "message": "selects or returns every column (*)",
-            "rationale": "SELECT * (or RETURNING *) couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
-            "fix": "list only the columns the caller needs"
-          }
-        ]
+        "findings": []
       }
     },
     {
@@ -2081,18 +2422,9 @@
         "users"
       ],
       "score": {
-        "value": 95,
+        "value": 100,
         "grade": "A",
-        "findings": [
-          {
-            "code": "select-star",
-            "severity": "info",
-            "penalty": 5,
-            "message": "selects or returns every column (*)",
-            "rationale": "SELECT * (or RETURNING *) couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
-            "fix": "list only the columns the caller needs"
-          }
-        ]
+        "findings": []
       }
     },
     {
@@ -2105,18 +2437,9 @@
         "outbox"
       ],
       "score": {
-        "value": 95,
+        "value": 100,
         "grade": "A",
-        "findings": [
-          {
-            "code": "select-star",
-            "severity": "info",
-            "penalty": 5,
-            "message": "selects or returns every column (*)",
-            "rationale": "SELECT * (or RETURNING *) couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
-            "fix": "list only the columns the caller needs"
-          }
-        ]
+        "findings": []
       }
     },
     {
@@ -2136,8 +2459,8 @@
             "code": "select-star",
             "severity": "info",
             "penalty": 5,
-            "message": "selects or returns every column (*)",
-            "rationale": "SELECT * (or RETURNING *) couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
+            "message": "selects every column (*)",
+            "rationale": "SELECT * couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
             "fix": "list only the columns the caller needs"
           }
         ]
@@ -2175,8 +2498,8 @@
             "code": "select-star",
             "severity": "info",
             "penalty": 5,
-            "message": "selects or returns every column (*)",
-            "rationale": "SELECT * (or RETURNING *) couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
+            "message": "selects every column (*)",
+            "rationale": "SELECT * couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
             "fix": "list only the columns the caller needs"
           }
         ]
@@ -2199,8 +2522,8 @@
             "code": "select-star",
             "severity": "info",
             "penalty": 5,
-            "message": "selects or returns every column (*)",
-            "rationale": "SELECT * (or RETURNING *) couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
+            "message": "selects every column (*)",
+            "rationale": "SELECT * couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
             "fix": "list only the columns the caller needs"
           }
         ]
@@ -2223,8 +2546,8 @@
             "code": "select-star",
             "severity": "info",
             "penalty": 5,
-            "message": "selects or returns every column (*)",
-            "rationale": "SELECT * (or RETURNING *) couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
+            "message": "selects every column (*)",
+            "rationale": "SELECT * couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
             "fix": "list only the columns the caller needs"
           }
         ]
@@ -2279,8 +2602,8 @@
             "code": "select-star",
             "severity": "info",
             "penalty": 5,
-            "message": "selects or returns every column (*)",
-            "rationale": "SELECT * (or RETURNING *) couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
+            "message": "selects every column (*)",
+            "rationale": "SELECT * couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
             "fix": "list only the columns the caller needs"
           }
         ]
@@ -4141,5 +4464,9 @@
     "crap": "CRAP = CC^2 * (1 - coverage)^3 + CC. It combines complexity with missing test coverage: a complex function with weak tests is the riskiest to change.",
     "d": "Distance from the main sequence = |A + I - 1|. 0 means stability and abstraction are in balance; near 1 means the zone of pain (stable and concrete) or the zone of uselessness (abstract and unstable).",
     "i": "Instability = Ce / (Ca + Ce), from 0 (everything depends on it, it depends on nothing) to 1 (it depends on others, nothing depends on it). Stable modules should be hard to break; unstable ones are cheap to change."
+  },
+  "sql": {
+    "score_threshold": 75,
+    "max_queries_per_operation": 8
   }
 }

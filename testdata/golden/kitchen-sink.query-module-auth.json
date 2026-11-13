@@ -345,18 +345,9 @@
           "auth_tokens"
         ],
         "score": {
-          "value": 95,
+          "value": 100,
           "grade": "A",
-          "findings": [
-            {
-              "code": "select-star",
-              "severity": "info",
-              "penalty": 5,
-              "message": "selects or returns every column (*)",
-              "rationale": "SELECT * (or RETURNING *) couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
-              "fix": "list only the columns the caller needs"
-            }
-          ]
+          "findings": []
         }
       },
       {
@@ -369,18 +360,9 @@
           "refresh_tokens"
         ],
         "score": {
-          "value": 95,
+          "value": 100,
           "grade": "A",
-          "findings": [
-            {
-              "code": "select-star",
-              "severity": "info",
-              "penalty": 5,
-              "message": "selects or returns every column (*)",
-              "rationale": "SELECT * (or RETURNING *) couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
-              "fix": "list only the columns the caller needs"
-            }
-          ]
+          "findings": []
         }
       },
       {
@@ -393,18 +375,9 @@
           "users"
         ],
         "score": {
-          "value": 95,
+          "value": 100,
           "grade": "A",
-          "findings": [
-            {
-              "code": "select-star",
-              "severity": "info",
-              "penalty": 5,
-              "message": "selects or returns every column (*)",
-              "rationale": "SELECT * (or RETURNING *) couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
-              "fix": "list only the columns the caller needs"
-            }
-          ]
+          "findings": []
         }
       },
       {
@@ -424,8 +397,8 @@
               "code": "select-star",
               "severity": "info",
               "penalty": 5,
-              "message": "selects or returns every column (*)",
-              "rationale": "SELECT * (or RETURNING *) couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
+              "message": "selects every column (*)",
+              "rationale": "SELECT * couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
               "fix": "list only the columns the caller needs"
             }
           ]
@@ -448,8 +421,8 @@
               "code": "select-star",
               "severity": "info",
               "penalty": 5,
-              "message": "selects or returns every column (*)",
-              "rationale": "SELECT * (or RETURNING *) couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
+              "message": "selects every column (*)",
+              "rationale": "SELECT * couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
               "fix": "list only the columns the caller needs"
             }
           ]
@@ -472,8 +445,8 @@
               "code": "select-star",
               "severity": "info",
               "penalty": 5,
-              "message": "selects or returns every column (*)",
-              "rationale": "SELECT * (or RETURNING *) couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
+              "message": "selects every column (*)",
+              "rationale": "SELECT * couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
               "fix": "list only the columns the caller needs"
             }
           ]
@@ -496,8 +469,8 @@
               "code": "select-star",
               "severity": "info",
               "penalty": 5,
-              "message": "selects or returns every column (*)",
-              "rationale": "SELECT * (or RETURNING *) couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
+              "message": "selects every column (*)",
+              "rationale": "SELECT * couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
               "fix": "list only the columns the caller needs"
             }
           ]

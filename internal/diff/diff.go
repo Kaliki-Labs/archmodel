@@ -71,6 +71,7 @@ type Diff struct {
 	Tables       TableChanges      `json:"tables"`
 	Violations   ViolationChanges  `json:"violations"`
 	Metrics      []MetricChange    `json:"metrics"`
+	SQL          SQLChanges        `json:"sql"`
 	Subgraph     Subgraph          `json:"subgraph"`
 }
 
@@ -236,11 +237,12 @@ func Compute(base, head *model.Model) *Diff {
 	diffTables(d, base, head)
 	diffViolations(d, base, head)
 	diffMetrics(d, base, head)
+	diffSQL(d, base, head)
 	d.Changed = len(d.Modules.Added)+len(d.Modules.Removed)+len(d.Modules.KindChanged)+
 		len(d.Dependencies.Added)+len(d.Dependencies.Removed)+len(d.Dependencies.Changed)+
 		len(d.Operations.Added)+len(d.Operations.Removed)+len(d.Operations.Changed)+
 		len(d.Tables.Added)+len(d.Tables.Removed)+len(d.Tables.Changed)+
-		len(d.Violations.New)+len(d.Violations.Resolved)+len(d.Metrics) > 0
+		len(d.Violations.New)+len(d.Violations.Resolved)+len(d.Metrics)+len(d.SQL.Queries)+len(d.SQL.Operations) > 0
 	d.Subgraph = buildSubgraph(d, base, head)
 	return d
 }

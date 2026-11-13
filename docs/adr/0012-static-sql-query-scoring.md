@@ -35,6 +35,6 @@ Both additions are new keys; `version` stays 1.
 
 - Joins are scored on the first table only; CTEs and subqueries are not unpacked.
 - A partial index counts as usable only when the query states its predicate verbatim.
-- Penalties and the grade cut-offs are not configurable yet.
-- Not yet in the Explorer or the Architecture diff (a score drop would belong there).
+- Penalties and the grade cut-offs are not configurable yet; `sql.score_threshold` (default 75) only sets what counts as needing attention.
+- Shown in the Explorer (grade badges, findings, table indexes) and in the PR comment's SQL section (score drops and new low scorers); see ADR-0013 for the per-operation layer.
 - A real `EXPLAIN` mode against a scratch Postgres could later confirm or refine the static findings.

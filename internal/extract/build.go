@@ -27,6 +27,7 @@ type Options struct {
 	Root     string // project root
 	Config   *config.Config
 	Coverage io.Reader // optional Go coverprofile
+	Probe    io.Reader // optional probe file (runtime query counts)
 }
 
 // Build extracts the Architecture model.
@@ -65,9 +66,20 @@ func Build(opts Options) (*model.Model, error) {
 	b.collectAPI()
 	b.collectSQL()
 	b.linkOperations()
+	b.collectFootprints(files)
+	if opts.Probe != nil {
+		pf, err := ParseProbe(opts.Probe)
+		if err != nil {
+			return nil, err
+		}
+		for _, id := range b.applyProbe(pf) {
+			b.warn("probe", "probe file has no operation "+id, "")
+		}
+	}
 	b.computeMetrics()
 	b.m.Rules = rules.Policy(cfg)
 	b.m.MetricRationales = cfg.MetricRationales
+	b.m.SQL = &model.SQLPolicy{ScoreThreshold: cfg.SQL.ScoreThreshold, MaxQueriesPerOperation: cfg.SQL.MaxQueriesPerOperation}
 	b.m.Normalize()
 	b.m.Violations = rules.Evaluate(b.m, cfg)
 	b.m.Normalize()

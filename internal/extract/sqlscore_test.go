@@ -143,3 +143,80 @@ SELECT id FROM users WHERE role = $1 AND created_at BETWEEN $2 AND $3 LIMIT 5;
 		t.Errorf("parsed %d queries, want %d", seen, len(cases))
 	}
 }
+
+// Patterns taken from real kaliki projects (deklutr, instituteos) that an
+// earlier version of the scorer got wrong.
+func TestScoreQueryRealWorldPatterns(t *testing.T) {
+	c := NewCatalog()
+	c.ApplyMigration("m.sql", `-- +goose Up
+CREATE TABLE tasks (id UUID PRIMARY KEY, user_id UUID NOT NULL, page_id UUID, trashed_at TIMESTAMPTZ, due_date DATE, rank TEXT);
+CREATE INDEX idx_tasks_container ON tasks (user_id, page_id, rank) WHERE trashed_at IS NULL;
+CREATE INDEX idx_tasks_due ON tasks (user_id, due_date) WHERE trashed_at IS NULL AND due_date IS NOT NULL;
+CREATE TABLE subtasks (id UUID PRIMARY KEY, task_id UUID NOT NULL, position INT);
+CREATE INDEX idx_subtasks_task ON subtasks (task_id, position);
+CREATE TABLE notes (id UUID PRIMARY KEY, body TEXT);
+`)
+	tables := map[string]model.Table{}
+	for _, tb := range c.Tables() {
+		tables[tb.Name] = tb
+	}
+	src := `-- name: FromView :many
+SELECT s.* FROM subtask_details s JOIN tasks t ON t.id = s.task_id AND t.trashed_at IS NULL
+WHERE s.task_id = @task_id ORDER BY s.position LIMIT 100;
+
+-- name: PartialInJoin :many
+SELECT t.id FROM tasks t
+WHERE t.user_id = @u AND t.trashed_at IS NULL ORDER BY t.page_id LIMIT 50;
+
+-- name: DueRange :many
+SELECT id FROM tasks WHERE user_id = @u AND due_date <= @d AND trashed_at IS NULL ORDER BY due_date LIMIT 50;
+
+-- name: CaseFilter :many
+SELECT id FROM tasks
+WHERE CASE WHEN @p::uuid IS NULL THEN page_id IS NULL AND user_id = @u ELSE page_id = @p END
+ORDER BY rank LIMIT 10;
+
+-- name: InsertReturning :one
+INSERT INTO notes (body) VALUES ($1) RETURNING *;
+
+-- name: CountAll :many
+SELECT count(*) FROM tasks WHERE user_id = @u AND trashed_at IS NULL;
+
+-- name: ByPK :many
+SELECT id, body FROM notes WHERE id = ANY(@ids);
+
+-- name: CTELimit :many
+WITH due AS (
+  SELECT id FROM tasks WHERE user_id = @u AND trashed_at IS NULL ORDER BY rank LIMIT 5
+)
+SELECT t.id FROM tasks t JOIN due d ON d.id = t.id WHERE t.user_id = @u AND t.trashed_at IS NULL LIMIT 5;
+
+-- name: SubqueryLimitDoesNotCount :many
+SELECT id FROM notes WHERE id IN (SELECT id FROM notes LIMIT 3);
+`
+	want := map[string][]string{
+		"FromView":                  {"select-star"},
+		"PartialInJoin":             nil,
+		"DueRange":                  nil,
+		"CaseFilter":                nil,
+		"InsertReturning":           nil,
+		"CountAll":                  nil,
+		"ByPK":                      nil,                // IN-list: PK is the leading index column; not a scan
+		"CTELimit":                  {"unindexed-sort"}, // rank is not next in (user_id, page_id, rank)
+		"SubqueryLimitDoesNotCount": {"unbounded-list"},
+	}
+	seen := 0
+	for _, q := range ParseQueries(src, func(n string) bool { _, ok := tables[n]; return ok }) {
+		seen++
+		var codes []string
+		for _, f := range ScoreQuery(q, tables).Findings {
+			codes = append(codes, f.Code)
+		}
+		if len(codes) != len(want[q.Name]) || (len(codes) > 0 && !reflect.DeepEqual(codes, want[q.Name])) {
+			t.Errorf("%s: findings %v, want %v", q.Name, codes, want[q.Name])
+		}
+	}
+	if seen != len(want) {
+		t.Errorf("parsed %d queries, want %d", seen, len(want))
+	}
+}

@@ -1038,5 +1038,9 @@
     "crap": "CRAP = CC^2 * (1 - coverage)^3 + CC. It combines complexity with missing test coverage: a complex function with weak tests is the riskiest to change.",
     "d": "Distance from the main sequence = |A + I - 1|. 0 means stability and abstraction are in balance; near 1 means the zone of pain (stable and concrete) or the zone of uselessness (abstract and unstable).",
     "i": "Instability = Ce / (Ca + Ce), from 0 (everything depends on it, it depends on nothing) to 1 (it depends on others, nothing depends on it). Stable modules should be hard to break; unstable ones are cheap to change."
+  },
+  "sql": {
+    "score_threshold": 75,
+    "max_queries_per_operation": 8
   }
 }

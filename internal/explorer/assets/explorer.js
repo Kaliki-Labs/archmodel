@@ -567,6 +567,27 @@
       h('div', { class: 'why' }, f.rationale),
       h('div', { class: 'fix' }, [h('span', null, 'Fix: '), h('code', null, f.fix)])])))]);
   }
+  // opSqlSection shows the queries one request runs: the static estimate, each
+  // call (loop calls flagged), any finding, and the probe's measured runs.
+  function opSqlSection(o) {
+    const q = o.sql;
+    if (!q || (!q.queries.length && !q.probe)) return null;
+    const pr = q.probe;
+    const rows = q.queries.map((c) => h('div', { class: 'item' }, [
+      h('code', { class: 'grow' }, c.query),
+      c.in_loop ? badge('in a loop', 'warn') : (c.times > 1 ? badge('\u00d7' + c.times) : null),
+      c.via && c.via.length > 1 ? h('span', { class: 'sub' }, c.via.join(' \u2192 ')) : null,
+      src(c.file, c.line)]));
+    const finds = q.findings.length ? h('ul', { class: 'finds' }, q.findings.map((f) => h('li', { class: 'find sev-' + f.severity }, [
+      h('div', null, [h('b', null, f.code), '  ' + f.message]),
+      h('div', { class: 'why' }, f.rationale),
+      h('div', { class: 'fix' }, [h('span', null, 'Fix: '), h('code', null, f.fix)])]))) : null;
+    const meas = pr ? h('div', { class: 'card', style: 'margin-top:10px' }, list(pr.runs.map((r) => h('div', { class: 'item' }, [
+      h('span', { class: 'grow' }, r.rows + ' rows'), h('code', null, plural(r.queries, 'query', 'queries'))])).concat([
+      h('div', { class: 'item' }, h('span', { class: 'sub' }, 'Measured growth: ' + pr.growth + (pr.slope ? ' (' + pr.slope + ' per row)' : '')))]))) : null;
+    return section('Queries per request: ' + q.estimate, h('div', null, [
+      rows.length ? h('div', { class: 'card' }, list(rows)) : null, finds, meas]));
+  }
   function sqlTile() {
     const sc = model.queries.filter((q) => q.score).sort((a, b) => a.score.value - b.score.value || (a.id < b.id ? -1 : 1));
     if (!sc.length) return null;
@@ -750,6 +771,7 @@
         h('tbody', null, o.responses.map((r) => h('tr', null, [
           h('td', null, h('span', { class: 'code c' + String(r.status)[0] }, r.status)), h('td', null, r.description),
           h('td', null, r.schemas.length ? r.schemas.map((sid) => h('div', { class: 'tree' }, schemaTree(sid, [], 2))) : h('span', { class: 'dim' }, 'no body'))])))])))),
+      opSqlSection(o),
       section('Source', h('p', null, ['Spec: ', src(o.spec, o.line)]))
     ]);
     return {

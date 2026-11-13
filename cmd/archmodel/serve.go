@@ -53,6 +53,9 @@ func runServe(args []string, stdout, stderr io.Writer) error {
 	if in.cover != "" {
 		watch = append(watch, in.cover)
 	}
+	if in.probe != "" {
+		watch = append(watch, in.probe)
+	}
 	srv, err := serve.New(serve.Options{
 		Build: func() (*model.Model, error) {
 			// Reload the config on every build so edits to it take effect.

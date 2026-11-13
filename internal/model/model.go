@@ -43,6 +43,8 @@ type Model struct {
 	Rules            []Rule            `json:"rules"`
 	Violations       []Violation       `json:"violations"`
 	MetricRationales map[string]string `json:"metric_rationales"`
+	// SQL holds the SQL review policy the scores were judged against.
+	SQL *SQLPolicy `json:"sql,omitempty"`
 }
 
 // Rule is a Guardrails rule's policy.
@@ -139,6 +141,13 @@ type Dependency struct {
 	Sites []Site `json:"sites"`
 }
 
+// SQLPolicy is the configured SQL review policy, embedded so readers of the
+// model judge scores by the same thresholds the build used.
+type SQLPolicy struct {
+	ScoreThreshold         int `json:"score_threshold"`
+	MaxQueriesPerOperation int `json:"max_queries_per_operation"`
+}
+
 // Operation is one OpenAPI operation.
 type Operation struct {
 	ID             string          `json:"id"` // operationId
@@ -155,6 +164,45 @@ type Operation struct {
 	Spec           string          `json:"spec"` // spec file, relative to the project root
 	Line           int             `json:"line"` // line of the operation in the spec
 	Implementation *Implementation `json:"implementation,omitempty"`
+	// SQL is the handler's query footprint, found by reading its code
+	// statically, plus any measured result from a runtime probe.
+	SQL *OperationSQL `json:"sql,omitempty"`
+}
+
+// OperationSQL describes the queries one operation runs per request.
+type OperationSQL struct {
+	Queries  []OperationQuery `json:"queries"`
+	Fixed    int              `json:"fixed"`    // queries run once per request
+	PerItem  int              `json:"per_item"` // queries run inside a loop, per iteration
+	Estimate string           `json:"estimate"` // "2", or "2 + N" when a query runs inside a loop
+	Findings []Finding        `json:"findings"`
+	Probe    *Probe           `json:"probe,omitempty"` // measured, from --probe
+}
+
+// OperationQuery is one query call the handler reaches.
+type OperationQuery struct {
+	Query  string   `json:"query"`   // Query.ID
+	InLoop bool     `json:"in_loop"` // runs once per iteration of a loop (N+1 candidate)
+	Times  int      `json:"times"`   // fixed repeat count (a loop with a literal bound), usually 1
+	Via    []string `json:"via"`     // functions between the handler and the call
+	File   string   `json:"file"`
+	Line   int      `json:"line"`
+}
+
+// Probe is a measured result: the handler was run against growing data and its
+// queries counted (ADR-0013). It is the proof for what the static footprint
+// can only suspect.
+type Probe struct {
+	Runs   []ProbeRun `json:"runs"`
+	Growth string     `json:"growth"` // constant, linear, superlinear
+	Slope  float64    `json:"slope"`  // extra queries per extra row (0 = constant)
+}
+
+// ProbeRun is one measured call.
+type ProbeRun struct {
+	Rows       int      `json:"rows"`
+	Queries    int      `json:"queries"`
+	Statements []string `json:"statements,omitempty"` // distinct SQL seen, in first-seen order
 }
 
 // Parameter is an operation parameter.
@@ -356,6 +404,17 @@ func (m *Model) Normalize() {
 		}
 		for j := range o.Responses {
 			o.Responses[j].Schemas = nonNil(o.Responses[j].Schemas)
+		}
+		if o.SQL != nil {
+			if o.SQL.Queries == nil {
+				o.SQL.Queries = []OperationQuery{}
+			}
+			if o.SQL.Findings == nil {
+				o.SQL.Findings = []Finding{}
+			}
+			for k := range o.SQL.Queries {
+				o.SQL.Queries[k].Via = nonNil(o.SQL.Queries[k].Via)
+			}
 		}
 	}
 	sort.Slice(m.Schemas, func(i, j int) bool { return m.Schemas[i].ID < m.Schemas[j].ID })

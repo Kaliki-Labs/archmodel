@@ -483,3 +483,78 @@ func (ix *Index) SQLScore() any {
 	}
 	return ans
 }
+
+// SQLOperationEntry is one operation with its per-request query footprint.
+type SQLOperationEntry struct {
+	ID       string          `json:"id"`
+	Method   string          `json:"method"`
+	Path     string          `json:"path"`
+	Estimate string          `json:"estimate"`
+	Fixed    int             `json:"fixed"`
+	PerItem  int             `json:"per_item"`
+	Measured string          `json:"measured,omitempty"` // probe growth class, when probed
+	Findings []model.Finding `json:"findings"`
+}
+
+// SQLAttentionAnswer is the work queue for SQL improvement: queries scoring
+// below the threshold and operations with SQL findings. An agent takes one
+// item, fixes it in isolation, rebuilds and checks the item left the list.
+type SQLAttentionAnswer struct {
+	Version    int                 `json:"version"`
+	Threshold  int                 `json:"threshold"`
+	Queries    []SQLScoreEntry     `json:"queries"`
+	Operations []SQLOperationEntry `json:"operations"`
+}
+
+func opSQLEntry(o model.Operation) SQLOperationEntry {
+	e := SQLOperationEntry{
+		ID: o.ID, Method: o.Method, Path: o.Path,
+		Estimate: o.SQL.Estimate, Fixed: o.SQL.Fixed, PerItem: o.SQL.PerItem, Findings: o.SQL.Findings,
+	}
+	if o.SQL.Probe != nil {
+		e.Measured = o.SQL.Probe.Growth
+	}
+	return e
+}
+
+// SQLOperations lists every operation that reaches a query, most queries per
+// request first.
+func (ix *Index) SQLOperations() any {
+	out := []SQLOperationEntry{}
+	for _, o := range ix.M.Operations {
+		if o.SQL != nil && (len(o.SQL.Queries) > 0 || o.SQL.Probe != nil) {
+			out = append(out, opSQLEntry(o))
+		}
+	}
+	sort.SliceStable(out, func(i, j int) bool {
+		if out[i].PerItem != out[j].PerItem {
+			return out[i].PerItem > out[j].PerItem
+		}
+		if out[i].Fixed != out[j].Fixed {
+			return out[i].Fixed > out[j].Fixed
+		}
+		return out[i].ID < out[j].ID
+	})
+	return map[string]any{"version": Version, "operations": out}
+}
+
+// SQLAttention is the SQL work queue, worst first.
+func (ix *Index) SQLAttention() any {
+	ans := SQLAttentionAnswer{Version: Version, Queries: []SQLScoreEntry{}, Operations: []SQLOperationEntry{}}
+	if ix.M.SQL != nil {
+		ans.Threshold = ix.M.SQL.ScoreThreshold
+	}
+	all := ix.SQLScore().(SQLScoreAnswer)
+	for _, q := range all.Queries {
+		if q.Score < ans.Threshold {
+			ans.Queries = append(ans.Queries, q)
+		}
+	}
+	for _, o := range ix.M.Operations {
+		if o.SQL != nil && len(o.SQL.Findings) > 0 {
+			ans.Operations = append(ans.Operations, opSQLEntry(o))
+		}
+	}
+	sort.SliceStable(ans.Operations, func(i, j int) bool { return ans.Operations[i].ID < ans.Operations[j].ID })
+	return ans
+}

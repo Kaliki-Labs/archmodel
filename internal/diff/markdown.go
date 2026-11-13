@@ -66,6 +66,7 @@ func (d *Diff) Markdown(o MarkdownOptions) string {
 	section("Operations", d.operationLines())
 	section("Tables", d.tableLines())
 	section("Metric changes", d.metricLines())
+	section("SQL", d.sqlLines())
 
 	if d.Subgraph.Drawable() {
 		if o.ImageURL != "" {
@@ -114,6 +115,9 @@ func (d *Diff) headline() string {
 	}
 	if n := len(d.Metrics); n > 0 {
 		parts = append(parts, fmt.Sprintf("%d metric %s", n, plural(n, "change", "changes")))
+	}
+	if n := len(d.SQL.Queries) + len(d.SQL.Operations); n > 0 {
+		parts = append(parts, fmt.Sprintf("%d SQL %s", n, plural(n, "change", "changes")))
 	}
 	return strings.Join(parts, " · ")
 }
