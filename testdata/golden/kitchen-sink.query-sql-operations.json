@@ -1,0 +1,110 @@
+{
+  "limits": [
+    "Calls into other Modules are not followed: an operation that shows 0 queries may delegate them (OAuth, connections, event streams). Read the handler or probe it.",
+    "Interface calls, callbacks and closures passed to helpers are not followed; the estimate can undercount.",
+    "The estimate counts every branch and treats any loop over a non-literal bound as N, so a loop that rarely queries (cache miss, small fixed list) can be a false N+1. A probe settles it.",
+    "N is unknown; the probe measures shape (queries per row), not time."
+  ],
+  "operations": [
+    {
+      "id": "verifyEmail",
+      "method": "POST",
+      "path": "/auth/verify",
+      "estimate": "5",
+      "fixed": 5,
+      "per_item": 0,
+      "findings": []
+    },
+    {
+      "id": "refreshToken",
+      "method": "POST",
+      "path": "/auth/refresh",
+      "estimate": "4",
+      "fixed": 4,
+      "per_item": 0,
+      "findings": []
+    },
+    {
+      "id": "confirmPasswordReset",
+      "method": "POST",
+      "path": "/auth/password-reset/confirm",
+      "estimate": "3",
+      "fixed": 3,
+      "per_item": 0,
+      "findings": []
+    },
+    {
+      "id": "login",
+      "method": "POST",
+      "path": "/auth/login",
+      "estimate": "3",
+      "fixed": 3,
+      "per_item": 0,
+      "findings": []
+    },
+    {
+      "id": "logout",
+      "method": "POST",
+      "path": "/auth/logout",
+      "estimate": "2",
+      "fixed": 2,
+      "per_item": 0,
+      "findings": []
+    },
+    {
+      "id": "requestPasswordReset",
+      "method": "POST",
+      "path": "/auth/password-reset/request",
+      "estimate": "2",
+      "fixed": 2,
+      "per_item": 0,
+      "findings": []
+    },
+    {
+      "id": "signup",
+      "method": "POST",
+      "path": "/auth/signup",
+      "estimate": "2",
+      "fixed": 2,
+      "per_item": 0,
+      "findings": []
+    },
+    {
+      "id": "createItem",
+      "method": "POST",
+      "path": "/items",
+      "estimate": "1",
+      "fixed": 1,
+      "per_item": 0,
+      "findings": []
+    },
+    {
+      "id": "getCurrentUser",
+      "method": "GET",
+      "path": "/auth/me",
+      "estimate": "1",
+      "fixed": 1,
+      "per_item": 0,
+      "findings": []
+    },
+    {
+      "id": "getItem",
+      "method": "GET",
+      "path": "/items/{id}",
+      "estimate": "1",
+      "fixed": 1,
+      "per_item": 0,
+      "findings": []
+    },
+    {
+      "id": "listItems",
+      "method": "GET",
+      "path": "/items",
+      "estimate": "1",
+      "fixed": 1,
+      "per_item": 0,
+      "findings": []
+    }
+  ],
+  "version": 1
+}

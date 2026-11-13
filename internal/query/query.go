@@ -502,6 +502,7 @@ type SQLOperationEntry struct {
 type SQLAttentionAnswer struct {
 	Version    int                 `json:"version"`
 	Threshold  int                 `json:"threshold"`
+	Limits     []string            `json:"limits"`
 	Queries    []SQLScoreEntry     `json:"queries"`
 	Operations []SQLOperationEntry `json:"operations"`
 }
@@ -535,12 +536,12 @@ func (ix *Index) SQLOperations() any {
 		}
 		return out[i].ID < out[j].ID
 	})
-	return map[string]any{"version": Version, "operations": out}
+	return map[string]any{"version": Version, "limits": SQLLimits, "operations": out}
 }
 
 // SQLAttention is the SQL work queue, worst first.
 func (ix *Index) SQLAttention() any {
-	ans := SQLAttentionAnswer{Version: Version, Queries: []SQLScoreEntry{}, Operations: []SQLOperationEntry{}}
+	ans := SQLAttentionAnswer{Version: Version, Limits: SQLLimits, Queries: []SQLScoreEntry{}, Operations: []SQLOperationEntry{}}
 	if ix.M.SQL != nil {
 		ans.Threshold = ix.M.SQL.ScoreThreshold
 	}
@@ -572,4 +573,76 @@ func (ix *Index) SQLAttention() any {
 		return a.ID < b.ID
 	})
 	return ans
+}
+
+// SQLLimits are the known blind spots of the static footprint. They ride along
+// in the SQL answers so an agent reading one knows when to look further
+// (read the handler, or write a probe) instead of trusting an empty or
+// optimistic estimate. Keep in step with ADR-0013.
+var SQLLimits = []string{
+	"Calls into other Modules are not followed: an operation that shows 0 queries may delegate them (OAuth, connections, event streams). Read the handler or probe it.",
+	"Interface calls, callbacks and closures passed to helpers are not followed; the estimate can undercount.",
+	"The estimate counts every branch and treats any loop over a non-literal bound as N, so a loop that rarely queries (cache miss, small fixed list) can be a false N+1. A probe settles it.",
+	"N is unknown; the probe measures shape (queries per row), not time.",
+}
+
+// QueryReach is one operation that reaches a query.
+type QueryReach struct {
+	Operation string   `json:"operation"`
+	Method    string   `json:"method"`
+	Path      string   `json:"path"`
+	InLoop    bool     `json:"in_loop"`
+	Times     int      `json:"times"`
+	Via       []string `json:"via"`
+	File      string   `json:"file"`
+	Line      int      `json:"line"`
+}
+
+// SQLQueryAnswer is one query with its score, the tables and indexes it
+// depends on, and every operation that reaches it: the reverse of
+// Operation.sql, so "who is hurt if I change this query" is one call.
+type SQLQueryAnswer struct {
+	Version        int           `json:"version"`
+	Query          model.Query   `json:"query"`
+	Tables         []model.Table `json:"tables"`
+	ReachedBy      []QueryReach  `json:"reached_by"`
+	NeedsAttention bool          `json:"needs_attention"`
+	Limits         []string      `json:"limits"`
+}
+
+// SQLQuery describes one sqlc query by name.
+func (ix *Index) SQLQuery(id string) (any, error) {
+	var q *model.Query
+	ids := []string{}
+	for i := range ix.M.Queries {
+		ids = append(ids, ix.M.Queries[i].ID)
+		if ix.M.Queries[i].ID == id {
+			q = &ix.M.Queries[i]
+		}
+	}
+	if q == nil {
+		return nil, notFound("query", id, ids)
+	}
+	ans := SQLQueryAnswer{Version: Version, Query: *q, Tables: []model.Table{}, ReachedBy: []QueryReach{}, Limits: SQLLimits}
+	for _, t := range ix.M.Tables {
+		for _, n := range q.Tables {
+			if t.Name == n {
+				ans.Tables = append(ans.Tables, t)
+			}
+		}
+	}
+	for _, o := range ix.M.Operations {
+		if o.SQL == nil {
+			continue
+		}
+		for _, c := range o.SQL.Queries {
+			if c.Query == id {
+				ans.ReachedBy = append(ans.ReachedBy, QueryReach{o.ID, o.Method, o.Path, c.InLoop, c.Times, c.Via, c.File, c.Line})
+			}
+		}
+	}
+	if ix.M.SQL != nil && q.Score != nil && q.Score.Value < ix.M.SQL.ScoreThreshold {
+		ans.NeedsAttention = true
+	}
+	return ans, nil
 }
