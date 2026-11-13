@@ -343,7 +343,23 @@
         "line": 30,
         "tables": [
           "auth_tokens"
-        ]
+        ],
+        "score": {
+          "value": 100,
+          "grade": "A",
+          "findings": []
+        },
+        "hash": "8a697248a6ef",
+        "columns": [
+          "id",
+          "user_id",
+          "kind",
+          "token_hash",
+          "expires_at",
+          "used_at",
+          "created_at"
+        ],
+        "columns_from": "schema"
       },
       {
         "id": "CreateRefreshToken",
@@ -353,7 +369,22 @@
         "line": 12,
         "tables": [
           "refresh_tokens"
-        ]
+        ],
+        "score": {
+          "value": 100,
+          "grade": "A",
+          "findings": []
+        },
+        "hash": "784522f0b0c2",
+        "columns": [
+          "id",
+          "user_id",
+          "token_hash",
+          "expires_at",
+          "revoked_at",
+          "created_at"
+        ],
+        "columns_from": "schema"
       },
       {
         "id": "CreateUser",
@@ -363,7 +394,24 @@
         "line": 1,
         "tables": [
           "users"
-        ]
+        ],
+        "score": {
+          "value": 100,
+          "grade": "A",
+          "findings": []
+        },
+        "hash": "cbaf66c937d5",
+        "columns": [
+          "id",
+          "email",
+          "password_hash",
+          "name",
+          "role",
+          "verified",
+          "created_at",
+          "updated_at"
+        ],
+        "columns_from": "schema"
       },
       {
         "id": "GetAuthToken",
@@ -373,7 +421,32 @@
         "line": 35,
         "tables": [
           "auth_tokens"
-        ]
+        ],
+        "score": {
+          "value": 95,
+          "grade": "A",
+          "findings": [
+            {
+              "code": "select-star",
+              "severity": "info",
+              "penalty": 5,
+              "message": "selects every column (*)",
+              "rationale": "SELECT * couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
+              "fix": "list only the columns the caller needs"
+            }
+          ]
+        },
+        "hash": "10cd4e73e534",
+        "columns": [
+          "id",
+          "user_id",
+          "kind",
+          "token_hash",
+          "expires_at",
+          "used_at",
+          "created_at"
+        ],
+        "columns_from": "schema"
       },
       {
         "id": "GetRefreshToken",
@@ -383,7 +456,31 @@
         "line": 17,
         "tables": [
           "refresh_tokens"
-        ]
+        ],
+        "score": {
+          "value": 95,
+          "grade": "A",
+          "findings": [
+            {
+              "code": "select-star",
+              "severity": "info",
+              "penalty": 5,
+              "message": "selects every column (*)",
+              "rationale": "SELECT * couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
+              "fix": "list only the columns the caller needs"
+            }
+          ]
+        },
+        "hash": "a2dcc348ac56",
+        "columns": [
+          "id",
+          "user_id",
+          "token_hash",
+          "expires_at",
+          "revoked_at",
+          "created_at"
+        ],
+        "columns_from": "schema"
       },
       {
         "id": "GetUserByEmail",
@@ -393,7 +490,33 @@
         "line": 6,
         "tables": [
           "users"
-        ]
+        ],
+        "score": {
+          "value": 95,
+          "grade": "A",
+          "findings": [
+            {
+              "code": "select-star",
+              "severity": "info",
+              "penalty": 5,
+              "message": "selects every column (*)",
+              "rationale": "SELECT * couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
+              "fix": "list only the columns the caller needs"
+            }
+          ]
+        },
+        "hash": "079332766b13",
+        "columns": [
+          "id",
+          "email",
+          "password_hash",
+          "name",
+          "role",
+          "verified",
+          "created_at",
+          "updated_at"
+        ],
+        "columns_from": "schema"
       },
       {
         "id": "GetUserByID",
@@ -403,7 +526,33 @@
         "line": 9,
         "tables": [
           "users"
-        ]
+        ],
+        "score": {
+          "value": 95,
+          "grade": "A",
+          "findings": [
+            {
+              "code": "select-star",
+              "severity": "info",
+              "penalty": 5,
+              "message": "selects every column (*)",
+              "rationale": "SELECT * couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
+              "fix": "list only the columns the caller needs"
+            }
+          ]
+        },
+        "hash": "7609165d94c8",
+        "columns": [
+          "id",
+          "email",
+          "password_hash",
+          "name",
+          "role",
+          "verified",
+          "created_at",
+          "updated_at"
+        ],
+        "columns_from": "schema"
       },
       {
         "id": "MarkAuthTokenUsed",
@@ -413,7 +562,13 @@
         "line": 39,
         "tables": [
           "auth_tokens"
-        ]
+        ],
+        "score": {
+          "value": 100,
+          "grade": "A",
+          "findings": []
+        },
+        "hash": "9780b244e3a4"
       },
       {
         "id": "RevokeRefreshToken",
@@ -423,7 +578,13 @@
         "line": 21,
         "tables": [
           "refresh_tokens"
-        ]
+        ],
+        "score": {
+          "value": 100,
+          "grade": "A",
+          "findings": []
+        },
+        "hash": "cba04640f6d7"
       },
       {
         "id": "UpdateUserPassword",
@@ -433,7 +594,13 @@
         "line": 27,
         "tables": [
           "users"
-        ]
+        ],
+        "score": {
+          "value": 100,
+          "grade": "A",
+          "findings": []
+        },
+        "hash": "49b168c8cad5"
       },
       {
         "id": "VerifyUser",
@@ -443,7 +610,13 @@
         "line": 24,
         "tables": [
           "users"
-        ]
+        ],
+        "score": {
+          "value": 100,
+          "grade": "A",
+          "findings": []
+        },
+        "hash": "0a141b297c90"
       }
     ]
   },

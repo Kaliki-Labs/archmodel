@@ -436,3 +436,213 @@ func levenshtein(a, b string) int {
 	}
 	return prev[len(b)]
 }
+
+// SQLScoreEntry is one query with its static SQL optimization score.
+type SQLScoreEntry struct {
+	ID       string          `json:"id"`
+	Module   string          `json:"module"`
+	Kind     string          `json:"kind"`
+	File     string          `json:"file"`
+	Line     int             `json:"line"`
+	Tables   []string        `json:"tables"`
+	Score    int             `json:"score"`
+	Grade    string          `json:"grade"`
+	Findings []model.Finding `json:"findings"`
+}
+
+// SQLScoreAnswer lists every scored query, worst first.
+type SQLScoreAnswer struct {
+	Version int             `json:"version"`
+	Average float64         `json:"average"`
+	Queries []SQLScoreEntry `json:"queries"`
+}
+
+// SQLScore lists every query with its score, lowest first, so an agent or
+// reviewer sees the worst offenders before reading any SQL.
+func (ix *Index) SQLScore() any {
+	ans := SQLScoreAnswer{Version: Version, Queries: []SQLScoreEntry{}}
+	total := 0
+	for _, q := range ix.M.Queries {
+		if q.Score == nil {
+			continue
+		}
+		total += q.Score.Value
+		ans.Queries = append(ans.Queries, SQLScoreEntry{
+			ID: q.ID, Module: q.Module, Kind: q.Kind, File: q.File, Line: q.Line, Tables: q.Tables,
+			Score: q.Score.Value, Grade: q.Score.Grade, Findings: q.Score.Findings,
+		})
+	}
+	sort.SliceStable(ans.Queries, func(i, j int) bool {
+		if ans.Queries[i].Score != ans.Queries[j].Score {
+			return ans.Queries[i].Score < ans.Queries[j].Score
+		}
+		return ans.Queries[i].ID < ans.Queries[j].ID
+	})
+	if n := len(ans.Queries); n > 0 {
+		ans.Average = float64(total*10/n) / 10
+	}
+	return ans
+}
+
+// SQLOperationEntry is one operation with its per-request query footprint.
+type SQLOperationEntry struct {
+	ID       string          `json:"id"`
+	Method   string          `json:"method"`
+	Path     string          `json:"path"`
+	Estimate string          `json:"estimate"`
+	Fixed    int             `json:"fixed"`
+	PerItem  int             `json:"per_item"`
+	Measured string          `json:"measured,omitempty"` // probe growth class, when probed
+	Findings []model.Finding `json:"findings"`
+}
+
+// SQLAttentionAnswer is the work queue for SQL improvement: queries scoring
+// below the threshold and operations with SQL findings. An agent takes one
+// item, fixes it in isolation, rebuilds and checks the item left the list.
+type SQLAttentionAnswer struct {
+	Version    int                 `json:"version"`
+	Threshold  int                 `json:"threshold"`
+	Limits     []string            `json:"limits"`
+	Queries    []SQLScoreEntry     `json:"queries"`
+	Operations []SQLOperationEntry `json:"operations"`
+}
+
+func opSQLEntry(o model.Operation) SQLOperationEntry {
+	e := SQLOperationEntry{
+		ID: o.ID, Method: o.Method, Path: o.Path,
+		Estimate: o.SQL.Estimate, Fixed: o.SQL.Fixed, PerItem: o.SQL.PerItem, Findings: o.SQL.Findings,
+	}
+	if o.SQL.Probe != nil {
+		e.Measured = o.SQL.Probe.Growth
+	}
+	return e
+}
+
+// SQLOperations lists every operation that reaches a query, most queries per
+// request first.
+func (ix *Index) SQLOperations() any {
+	out := []SQLOperationEntry{}
+	for _, o := range ix.M.Operations {
+		if o.SQL != nil && (len(o.SQL.Queries) > 0 || o.SQL.Probe != nil) {
+			out = append(out, opSQLEntry(o))
+		}
+	}
+	sort.SliceStable(out, func(i, j int) bool {
+		if out[i].PerItem != out[j].PerItem {
+			return out[i].PerItem > out[j].PerItem
+		}
+		if out[i].Fixed != out[j].Fixed {
+			return out[i].Fixed > out[j].Fixed
+		}
+		return out[i].ID < out[j].ID
+	})
+	return map[string]any{"version": Version, "limits": SQLLimits, "operations": out}
+}
+
+// SQLAttention is the SQL work queue, worst first.
+func (ix *Index) SQLAttention() any {
+	ans := SQLAttentionAnswer{Version: Version, Limits: SQLLimits, Queries: []SQLScoreEntry{}, Operations: []SQLOperationEntry{}}
+	if ix.M.SQL != nil {
+		ans.Threshold = ix.M.SQL.ScoreThreshold
+	}
+	all := ix.SQLScore().(SQLScoreAnswer)
+	for _, q := range all.Queries {
+		if q.Score < ans.Threshold {
+			ans.Queries = append(ans.Queries, q)
+		}
+	}
+	for _, o := range ix.M.Operations {
+		if o.SQL == nil {
+			continue
+		}
+		for _, f := range o.SQL.Findings {
+			if f.Code != "n-plus-one-not-observed" { // measured fine: nothing left to do
+				ans.Operations = append(ans.Operations, opSQLEntry(o))
+				break
+			}
+		}
+	}
+	sort.SliceStable(ans.Operations, func(i, j int) bool {
+		a, b := ans.Operations[i], ans.Operations[j]
+		if a.PerItem != b.PerItem {
+			return a.PerItem > b.PerItem
+		}
+		if a.Fixed != b.Fixed {
+			return a.Fixed > b.Fixed
+		}
+		return a.ID < b.ID
+	})
+	return ans
+}
+
+// SQLLimits are the known blind spots of the static footprint. They ride along
+// in the SQL answers so an agent reading one knows when to look further
+// (read the handler, or write a probe) instead of trusting an empty or
+// optimistic estimate. Keep in step with ADR-0013.
+var SQLLimits = []string{
+	"Calls into other Modules are not followed: an operation that shows 0 queries may delegate them (OAuth, connections, event streams). Read the handler or probe it.",
+	"Interface calls, callbacks and closures passed to helpers are not followed; the estimate can undercount.",
+	"The estimate counts every branch and treats any loop over a non-literal bound as N, so a loop that rarely queries (cache miss, small fixed list) can be a false N+1. A probe settles it.",
+	"N is unknown; the probe measures shape (queries per row), not time.",
+}
+
+// QueryReach is one operation that reaches a query.
+type QueryReach struct {
+	Operation string   `json:"operation"`
+	Method    string   `json:"method"`
+	Path      string   `json:"path"`
+	InLoop    bool     `json:"in_loop"`
+	Times     int      `json:"times"`
+	Via       []string `json:"via"`
+	File      string   `json:"file"`
+	Line      int      `json:"line"`
+}
+
+// SQLQueryAnswer is one query with its score, the tables and indexes it
+// depends on, and every operation that reaches it: the reverse of
+// Operation.sql, so "who is hurt if I change this query" is one call.
+type SQLQueryAnswer struct {
+	Version        int           `json:"version"`
+	Query          model.Query   `json:"query"`
+	Tables         []model.Table `json:"tables"`
+	ReachedBy      []QueryReach  `json:"reached_by"`
+	NeedsAttention bool          `json:"needs_attention"`
+	Limits         []string      `json:"limits"`
+}
+
+// SQLQuery describes one sqlc query by name.
+func (ix *Index) SQLQuery(id string) (any, error) {
+	var q *model.Query
+	ids := []string{}
+	for i := range ix.M.Queries {
+		ids = append(ids, ix.M.Queries[i].ID)
+		if ix.M.Queries[i].ID == id {
+			q = &ix.M.Queries[i]
+		}
+	}
+	if q == nil {
+		return nil, notFound("query", id, ids)
+	}
+	ans := SQLQueryAnswer{Version: Version, Query: *q, Tables: []model.Table{}, ReachedBy: []QueryReach{}, Limits: SQLLimits}
+	for _, t := range ix.M.Tables {
+		for _, n := range q.Tables {
+			if t.Name == n {
+				ans.Tables = append(ans.Tables, t)
+			}
+		}
+	}
+	for _, o := range ix.M.Operations {
+		if o.SQL == nil {
+			continue
+		}
+		for _, c := range o.SQL.Queries {
+			if c.Query == id {
+				ans.ReachedBy = append(ans.ReachedBy, QueryReach{o.ID, o.Method, o.Path, c.InLoop, c.Times, c.Via, c.File, c.Line})
+			}
+		}
+	}
+	if ix.M.SQL != nil && q.Score != nil && q.Score.Value < ix.M.SQL.ScoreThreshold {
+		ans.NeedsAttention = true
+	}
+	return ans, nil
+}

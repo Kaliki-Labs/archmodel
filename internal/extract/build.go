@@ -27,6 +27,7 @@ type Options struct {
 	Root     string // project root
 	Config   *config.Config
 	Coverage io.Reader // optional Go coverprofile
+	Probe    io.Reader // optional probe file (runtime query counts)
 }
 
 // Build extracts the Architecture model.
@@ -65,9 +66,20 @@ func Build(opts Options) (*model.Model, error) {
 	b.collectAPI()
 	b.collectSQL()
 	b.linkOperations()
+	b.collectFootprints(files)
+	if opts.Probe != nil {
+		pf, err := ParseProbe(opts.Probe)
+		if err != nil {
+			return nil, err
+		}
+		for _, id := range b.applyProbe(pf) {
+			b.warn("probe", "probe file has no operation "+id, "")
+		}
+	}
 	b.computeMetrics()
 	b.m.Rules = rules.Policy(cfg)
 	b.m.MetricRationales = cfg.MetricRationales
+	b.m.SQL = &model.SQLPolicy{ScoreThreshold: cfg.SQL.ScoreThreshold, MaxQueriesPerOperation: cfg.SQL.MaxQueriesPerOperation}
 	b.m.Normalize()
 	b.m.Violations = rules.Evaluate(b.m, cfg)
 	b.m.Normalize()
@@ -501,9 +513,14 @@ func (b *builder) collectSQL() {
 		cat.ApplyMigration(path.Join(b.cfg.SQL.SchemaDir, name), string(data))
 	}
 	tables := cat.Tables()
+	byName := map[string]model.Table{}
+	for _, t := range tables {
+		byName[t.Name] = t
+	}
 	owners := map[string]map[string]bool{}
 	queriesDir := filepath.Join(b.root, b.cfg.SQL.QueriesDir)
 	seen := map[string]string{}
+	gen := generatedSQL(filepath.Join(b.root, b.cfg.Go.Dir))
 	for _, name := range sqlFiles(queriesDir) {
 		rel := path.Join(b.cfg.SQL.QueriesDir, name)
 		data, err := os.ReadFile(filepath.Join(queriesDir, name))
@@ -525,9 +542,18 @@ func (b *builder) collectSQL() {
 				continue
 			}
 			seen[q.Name] = rel
-			b.m.Queries = append(b.m.Queries, model.Query{
-				ID: q.Name, Kind: q.Kind, Module: module, File: rel, Line: q.Line, Tables: q.Tables,
-			})
+			score := ScoreQuery(q, byName)
+			mq := model.Query{
+				ID: q.Name, Kind: q.Kind, Module: module, File: rel, Line: q.Line, Tables: q.Tables, Score: &score,
+				Hash: textHash(q.Body),
+			}
+			mq.Columns, mq.ColumnsFrom = outputColumns(q.Body, byName)
+			if g, ok := gen[q.Name]; ok {
+				if cols, _ := outputColumns(g, byName); len(cols) > 0 {
+					mq.Columns, mq.ColumnsFrom = cols, colsGenerated
+				}
+			}
+			b.m.Queries = append(b.m.Queries, mq)
 			for _, t := range q.Tables {
 				if owners[t] == nil {
 					owners[t] = map[string]bool{}

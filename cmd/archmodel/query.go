@@ -24,6 +24,10 @@ var queryKinds = []struct {
 	{"module", "name", "the Module card", func(ix *query.Index, a string) (any, error) { return ix.Module(a) }},
 	{"operation", "operationId", "an API operation with its schemas", func(ix *query.Index, a string) (any, error) { return ix.Operation(a) }},
 	{"table", "name", "a table with the queries and modules touching it", func(ix *query.Index, a string) (any, error) { return ix.Table(a) }},
+	{"sql-score", "", "every sqlc query with its static SQL optimization score and findings, worst first", func(ix *query.Index, _ string) (any, error) { return ix.SQLScore(), nil }},
+	{"sql-query", "queryName", "one sqlc query: score, findings, its tables and indexes, and every operation that reaches it (reverse footprint)", func(ix *query.Index, a string) (any, error) { return ix.SQLQuery(a) }},
+	{"sql-operations", "", "every operation that reaches a query, with its queries per request (static estimate, measured growth when probed)", func(ix *query.Index, _ string) (any, error) { return ix.SQLOperations(), nil }},
+	{"sql-attention", "", "SQL work queue: queries below sql.score_threshold and operations with N+1 or too-many-queries findings", func(ix *query.Index, _ string) (any, error) { return ix.SQLAttention(), nil }},
 	{"rules", "", "every rule with its Rationale, and the metric Rationales", func(ix *query.Index, _ string) (any, error) { return ix.Rules(), nil }},
 	{"modules", "", "list every Module", func(ix *query.Index, _ string) (any, error) { return ix.Modules(), nil }},
 	{"operations", "", "list every operation", func(ix *query.Index, _ string) (any, error) { return ix.Operations(), nil }},
@@ -38,7 +42,7 @@ func queryUsage(w io.Writer) {
 		}
 		fmt.Fprintf(w, "  %-26s %s\n", name, k.help)
 	}
-	fmt.Fprintln(w, "\nflags: --root, --config, --coverprofile (build fresh), or --model <path> (read a model.json)")
+	fmt.Fprintln(w, "\nflags: --root, --config, --coverprofile and --probe (build fresh), or --model <path> (read a model.json)")
 }
 
 func printJSON(w io.Writer, v any) error {

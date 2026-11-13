@@ -53,6 +53,27 @@ generated packages that are missing on disk still show up as Modules (with
 `present: false`), and anything it could not read is reported in the model's
 `warnings` array and on stderr.
 
+## SQL review
+
+`build` also scores every sqlc query statically (0-100, findings with a
+rationale and a fix, indexes read from the migrations) and estimates the queries
+each API operation runs per request (`1 + N` flags a likely N+1). Nothing needs
+a database. Optional `--probe probe.json` adds *measured* query counts from a
+test that uses the public [`probe`](probe) package. Ask with:
+
+```sh
+go tool archmodel query sql-attention    # work queue: low scorers, N+1 candidates
+go tool archmodel query sql-query <Name> # one query: score, indexes, who reaches it
+go tool archmodel query sql-operations   # queries per request, per operation
+```
+
+`diff` adds a **SQL** section to the PR comment (score drops, the query added
+behind a `3 → 4`, columns a `SELECT *` now returns). Thresholds are
+`sql.score_threshold` and `sql.max_queries_per_operation` in `architecture.yaml`.
+For agents: [docs/agent-sql-workflow.md](docs/agent-sql-workflow.md); design:
+[ADR 0012](docs/adr/0012-static-sql-query-scoring.md),
+[ADR 0013](docs/adr/0013-operation-query-footprint-and-probe.md).
+
 ## explore
 
 ```sh

@@ -18,6 +18,12 @@ sql:
   # there.
   query_modules:
     outbox: events
+  # Displayed, not enforced: a query scoring below score_threshold appears in
+  # `archmodel query sql-attention` and the PR comment; an operation that can
+  # run more than max_queries_per_operation queries gets a too-many-queries
+  # finding (ADR-0013).
+  # score_threshold: 75
+  # max_queries_per_operation: 8
 
 # Source links in the Explorer. Without a template the Explorer shows
 # path:line as copyable text. {ref} is filled from the --ref flag of

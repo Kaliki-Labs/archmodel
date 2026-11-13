@@ -91,7 +91,22 @@
         "line": 10,
         "tables": [
           "outbox"
-        ]
+        ],
+        "score": {
+          "value": 100,
+          "grade": "A",
+          "findings": []
+        },
+        "hash": "2982945c7f7a",
+        "columns": [
+          "id",
+          "topic",
+          "key",
+          "payload",
+          "created_at",
+          "published_at"
+        ],
+        "columns_from": "schema"
       },
       {
         "id": "ListUnpublishedOutbox",
@@ -101,7 +116,31 @@
         "line": 1,
         "tables": [
           "outbox"
-        ]
+        ],
+        "score": {
+          "value": 95,
+          "grade": "A",
+          "findings": [
+            {
+              "code": "select-star",
+              "severity": "info",
+              "penalty": 5,
+              "message": "selects every column (*)",
+              "rationale": "SELECT * couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
+              "fix": "list only the columns the caller needs"
+            }
+          ]
+        },
+        "hash": "df8ad1460b53",
+        "columns": [
+          "id",
+          "topic",
+          "key",
+          "payload",
+          "created_at",
+          "published_at"
+        ],
+        "columns_from": "schema"
       },
       {
         "id": "MarkOutboxPublished",
@@ -111,7 +150,13 @@
         "line": 7,
         "tables": [
           "outbox"
-        ]
+        ],
+        "score": {
+          "value": 100,
+          "grade": "A",
+          "findings": []
+        },
+        "hash": "db0279d5cadf"
       }
     ]
   },

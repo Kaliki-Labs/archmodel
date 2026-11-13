@@ -40,6 +40,48 @@
     "file": "backend/internal/auth/service.go",
     "line": 111
   },
+  "sql": {
+    "queries": [
+      {
+        "query": "GetUserByEmail",
+        "in_loop": false,
+        "times": 1,
+        "via": [
+          "Login"
+        ],
+        "file": "backend/internal/auth/service.go",
+        "line": 122
+      },
+      {
+        "query": "CreateAuthToken",
+        "in_loop": false,
+        "times": 1,
+        "via": [
+          "Login",
+          "issueVerification",
+          "issueCredential"
+        ],
+        "file": "backend/internal/auth/service_tokens.go",
+        "line": 124
+      },
+      {
+        "query": "CreateRefreshToken",
+        "in_loop": false,
+        "times": 1,
+        "via": [
+          "Login",
+          "respondWithSession",
+          "issueSession"
+        ],
+        "file": "backend/internal/auth/sessions.go",
+        "line": 39
+      }
+    ],
+    "fixed": 3,
+    "per_item": 0,
+    "estimate": "3",
+    "findings": []
+  },
   "schemas": [
     {
       "id": "auth.AuthResponse",

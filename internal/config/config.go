@@ -70,6 +70,11 @@ type SQLConfig struct {
 	SchemaDir    string            `yaml:"schema_dir"`
 	QueriesDir   string            `yaml:"queries_dir"`
 	QueryModules map[string]string `yaml:"query_modules"`
+	// ScoreThreshold: a query scoring below this needs attention (0-100).
+	ScoreThreshold int `yaml:"score_threshold"`
+	// MaxQueriesPerOperation: an operation whose handler runs more queries per
+	// request than this is flagged. 0 turns the check off.
+	MaxQueriesPerOperation int `yaml:"max_queries_per_operation"`
 }
 
 // SourceConfig says how the Explorer links to source code.

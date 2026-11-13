@@ -31,6 +31,9 @@ func TestGoldenGuardrails(t *testing.T) {
 		{"kitchen-sink.query-depends-on-server.json", []string{"query", "depends-on", "server"}, 0},
 		{"kitchen-sink.query-operation-login.json", []string{"query", "operation", "login"}, 0},
 		{"kitchen-sink.query-table-outbox.json", []string{"query", "table", "outbox"}, 0},
+		{"kitchen-sink.query-sql-attention.json", []string{"query", "sql-attention"}, 0},
+		{"kitchen-sink.query-sql-operations.json", []string{"query", "sql-operations"}, 0},
+		{"kitchen-sink.query-sql-query-unknown.json", []string{"query", "sql-query", "NopeQuery"}, 1},
 		{"kitchen-sink.query-rules.json", []string{"query", "rules"}, 0},
 		{"kitchen-sink.query-unknown-module.json", []string{"query", "module", "auht"}, 1},
 	}

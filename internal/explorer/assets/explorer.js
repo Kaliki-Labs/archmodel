@@ -552,6 +552,53 @@
     };
   }
 
+  // ---- SQL query scores (static; see ADR 0012) ----------------------------------
+  function gradeBadge(q) {
+    if (!q.score) return null;
+    return h('span', { class: 'grade g-' + q.score.grade, title: 'Static SQL score ' + q.score.value + '/100' }, q.score.grade + ' ' + q.score.value);
+  }
+  // A query row; with findings it expands to show each one's Rationale and fix.
+  function queryRow(q, withSrc) {
+    const fs = q.score ? q.score.findings : [];
+    const head = [h('span', { class: 'qk ' + q.kind }, ':' + q.kind), h('code', { class: 'grow' }, q.id), gradeBadge(q), withSrc ? src(q.file, q.line) : null];
+    if (!fs.length) return h('div', { class: 'item' }, head);
+    return h('details', { class: 'qd' }, [h('summary', { class: 'item' }, head), h('ul', { class: 'finds' }, fs.map((f) => h('li', { class: 'find sev-' + f.severity }, [
+      h('div', null, [h('b', null, f.code), '  ' + f.message, h('span', { class: 'faint' }, '  \u2212' + f.penalty)]),
+      h('div', { class: 'why' }, f.rationale),
+      h('div', { class: 'fix' }, [h('span', null, 'Fix: '), h('code', null, f.fix)])])))]);
+  }
+  // opSqlSection shows the queries one request runs: the static estimate, each
+  // call (loop calls flagged), any finding, and the probe's measured runs.
+  function opSqlSection(o) {
+    const q = o.sql;
+    if (!q || (!q.queries.length && !q.probe)) return null;
+    const pr = q.probe;
+    const rows = q.queries.map((c) => h('div', { class: 'item' }, [
+      h('code', { class: 'grow' }, c.query),
+      c.in_loop ? badge('in a loop', 'warn') : (c.times > 1 ? badge('\u00d7' + c.times) : null),
+      c.via && c.via.length > 1 ? h('span', { class: 'sub' }, c.via.join(' \u2192 ')) : null,
+      src(c.file, c.line)]));
+    const finds = q.findings.length ? h('ul', { class: 'finds' }, q.findings.map((f) => h('li', { class: 'find sev-' + f.severity }, [
+      h('div', null, [h('b', null, f.code), '  ' + f.message]),
+      h('div', { class: 'why' }, f.rationale),
+      h('div', { class: 'fix' }, [h('span', null, 'Fix: '), h('code', null, f.fix)])]))) : null;
+    const meas = pr ? h('div', { class: 'card', style: 'margin-top:10px' }, list(pr.runs.map((r) => h('div', { class: 'item' }, [
+      h('span', { class: 'grow' }, r.rows + ' rows'), h('code', null, plural(r.queries, 'query', 'queries'))])).concat([
+      h('div', { class: 'item' }, h('span', { class: 'sub' }, 'Measured growth: ' + pr.growth + (pr.slope ? ' (' + pr.slope + ' per row)' : '')))]))) : null;
+    return section('Queries per request: ' + q.estimate, h('div', null, [
+      rows.length ? h('div', { class: 'card' }, list(rows)) : null, finds, meas]));
+  }
+  function sqlTile() {
+    const sc = model.queries.filter((q) => q.score).sort((a, b) => a.score.value - b.score.value || (a.id < b.id ? -1 : 1));
+    if (!sc.length) return null;
+    const avg = Math.round(sc.reduce((n, q) => n + q.score.value, 0) / sc.length);
+    const low = sc.filter((q) => q.score.value < 75);
+    const w = sc[0];
+    return stat({ l: 'SQL score', v: avg, cls: low.length ? '' : 'ok', href: w.tables[0] ? R.table(w.tables[0]) : null,
+      s: low.length ? plural(low.length, 'query', 'queries') + ' below 75; worst ' + w.id + ' (' + w.score.value + ')' : 'no query below 75',
+      title: 'Average static SQL score across ' + plural(sc.length, 'query', 'queries') });
+  }
+
   function dataTab(m) {
     const qs = model.queries.filter((q) => q.module === m.id);
     const owned = model.tables.filter((t) => t.owners.indexOf(m.id) >= 0).map((t) => t.name);
@@ -578,14 +625,14 @@
             h('div', { class: 'qs' }, [
               h('h5', null, plural(mine.length, 'query', 'queries') + ' from this Module'),
               mine.length ? mine.map((q) => h('div', { class: 'q' }, [
-                h('span', { class: 'qk ' + q.kind, title: ':' + q.kind }, ':' + q.kind), h('code', null, q.id)])) : h('span', { class: 'faint' }, 'None.')
+                h('span', { class: 'qk ' + q.kind, title: ':' + q.kind }, ':' + q.kind), h('code', null, q.id), gradeBadge(q)])) : h('span', { class: 'faint' }, 'None.')
             ])
           ]);
         });
         const loose = qs.filter((q) => !q.tables.length || q.tables.every((t) => !tables[t]));
         return h('div', null, [
           cards.length ? h('div', { class: 'tcards' }, cards) : empty('This Module owns no tables and runs no queries.'),
-          loose.length ? section('Queries without a table in the model', list(loose.map((q) => h('div', { class: 'item' }, [h('span', { class: 'qk ' + q.kind }, ':' + q.kind), h('code', { class: 'grow' }, q.id), src(q.file, q.line)])))) : null
+          loose.length ? section('Queries without a table in the model', list(loose.map((q) => queryRow(q, true)))) : null
         ]);
       }
     };
@@ -724,6 +771,7 @@
         h('tbody', null, o.responses.map((r) => h('tr', null, [
           h('td', null, h('span', { class: 'code c' + String(r.status)[0] }, r.status)), h('td', null, r.description),
           h('td', null, r.schemas.length ? r.schemas.map((sid) => h('div', { class: 'tree' }, schemaTree(sid, [], 2))) : h('span', { class: 'dim' }, 'no body'))])))])))),
+      opSqlSection(o),
       section('Source', h('p', null, ['Spec: ', src(o.spec, o.line)]))
     ]);
     return {
@@ -772,9 +820,13 @@
           h('td', null, c.nullable ? 'nullable' : h('span', { class: 'dim' }, 'not null')),
           h('td', null, [c.primary_key ? h('span', { class: 'pk' }, 'PK') : null, ' ', c.references ? link(R.table(c.references), '→ ' + c.references, 'badge') : null])])))])))),
       refd.length ? section('Referenced by tables', h('div', { class: 'chips' }, refd.map((x) => link(R.table(x.name), x.name, 'badge')))) : null,
+      (t.indexes && t.indexes.length) ? section('Indexes', h('div', { class: 'card' }, h('div', { class: 'tbl-wrap' }, h('table', { class: 'tbl' }, [
+        h('thead', null, h('tr', null, ['Index', 'Columns', 'Kind'].map((x) => h('th', null, x)))),
+        h('tbody', null, t.indexes.map((ix) => h('tr', null, [h('td', null, h('code', null, ix.name)), h('td', null, h('code', null, ix.columns.join(', '))),
+          h('td', null, [ix.primary ? h('span', { class: 'pk' }, 'PK') : ix.unique ? badge('unique') : badge('index', 'mute'), ix.where ? badge('partial: ' + ix.where, 'mute') : null])])))])))) : null,
       section('Queries (' + qs.length + ')', qs.length ? byMod.map((g) => h('div', { class: 'card group' }, [
         h('h4', null, [link(R.module(g.key), g.key), badge(g.items.length)]),
-        list(g.items.map((q) => h('div', { class: 'item' }, [h('span', { class: 'qk ' + q.kind }, ':' + q.kind), h('code', { class: 'grow' }, q.id), src(q.file, q.line)])))])) : empty('No query touches this table.')),
+        list(g.items.map((q) => queryRow(q, true)))])) : empty('No query touches this table.')),
       section('Migrations', t.migrations.length ? h('div', { class: 'card' }, list(t.migrations.map((f) => h('div', { class: 'item' }, src(f, 0))))) : empty('None.'))
     ]);
     return {
@@ -868,6 +920,8 @@
     })) }));
     tiles.push(stat({ l: 'Operations', v: model.operations.length, s: 'API endpoints' }));
     tiles.push(stat({ l: 'Tables', v: model.tables.length, s: plural(model.queries.length, 'query', 'queries') }));
+    const st = sqlTile();
+    if (st) tiles.push(st);
     const hs = hotspotData();
     tiles.push(stat({ cls: 'wide', l: 'Hotspots', v: '', s: null }));
     const hot = tiles[tiles.length - 1];

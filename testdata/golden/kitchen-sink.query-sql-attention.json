@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "threshold": 75,
+  "limits": [
+    "Calls into other Modules are not followed: an operation that shows 0 queries may delegate them (OAuth, connections, event streams). Read the handler or probe it.",
+    "Interface calls, callbacks and closures passed to helpers are not followed; the estimate can undercount.",
+    "The estimate counts every branch and treats any loop over a non-literal bound as N, so a loop that rarely queries (cache miss, small fixed list) can be a false N+1. A probe settles it.",
+    "N is unknown; the probe measures shape (queries per row), not time."
+  ],
+  "queries": [
+    {
+      "id": "ListItems",
+      "module": "items",
+      "kind": "many",
+      "file": "backend/sql/queries/items.sql",
+      "line": 1,
+      "tables": [
+        "items"
+      ],
+      "score": 65,
+      "grade": "C",
+      "findings": [
+        {
+          "code": "unbounded-list",
+          "severity": "warn",
+          "penalty": 20,
+          "message": "returns every matching row (no LIMIT)",
+          "rationale": "A :many query with no LIMIT returns every matching row, so response size and memory grow with the table.",
+          "fix": "add LIMIT $n, ideally with keyset pagination"
+        },
+        {
+          "code": "unindexed-sort",
+          "severity": "warn",
+          "penalty": 15,
+          "message": "sorts items by created_at with no index to read it in order",
+          "rationale": "ORDER BY on a column no index can deliver in order makes the database sort the whole result first, even when you only want a few rows.",
+          "fix": "CREATE INDEX idx_items_created_at ON items (created_at)"
+        }
+      ]
+    }
+  ],
+  "operations": []
+}

@@ -48,6 +48,13 @@ sql:
   # Query file (without .sql) -> Module ID. By default a file belongs to the
   # Module with the same name.
   query_modules: {}
+  # A query scoring below this (0-100) is listed as needing attention by
+  # "query sql-score" and in the PR comment. Displayed, not enforced.
+  score_threshold: 75
+  # An operation whose handler can run more queries per request than this is
+  # flagged (the "too many queries" check). The count adds up every branch, so
+  # it is an upper bound. 0 turns it off.
+  max_queries_per_operation: 8
 
 source:
   # URL template for source links in the Explorer. Placeholders: {path}

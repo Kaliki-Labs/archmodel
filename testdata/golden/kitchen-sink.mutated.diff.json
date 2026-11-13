@@ -91,6 +91,10 @@
     "resolved": []
   },
   "metrics": [],
+  "sql": {
+    "queries": [],
+    "operations": []
+  },
   "subgraph": {
     "nodes": [
       {

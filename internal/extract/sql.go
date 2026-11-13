@@ -19,6 +19,7 @@ type tableDef struct {
 	name       string
 	columns    []model.Column
 	migrations []string
+	indexes    []model.Index // named indexes and UNIQUE constraints; the primary key is derived
 }
 
 // NewCatalog returns an empty catalog.
@@ -29,9 +30,36 @@ func (c *Catalog) Tables() []model.Table {
 	out := make([]model.Table, 0, len(c.tables))
 	for _, t := range c.tables {
 		cols := append([]model.Column{}, t.columns...)
-		out = append(out, model.Table{Name: t.name, Columns: cols, Migrations: append([]string{}, t.migrations...)})
+		out = append(out, model.Table{Name: t.name, Columns: cols, Migrations: append([]string{}, t.migrations...), Indexes: t.allIndexes()})
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].Name < out[j].Name })
+	return out
+}
+
+// allIndexes returns the primary key (derived from the columns) followed by
+// the recorded indexes, dropping any that reference a column no longer there.
+func (t *tableDef) allIndexes() []model.Index {
+	out := []model.Index{}
+	var pk []string
+	for _, c := range t.columns {
+		if c.PrimaryKey {
+			pk = append(pk, c.Name)
+		}
+	}
+	if len(pk) > 0 {
+		out = append(out, model.Index{Name: t.name + "_pkey", Columns: pk, Unique: true, Primary: true})
+	}
+	for _, ix := range t.indexes {
+		ok := true
+		for _, c := range ix.Columns {
+			if !strings.Contains(c, "(") && t.col(c) == nil {
+				ok = false
+			}
+		}
+		if ok {
+			out = append(out, ix)
+		}
+	}
 	return out
 }
 
@@ -147,6 +175,11 @@ var dollarTag = regexp.MustCompile(`^\$[A-Za-z_]*\$`)
 var (
 	reCreateTable = regexp.MustCompile(`(?is)^create\s+(?:(?:global|local)\s+)?(?:temp(?:orary)?\s+|unlogged\s+)?table\s+(?:if\s+not\s+exists\s+)?([\w."]+)\s*\(`)
 	reAlterTable  = regexp.MustCompile(`(?is)^alter\s+table\s+(?:if\s+exists\s+)?(?:only\s+)?([\w."]+)\s+(.*)$`)
+	reCreateIndex = regexp.MustCompile(`(?is)^create\s+(unique\s+)?index\s+(?:concurrently\s+)?(?:if\s+not\s+exists\s+)?([\w."]+)\s+on\s+(?:only\s+)?([\w."]+)\s*(?:using\s+\w+\s*)?\(`)
+	reDropIndex   = regexp.MustCompile(`(?is)^drop\s+index\s+(?:concurrently\s+)?(?:if\s+exists\s+)?(.*?)(?:\s+(?:cascade|restrict))?$`)
+	reWhereTail   = regexp.MustCompile(`(?is)^\s*(?:include\s*\([^)]*\)\s*)?(?:with\s*\([^)]*\)\s*)?where\s+(.+)$`)
+	reUnique      = regexp.MustCompile(`(?i)\bunique\b`)
+	reUniqueCols  = regexp.MustCompile(`(?is)unique\s*\(([^)]*)\)`)
 	reDropTable   = regexp.MustCompile(`(?is)^drop\s+table\s+(?:if\s+exists\s+)?(.*?)(?:\s+(?:cascade|restrict))?$`)
 
 	reAddColumn   = regexp.MustCompile(`(?is)^add\s+(?:column\s+)?(?:if\s+not\s+exists\s+)?(.+)$`)
@@ -209,6 +242,41 @@ func (c *Catalog) applyStatement(file, stmt string) {
 			c.applyAlter(t, strings.TrimSpace(action))
 		}
 		c.touch(t, file)
+		return
+	}
+	if m := reCreateIndex.FindStringSubmatchIndex(stmt); m != nil {
+		t := c.tables[ident(stmt[m[6]:m[7]])]
+		if t == nil {
+			return
+		}
+		body, ok := balanced(stmt[m[1]-1:])
+		if !ok {
+			return
+		}
+		ix := model.Index{Name: ident(stmt[m[4]:m[5]]), Unique: m[2] >= 0}
+		for _, item := range splitTop(body, ',') {
+			ix.Columns = append(ix.Columns, indexColumn(item))
+		}
+		rest := stmt[m[1]-1+len(body)+2:]
+		if w := reWhereTail.FindStringSubmatch(rest); w != nil {
+			ix.Where = normPredicate(w[1])
+		}
+		t.indexes = append(t.indexes, ix)
+		c.touch(t, file)
+		return
+	}
+	if m := reDropIndex.FindStringSubmatch(stmt); m != nil {
+		for _, n := range strings.Split(m[1], ",") {
+			n = ident(n)
+			for _, t := range c.tables {
+				for i := range t.indexes {
+					if t.indexes[i].Name == n {
+						t.indexes = append(t.indexes[:i], t.indexes[i+1:]...)
+						break
+					}
+				}
+			}
+		}
 		return
 	}
 	if m := reDropTable.FindStringSubmatch(stmt); m != nil {
@@ -306,6 +374,13 @@ func applyTableItem(t *tableDef, item string) {
 				}
 			}
 		}
+		if m := reUniqueCols.FindStringSubmatch(item); m != nil && strings.EqualFold(firstWordAfterConstraint(item), "unique") {
+			ix := model.Index{Name: t.name + "_unique", Unique: true}
+			for _, n := range strings.Split(m[1], ",") {
+				ix.Columns = append(ix.Columns, ident(n))
+			}
+			t.indexes = append(t.indexes, ix)
+		}
 		if m := reFKCols.FindStringSubmatch(item); m != nil {
 			cols := strings.Split(m[1], ",")
 			if len(cols) == 1 {
@@ -335,6 +410,9 @@ func applyTableItem(t *tableDef, item string) {
 	if reNotNull.MatchString(rest) {
 		col.Nullable = false
 	}
+	if reUnique.MatchString(rest) && !rePrimaryKey.MatchString(rest) {
+		t.indexes = append(t.indexes, model.Index{Name: t.name + "_" + col.Name + "_key", Columns: []string{col.Name}, Unique: true})
+	}
 	if rePrimaryKey.MatchString(rest) {
 		col.PrimaryKey = true
 		col.Nullable = false
@@ -347,6 +425,43 @@ func applyTableItem(t *tableDef, item string) {
 		return
 	}
 	t.columns = append(t.columns, col)
+}
+
+// firstWordAfterConstraint returns the first word of a table constraint,
+// skipping a leading "CONSTRAINT <name>".
+func firstWordAfterConstraint(item string) string {
+	f := strings.Fields(item)
+	if len(f) >= 3 && strings.EqualFold(f[0], "constraint") {
+		return f[2]
+	}
+	if len(f) > 0 {
+		return strings.SplitN(f[0], "(", 2)[0]
+	}
+	return ""
+}
+
+// indexColumn reduces one index element to a column name, dropping ASC, DESC,
+// NULLS FIRST/LAST and opclass. Expressions keep their lower-cased text.
+func indexColumn(item string) string {
+	item = strings.TrimSpace(item)
+	if strings.HasPrefix(item, "(") || strings.Contains(item, "(") {
+		return strings.Join(strings.Fields(strings.ToLower(item)), " ")
+	}
+	return ident(firstWord(item))
+}
+
+// normPredicate lower-cases a predicate and collapses whitespace and outer
+// parentheses so partial-index predicates compare against query text.
+func normPredicate(s string) string {
+	s = strings.Join(strings.Fields(strings.ToLower(s)), " ")
+	for strings.HasPrefix(s, "(") && strings.HasSuffix(s, ")") {
+		if inner, ok := balanced(s); ok && len(inner)+2 == len(s) {
+			s = strings.TrimSpace(inner)
+			continue
+		}
+		break
+	}
+	return s
 }
 
 func isColumnKeyword(tok string) bool {
@@ -444,6 +559,7 @@ type ParsedQuery struct {
 	Kind   string // one, many, exec, execrows, ...
 	Line   int
 	Tables []string // tables touched, restricted to known tables, sorted
+	Body   string   // the statement text, comments stripped (input to scoring)
 }
 
 var (
@@ -464,6 +580,7 @@ func ParseQueries(content string, known func(string) bool) []ParsedQuery {
 		}
 		seen := map[string]bool{}
 		text := strings.Join(splitStatementsKeepAll(strings.Join(body, "\n")), " ")
+		cur.Body = text
 		for _, m := range reTableRef.FindAllStringSubmatch(text, -1) {
 			n := ident(m[1])
 			if known(n) && !seen[n] {

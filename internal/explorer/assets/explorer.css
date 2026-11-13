@@ -357,6 +357,19 @@ details.rule>div{padding:0 0 var(--sp-2)}
 .qs .q code{flex:1;min-width:0}
 .qk{font:700 10.5px/1 var(--mono);padding:3px 5px;border-radius:4px;color:#fff;background:var(--c-subpackage);min-width:42px;text-align:center}
 .qk.one{background:#2b8fa8}.qk.many{background:#5b6dc9}.qk.exec{background:#a8572b}
+.grade{font:700 10.5px/1 var(--mono);padding:3px 6px;border-radius:4px;white-space:nowrap}
+.grade.g-A{background:var(--ok-soft);color:var(--added)}
+.grade.g-B{background:var(--ok-soft);color:var(--ink-2)}
+.grade.g-C{background:var(--warn-soft);color:var(--warn-ink)}
+.grade.g-D{background:var(--violation);color:#fff}
+details.qd>summary{list-style:none;cursor:pointer}
+details.qd>summary::-webkit-details-marker{display:none}
+details.qd>summary::after{content:"\25B8";color:var(--ink-3);margin-left:4px}
+details.qd[open]>summary::after{content:"\25BE"}
+.finds{list-style:none;margin:4px 0 var(--sp-2);padding:0 0 0 var(--sp-3);border-left:3px solid var(--line);display:grid;gap:var(--sp-2);font-size:var(--fs-sm)}
+.find.sev-high{border-left-color:var(--violation)}
+.find .why{color:var(--ink-3);margin-top:2px}
+.find .fix{margin-top:2px}
 .ghost{opacity:.6;border-style:dashed}
 .surface{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--sp-4)}
 .surface h4{font-size:var(--fs-sm);margin-bottom:4px;color:var(--ink-2)}

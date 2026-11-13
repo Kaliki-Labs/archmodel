@@ -25,16 +25,17 @@ func init() {
 
 // inputFlags are the flags shared by every command that needs a model.
 type inputFlags struct {
-	cfgPath, root, cover string
-	explicit             bool
-	resolved             bool
-	fs                   *flag.FlagSet
+	cfgPath, root, cover, probe string
+	explicit                    bool
+	resolved                    bool
+	fs                          *flag.FlagSet
 }
 
 func addInputFlags(fs *flag.FlagSet) *inputFlags {
 	in := &inputFlags{fs: fs}
 	fs.StringVar(&in.cfgPath, "config", "", "config file, relative to the current directory (default <root>/architecture.yaml; a missing default file falls back to the built-in defaults, a missing explicit one is an error)")
 	fs.StringVar(&in.root, "root", "", "project root (default: the nearest directory above the current one that holds architecture.yaml, else .)")
+	fs.StringVar(&in.probe, "probe", "", "probe file from the probe package; adds measured query counts per operation")
 	fs.StringVar(&in.cover, "coverprofile", "", "Go coverprofile; enables coverage and CRAP")
 	return in
 }
@@ -116,6 +117,14 @@ func (in *inputFlags) buildWith(cfg *config.Config) (*model.Model, error) {
 		}
 		defer f.Close()
 		opts.Coverage = f
+	}
+	if in.probe != "" {
+		f, err := os.Open(in.probe)
+		if err != nil {
+			return nil, err
+		}
+		defer f.Close()
+		opts.Probe = f
 	}
 	return extract.Build(opts)
 }

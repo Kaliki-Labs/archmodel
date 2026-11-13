@@ -1,6 +1,6 @@
 <!-- archmodel-diff -->
 ### Architecture diff
-modules +5 · dependencies +12 · operations -1 ~1 · tables +1 ~1
+modules +5 · dependencies +12 · operations -1 ~1 · tables +1 ~1 · 3 SQL changes
 
 **Modules**
 - added `cmd/workers` (Composition root)
@@ -24,6 +24,11 @@ modules +5 · dependencies +12 · operations -1 ~1 · tables +1 ~1
 **Tables**
 - added `outbox` (6 columns)
 - `auth_tokens` columns: -`attempts`
+
+**SQL**
+- `POST /auth/verify` queries per request 5: + `GetAuthToken` (via consume), − `IncrementAuthTokenAttempts` (via consume)
+- `POST /auth/password-reset/confirm` queries per request 4 → 3: + `GetAuthToken` (via consume), − `GetUserByEmail`, − `IncrementAuthTokenAttempts` (via consume)
+- `CreateAuthToken` changed: now returns −attempts (inferred from the migrations). Reached by `POST /auth/login`, `POST /auth/password-reset/request`, `POST /auth/signup`
 
 ![changed subgraph](large.png)
 

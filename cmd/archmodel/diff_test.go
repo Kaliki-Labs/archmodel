@@ -214,7 +214,7 @@ func TestDiffGoldenLarge(t *testing.T) {
 	img := filepath.Join(tmp, "large.svg")
 	md, _ := runDiffCmd(t, "--base", base, "--head", head, "--image", img)
 	golden(t, "jwt-full-otp-to-kitchen-sink.diff.md", []byte(md))
-	if n := len(strings.Split(md, "\n")); n > 90 {
+	if n := len(strings.Split(md, "\n")); n > 100 {
 		t.Errorf("large comment is %d lines", n)
 	}
 	for _, p := range []string{"large.svg", "large.png"} {
