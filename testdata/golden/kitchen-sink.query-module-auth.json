@@ -343,7 +343,21 @@
         "line": 30,
         "tables": [
           "auth_tokens"
-        ]
+        ],
+        "score": {
+          "value": 95,
+          "grade": "A",
+          "findings": [
+            {
+              "code": "select-star",
+              "severity": "info",
+              "penalty": 5,
+              "message": "selects or returns every column (*)",
+              "rationale": "SELECT * (or RETURNING *) couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
+              "fix": "list only the columns the caller needs"
+            }
+          ]
+        }
       },
       {
         "id": "CreateRefreshToken",
@@ -353,7 +367,21 @@
         "line": 12,
         "tables": [
           "refresh_tokens"
-        ]
+        ],
+        "score": {
+          "value": 95,
+          "grade": "A",
+          "findings": [
+            {
+              "code": "select-star",
+              "severity": "info",
+              "penalty": 5,
+              "message": "selects or returns every column (*)",
+              "rationale": "SELECT * (or RETURNING *) couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
+              "fix": "list only the columns the caller needs"
+            }
+          ]
+        }
       },
       {
         "id": "CreateUser",
@@ -363,7 +391,21 @@
         "line": 1,
         "tables": [
           "users"
-        ]
+        ],
+        "score": {
+          "value": 95,
+          "grade": "A",
+          "findings": [
+            {
+              "code": "select-star",
+              "severity": "info",
+              "penalty": 5,
+              "message": "selects or returns every column (*)",
+              "rationale": "SELECT * (or RETURNING *) couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
+              "fix": "list only the columns the caller needs"
+            }
+          ]
+        }
       },
       {
         "id": "GetAuthToken",
@@ -373,7 +415,21 @@
         "line": 35,
         "tables": [
           "auth_tokens"
-        ]
+        ],
+        "score": {
+          "value": 95,
+          "grade": "A",
+          "findings": [
+            {
+              "code": "select-star",
+              "severity": "info",
+              "penalty": 5,
+              "message": "selects or returns every column (*)",
+              "rationale": "SELECT * (or RETURNING *) couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
+              "fix": "list only the columns the caller needs"
+            }
+          ]
+        }
       },
       {
         "id": "GetRefreshToken",
@@ -383,7 +439,21 @@
         "line": 17,
         "tables": [
           "refresh_tokens"
-        ]
+        ],
+        "score": {
+          "value": 95,
+          "grade": "A",
+          "findings": [
+            {
+              "code": "select-star",
+              "severity": "info",
+              "penalty": 5,
+              "message": "selects or returns every column (*)",
+              "rationale": "SELECT * (or RETURNING *) couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
+              "fix": "list only the columns the caller needs"
+            }
+          ]
+        }
       },
       {
         "id": "GetUserByEmail",
@@ -393,7 +463,21 @@
         "line": 6,
         "tables": [
           "users"
-        ]
+        ],
+        "score": {
+          "value": 95,
+          "grade": "A",
+          "findings": [
+            {
+              "code": "select-star",
+              "severity": "info",
+              "penalty": 5,
+              "message": "selects or returns every column (*)",
+              "rationale": "SELECT * (or RETURNING *) couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
+              "fix": "list only the columns the caller needs"
+            }
+          ]
+        }
       },
       {
         "id": "GetUserByID",
@@ -403,7 +487,21 @@
         "line": 9,
         "tables": [
           "users"
-        ]
+        ],
+        "score": {
+          "value": 95,
+          "grade": "A",
+          "findings": [
+            {
+              "code": "select-star",
+              "severity": "info",
+              "penalty": 5,
+              "message": "selects or returns every column (*)",
+              "rationale": "SELECT * (or RETURNING *) couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
+              "fix": "list only the columns the caller needs"
+            }
+          ]
+        }
       },
       {
         "id": "MarkAuthTokenUsed",
@@ -413,7 +511,12 @@
         "line": 39,
         "tables": [
           "auth_tokens"
-        ]
+        ],
+        "score": {
+          "value": 100,
+          "grade": "A",
+          "findings": []
+        }
       },
       {
         "id": "RevokeRefreshToken",
@@ -423,7 +526,12 @@
         "line": 21,
         "tables": [
           "refresh_tokens"
-        ]
+        ],
+        "score": {
+          "value": 100,
+          "grade": "A",
+          "findings": []
+        }
       },
       {
         "id": "UpdateUserPassword",
@@ -433,7 +541,12 @@
         "line": 27,
         "tables": [
           "users"
-        ]
+        ],
+        "score": {
+          "value": 100,
+          "grade": "A",
+          "findings": []
+        }
       },
       {
         "id": "VerifyUser",
@@ -443,7 +556,12 @@
         "line": 24,
         "tables": [
           "users"
-        ]
+        ],
+        "score": {
+          "value": 100,
+          "grade": "A",
+          "findings": []
+        }
       }
     ]
   },

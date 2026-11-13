@@ -436,3 +436,50 @@ func levenshtein(a, b string) int {
 	}
 	return prev[len(b)]
 }
+
+// SQLScoreEntry is one query with its static SQL optimization score.
+type SQLScoreEntry struct {
+	ID       string          `json:"id"`
+	Module   string          `json:"module"`
+	Kind     string          `json:"kind"`
+	File     string          `json:"file"`
+	Line     int             `json:"line"`
+	Tables   []string        `json:"tables"`
+	Score    int             `json:"score"`
+	Grade    string          `json:"grade"`
+	Findings []model.Finding `json:"findings"`
+}
+
+// SQLScoreAnswer lists every scored query, worst first.
+type SQLScoreAnswer struct {
+	Version int             `json:"version"`
+	Average float64         `json:"average"`
+	Queries []SQLScoreEntry `json:"queries"`
+}
+
+// SQLScore lists every query with its score, lowest first, so an agent or
+// reviewer sees the worst offenders before reading any SQL.
+func (ix *Index) SQLScore() any {
+	ans := SQLScoreAnswer{Version: Version, Queries: []SQLScoreEntry{}}
+	total := 0
+	for _, q := range ix.M.Queries {
+		if q.Score == nil {
+			continue
+		}
+		total += q.Score.Value
+		ans.Queries = append(ans.Queries, SQLScoreEntry{
+			ID: q.ID, Module: q.Module, Kind: q.Kind, File: q.File, Line: q.Line, Tables: q.Tables,
+			Score: q.Score.Value, Grade: q.Score.Grade, Findings: q.Score.Findings,
+		})
+	}
+	sort.SliceStable(ans.Queries, func(i, j int) bool {
+		if ans.Queries[i].Score != ans.Queries[j].Score {
+			return ans.Queries[i].Score < ans.Queries[j].Score
+		}
+		return ans.Queries[i].ID < ans.Queries[j].ID
+	})
+	if n := len(ans.Queries); n > 0 {
+		ans.Average = float64(total*10/n) / 10
+	}
+	return ans
+}

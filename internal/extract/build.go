@@ -501,6 +501,10 @@ func (b *builder) collectSQL() {
 		cat.ApplyMigration(path.Join(b.cfg.SQL.SchemaDir, name), string(data))
 	}
 	tables := cat.Tables()
+	byName := map[string]model.Table{}
+	for _, t := range tables {
+		byName[t.Name] = t
+	}
 	owners := map[string]map[string]bool{}
 	queriesDir := filepath.Join(b.root, b.cfg.SQL.QueriesDir)
 	seen := map[string]string{}
@@ -525,8 +529,9 @@ func (b *builder) collectSQL() {
 				continue
 			}
 			seen[q.Name] = rel
+			score := ScoreQuery(q, byName)
 			b.m.Queries = append(b.m.Queries, model.Query{
-				ID: q.Name, Kind: q.Kind, Module: module, File: rel, Line: q.Line, Tables: q.Tables,
+				ID: q.Name, Kind: q.Kind, Module: module, File: rel, Line: q.Line, Tables: q.Tables, Score: &score,
 			})
 			for _, t := range q.Tables {
 				if owners[t] == nil {

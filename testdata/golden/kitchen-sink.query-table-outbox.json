@@ -40,6 +40,23 @@
   "migrations": [
     "backend/sql/schema/0006_outbox.sql"
   ],
+  "indexes": [
+    {
+      "name": "outbox_pkey",
+      "columns": [
+        "id"
+      ],
+      "unique": true,
+      "primary": true
+    },
+    {
+      "name": "idx_outbox_unpublished",
+      "columns": [
+        "created_at"
+      ],
+      "where": "published_at is null"
+    }
+  ],
   "queries": [
     {
       "id": "EnqueueOutbox",
@@ -49,7 +66,21 @@
       "line": 10,
       "tables": [
         "outbox"
-      ]
+      ],
+      "score": {
+        "value": 95,
+        "grade": "A",
+        "findings": [
+          {
+            "code": "select-star",
+            "severity": "info",
+            "penalty": 5,
+            "message": "selects or returns every column (*)",
+            "rationale": "SELECT * (or RETURNING *) couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
+            "fix": "list only the columns the caller needs"
+          }
+        ]
+      }
     },
     {
       "id": "ListUnpublishedOutbox",
@@ -59,7 +90,21 @@
       "line": 1,
       "tables": [
         "outbox"
-      ]
+      ],
+      "score": {
+        "value": 95,
+        "grade": "A",
+        "findings": [
+          {
+            "code": "select-star",
+            "severity": "info",
+            "penalty": 5,
+            "message": "selects or returns every column (*)",
+            "rationale": "SELECT * (or RETURNING *) couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
+            "fix": "list only the columns the caller needs"
+          }
+        ]
+      }
     },
     {
       "id": "MarkOutboxPublished",
@@ -69,7 +114,12 @@
       "line": 7,
       "tables": [
         "outbox"
-      ]
+      ],
+      "score": {
+        "value": 100,
+        "grade": "A",
+        "findings": []
+      }
     }
   ],
   "modules": [

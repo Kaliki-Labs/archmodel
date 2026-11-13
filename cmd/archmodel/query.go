@@ -24,6 +24,7 @@ var queryKinds = []struct {
 	{"module", "name", "the Module card", func(ix *query.Index, a string) (any, error) { return ix.Module(a) }},
 	{"operation", "operationId", "an API operation with its schemas", func(ix *query.Index, a string) (any, error) { return ix.Operation(a) }},
 	{"table", "name", "a table with the queries and modules touching it", func(ix *query.Index, a string) (any, error) { return ix.Table(a) }},
+	{"sql-score", "", "every sqlc query with its static SQL optimization score and findings, worst first", func(ix *query.Index, _ string) (any, error) { return ix.SQLScore(), nil }},
 	{"rules", "", "every rule with its Rationale, and the metric Rationales", func(ix *query.Index, _ string) (any, error) { return ix.Rules(), nil }},
 	{"modules", "", "list every Module", func(ix *query.Index, _ string) (any, error) { return ix.Modules(), nil }},
 	{"operations", "", "list every operation", func(ix *query.Index, _ string) (any, error) { return ix.Operations(), nil }},

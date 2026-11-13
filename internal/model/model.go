@@ -206,6 +206,18 @@ type Table struct {
 	Owners     []string `json:"owners"` // Modules whose queries touch it
 	Columns    []Column `json:"columns"`
 	Migrations []string `json:"migrations"` // files (relative) that create or alter it
+	Indexes    []Index  `json:"indexes"`    // primary key, unique constraints and CREATE INDEX
+}
+
+// Index is an index on a table: the primary key, a UNIQUE constraint or a
+// CREATE INDEX. Query scoring reads these to judge whether a filter or sort
+// can be served without scanning the table.
+type Index struct {
+	Name    string   `json:"name"`
+	Columns []string `json:"columns"` // in index order; an expression keeps its text, e.g. "lower(email)"
+	Unique  bool     `json:"unique,omitempty"`
+	Primary bool     `json:"primary,omitempty"`
+	Where   string   `json:"where,omitempty"` // predicate of a partial index
 }
 
 // Column is a table column.
@@ -225,6 +237,27 @@ type Query struct {
 	File   string   `json:"file"`
 	Line   int      `json:"line"`
 	Tables []string `json:"tables"`
+	// Score is the static SQL optimization score: derived from the query text
+	// and the table indexes, never from a running database.
+	Score *QueryScore `json:"score,omitempty"`
+}
+
+// QueryScore rates a query 0-100 (100 = nothing to flag). It is displayed, not
+// enforced, like the package metrics.
+type QueryScore struct {
+	Value    int       `json:"value"`
+	Grade    string    `json:"grade"` // A (>=90), B (>=75), C (>=55), D
+	Findings []Finding `json:"findings"`
+}
+
+// Finding is one thing a query scorer flagged, with its Rationale and a fix.
+type Finding struct {
+	Code      string `json:"code"`
+	Severity  string `json:"severity"` // info, warn, high
+	Penalty   int    `json:"penalty"`
+	Message   string `json:"message"`
+	Rationale string `json:"rationale"`
+	Fix       string `json:"fix"`
 }
 
 // Symbol is an exported type, function or method (the public surface).
@@ -340,11 +373,17 @@ func (m *Model) Normalize() {
 		if m.Tables[i].Columns == nil {
 			m.Tables[i].Columns = []Column{}
 		}
+		if m.Tables[i].Indexes == nil {
+			m.Tables[i].Indexes = []Index{}
+		}
 	}
 	sort.Slice(m.Queries, func(i, j int) bool { return m.Queries[i].ID < m.Queries[j].ID })
 	for i := range m.Queries {
 		sort.Strings(m.Queries[i].Tables)
 		m.Queries[i].Tables = nonNil(m.Queries[i].Tables)
+		if sc := m.Queries[i].Score; sc != nil && sc.Findings == nil {
+			sc.Findings = []Finding{}
+		}
 	}
 	sort.SliceStable(m.Symbols, func(i, j int) bool {
 		a, b := m.Symbols[i], m.Symbols[j]

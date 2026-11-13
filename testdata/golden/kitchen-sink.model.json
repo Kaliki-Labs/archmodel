@@ -1743,6 +1743,30 @@
       ],
       "migrations": [
         "backend/sql/schema/0003_auth_tokens.sql"
+      ],
+      "indexes": [
+        {
+          "name": "auth_tokens_pkey",
+          "columns": [
+            "id"
+          ],
+          "unique": true,
+          "primary": true
+        },
+        {
+          "name": "auth_tokens_token_hash_key",
+          "columns": [
+            "token_hash"
+          ],
+          "unique": true
+        },
+        {
+          "name": "idx_auth_tokens_lookup",
+          "columns": [
+            "token_hash",
+            "kind"
+          ]
+        }
       ]
     },
     {
@@ -1770,6 +1794,16 @@
       ],
       "migrations": [
         "backend/sql/schema/0005_items.sql"
+      ],
+      "indexes": [
+        {
+          "name": "items_pkey",
+          "columns": [
+            "id"
+          ],
+          "unique": true,
+          "primary": true
+        }
       ]
     },
     {
@@ -1812,6 +1846,23 @@
       ],
       "migrations": [
         "backend/sql/schema/0006_outbox.sql"
+      ],
+      "indexes": [
+        {
+          "name": "outbox_pkey",
+          "columns": [
+            "id"
+          ],
+          "unique": true,
+          "primary": true
+        },
+        {
+          "name": "idx_outbox_unpublished",
+          "columns": [
+            "created_at"
+          ],
+          "where": "published_at is null"
+        }
       ]
     },
     {
@@ -1855,6 +1906,29 @@
       ],
       "migrations": [
         "backend/sql/schema/0004_refresh_tokens.sql"
+      ],
+      "indexes": [
+        {
+          "name": "refresh_tokens_pkey",
+          "columns": [
+            "id"
+          ],
+          "unique": true,
+          "primary": true
+        },
+        {
+          "name": "refresh_tokens_token_hash_key",
+          "columns": [
+            "token_hash"
+          ],
+          "unique": true
+        },
+        {
+          "name": "idx_refresh_tokens_user",
+          "columns": [
+            "user_id"
+          ]
+        }
       ]
     },
     {
@@ -1907,6 +1981,29 @@
       ],
       "migrations": [
         "backend/sql/schema/0002_users.sql"
+      ],
+      "indexes": [
+        {
+          "name": "users_pkey",
+          "columns": [
+            "id"
+          ],
+          "unique": true,
+          "primary": true
+        },
+        {
+          "name": "users_email_key",
+          "columns": [
+            "email"
+          ],
+          "unique": true
+        },
+        {
+          "name": "idx_users_email",
+          "columns": [
+            "email"
+          ]
+        }
       ]
     }
   ],
@@ -1919,7 +2016,21 @@
       "line": 30,
       "tables": [
         "auth_tokens"
-      ]
+      ],
+      "score": {
+        "value": 95,
+        "grade": "A",
+        "findings": [
+          {
+            "code": "select-star",
+            "severity": "info",
+            "penalty": 5,
+            "message": "selects or returns every column (*)",
+            "rationale": "SELECT * (or RETURNING *) couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
+            "fix": "list only the columns the caller needs"
+          }
+        ]
+      }
     },
     {
       "id": "CreateItem",
@@ -1929,7 +2040,12 @@
       "line": 4,
       "tables": [
         "items"
-      ]
+      ],
+      "score": {
+        "value": 100,
+        "grade": "A",
+        "findings": []
+      }
     },
     {
       "id": "CreateRefreshToken",
@@ -1939,7 +2055,21 @@
       "line": 12,
       "tables": [
         "refresh_tokens"
-      ]
+      ],
+      "score": {
+        "value": 95,
+        "grade": "A",
+        "findings": [
+          {
+            "code": "select-star",
+            "severity": "info",
+            "penalty": 5,
+            "message": "selects or returns every column (*)",
+            "rationale": "SELECT * (or RETURNING *) couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
+            "fix": "list only the columns the caller needs"
+          }
+        ]
+      }
     },
     {
       "id": "CreateUser",
@@ -1949,7 +2079,21 @@
       "line": 1,
       "tables": [
         "users"
-      ]
+      ],
+      "score": {
+        "value": 95,
+        "grade": "A",
+        "findings": [
+          {
+            "code": "select-star",
+            "severity": "info",
+            "penalty": 5,
+            "message": "selects or returns every column (*)",
+            "rationale": "SELECT * (or RETURNING *) couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
+            "fix": "list only the columns the caller needs"
+          }
+        ]
+      }
     },
     {
       "id": "EnqueueOutbox",
@@ -1959,7 +2103,21 @@
       "line": 10,
       "tables": [
         "outbox"
-      ]
+      ],
+      "score": {
+        "value": 95,
+        "grade": "A",
+        "findings": [
+          {
+            "code": "select-star",
+            "severity": "info",
+            "penalty": 5,
+            "message": "selects or returns every column (*)",
+            "rationale": "SELECT * (or RETURNING *) couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
+            "fix": "list only the columns the caller needs"
+          }
+        ]
+      }
     },
     {
       "id": "GetAuthToken",
@@ -1969,7 +2127,21 @@
       "line": 35,
       "tables": [
         "auth_tokens"
-      ]
+      ],
+      "score": {
+        "value": 95,
+        "grade": "A",
+        "findings": [
+          {
+            "code": "select-star",
+            "severity": "info",
+            "penalty": 5,
+            "message": "selects or returns every column (*)",
+            "rationale": "SELECT * (or RETURNING *) couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
+            "fix": "list only the columns the caller needs"
+          }
+        ]
+      }
     },
     {
       "id": "GetItem",
@@ -1979,7 +2151,12 @@
       "line": 7,
       "tables": [
         "items"
-      ]
+      ],
+      "score": {
+        "value": 100,
+        "grade": "A",
+        "findings": []
+      }
     },
     {
       "id": "GetRefreshToken",
@@ -1989,7 +2166,21 @@
       "line": 17,
       "tables": [
         "refresh_tokens"
-      ]
+      ],
+      "score": {
+        "value": 95,
+        "grade": "A",
+        "findings": [
+          {
+            "code": "select-star",
+            "severity": "info",
+            "penalty": 5,
+            "message": "selects or returns every column (*)",
+            "rationale": "SELECT * (or RETURNING *) couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
+            "fix": "list only the columns the caller needs"
+          }
+        ]
+      }
     },
     {
       "id": "GetUserByEmail",
@@ -1999,7 +2190,21 @@
       "line": 6,
       "tables": [
         "users"
-      ]
+      ],
+      "score": {
+        "value": 95,
+        "grade": "A",
+        "findings": [
+          {
+            "code": "select-star",
+            "severity": "info",
+            "penalty": 5,
+            "message": "selects or returns every column (*)",
+            "rationale": "SELECT * (or RETURNING *) couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
+            "fix": "list only the columns the caller needs"
+          }
+        ]
+      }
     },
     {
       "id": "GetUserByID",
@@ -2009,7 +2214,21 @@
       "line": 9,
       "tables": [
         "users"
-      ]
+      ],
+      "score": {
+        "value": 95,
+        "grade": "A",
+        "findings": [
+          {
+            "code": "select-star",
+            "severity": "info",
+            "penalty": 5,
+            "message": "selects or returns every column (*)",
+            "rationale": "SELECT * (or RETURNING *) couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
+            "fix": "list only the columns the caller needs"
+          }
+        ]
+      }
     },
     {
       "id": "ListItems",
@@ -2019,7 +2238,29 @@
       "line": 1,
       "tables": [
         "items"
-      ]
+      ],
+      "score": {
+        "value": 65,
+        "grade": "C",
+        "findings": [
+          {
+            "code": "unbounded-list",
+            "severity": "warn",
+            "penalty": 20,
+            "message": "returns every matching row (no LIMIT)",
+            "rationale": "A :many query with no LIMIT returns every matching row, so response size and memory grow with the table.",
+            "fix": "add LIMIT $n, ideally with keyset pagination"
+          },
+          {
+            "code": "unindexed-sort",
+            "severity": "warn",
+            "penalty": 15,
+            "message": "sorts items by created_at with no index to read it in order",
+            "rationale": "ORDER BY on a column no index can deliver in order makes the database sort the whole result first, even when you only want a few rows.",
+            "fix": "CREATE INDEX idx_items_created_at ON items (created_at)"
+          }
+        ]
+      }
     },
     {
       "id": "ListUnpublishedOutbox",
@@ -2029,7 +2270,21 @@
       "line": 1,
       "tables": [
         "outbox"
-      ]
+      ],
+      "score": {
+        "value": 95,
+        "grade": "A",
+        "findings": [
+          {
+            "code": "select-star",
+            "severity": "info",
+            "penalty": 5,
+            "message": "selects or returns every column (*)",
+            "rationale": "SELECT * (or RETURNING *) couples the query to the whole table: new columns widen every result, and a covering index can never apply.",
+            "fix": "list only the columns the caller needs"
+          }
+        ]
+      }
     },
     {
       "id": "MarkAuthTokenUsed",
@@ -2039,7 +2294,12 @@
       "line": 39,
       "tables": [
         "auth_tokens"
-      ]
+      ],
+      "score": {
+        "value": 100,
+        "grade": "A",
+        "findings": []
+      }
     },
     {
       "id": "MarkOutboxPublished",
@@ -2049,7 +2309,12 @@
       "line": 7,
       "tables": [
         "outbox"
-      ]
+      ],
+      "score": {
+        "value": 100,
+        "grade": "A",
+        "findings": []
+      }
     },
     {
       "id": "RevokeRefreshToken",
@@ -2059,7 +2324,12 @@
       "line": 21,
       "tables": [
         "refresh_tokens"
-      ]
+      ],
+      "score": {
+        "value": 100,
+        "grade": "A",
+        "findings": []
+      }
     },
     {
       "id": "UpdateUserPassword",
@@ -2069,7 +2339,12 @@
       "line": 27,
       "tables": [
         "users"
-      ]
+      ],
+      "score": {
+        "value": 100,
+        "grade": "A",
+        "findings": []
+      }
     },
     {
       "id": "VerifyUser",
@@ -2079,7 +2354,12 @@
       "line": 24,
       "tables": [
         "users"
-      ]
+      ],
+      "score": {
+        "value": 100,
+        "grade": "A",
+        "findings": []
+      }
     }
   ],
   "symbols": [
