@@ -89,6 +89,8 @@ func TestClassifyProbe(t *testing.T) {
 		growth string
 	}{
 		{"constant", []probe.Run{{Rows: 5, Queries: 3}, {Rows: 50, Queries: 3}}, "constant"},
+		{"one extra count query", []probe.Run{{Rows: 5, Queries: 6}, {Rows: 50, Queries: 7}}, "constant"},
+		{"fewer queries", []probe.Run{{Rows: 5, Queries: 9}, {Rows: 50, Queries: 6}}, "constant"},
 		{"linear", []probe.Run{{Rows: 5, Queries: 6}, {Rows: 50, Queries: 51}}, "linear"},
 		{"linear three", []probe.Run{{Rows: 10, Queries: 11}, {Rows: 20, Queries: 21}, {Rows: 40, Queries: 41}}, "linear"},
 		{"superlinear", []probe.Run{{Rows: 10, Queries: 10}, {Rows: 20, Queries: 40}, {Rows: 40, Queries: 160}}, "superlinear"},

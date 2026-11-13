@@ -44,9 +44,15 @@ type OperationSQLChange struct {
 
 func (c SQLChanges) empty() bool { return len(c.Queries)+len(c.Operations) == 0 }
 
+// findingCodes indexes findings by code. n-plus-one-not-observed is a probe
+// result, not a code property, so it never counts as a change: base and head
+// may be built with different probe files.
 func findingCodes(fs []model.Finding) map[string]model.Finding {
 	m := map[string]model.Finding{}
 	for _, f := range fs {
+		if f.Code == "n-plus-one-not-observed" {
+			continue
+		}
 		if _, dup := m[f.Code]; !dup {
 			m[f.Code] = f
 		}
@@ -130,6 +136,12 @@ func diffSQL(d *Diff, base, head *model.Model) {
 			oldSQL = old.SQL
 		}
 		is := findingCodes(o.SQL.Findings)
+		// Only one side probed: the probe may have added or removed n-plus-one
+		// on its own, so compare the rest.
+		skew := had && oldSQL != nil && (oldSQL.Probe == nil) != (o.SQL.Probe == nil)
+		if skew {
+			delete(is, "n-plus-one")
+		}
 		c := OperationSQLChange{Operation: opRef(o), To: o.SQL.Estimate, Findings: []string{}}
 		if p := o.SQL.Probe; p != nil && len(p.Runs) > 0 {
 			c.Measured = fmt.Sprintf("%s: %d queries at %d rows, %d at %d rows", p.Growth, p.Runs[0].Queries, p.Runs[0].Rows, p.Runs[len(p.Runs)-1].Queries, p.Runs[len(p.Runs)-1].Rows)
@@ -148,6 +160,9 @@ func diffSQL(d *Diff, base, head *model.Model) {
 		}
 		c.From = oldSQL.Estimate
 		was := findingCodes(oldSQL.Findings)
+		if skew {
+			delete(was, "n-plus-one")
+		}
 		var added, gone []string
 		for code := range is {
 			if _, ok := was[code]; !ok {
@@ -166,11 +181,15 @@ func diffSQL(d *Diff, base, head *model.Model) {
 			c.Status, c.Findings = "worse", added
 		case len(gone) > 0:
 			c.Status, c.Findings = "better", gone
-		case oldSQL.Estimate != o.SQL.Estimate && (oldSQL.PerItem != o.SQL.PerItem || o.SQL.Fixed > oldSQL.Fixed+1):
+		case oldSQL.PerItem != o.SQL.PerItem:
 			c.Status = "worse"
-			if o.SQL.PerItem < oldSQL.PerItem || o.SQL.Fixed < oldSQL.Fixed {
+			if o.SQL.PerItem < oldSQL.PerItem {
 				c.Status = "better"
 			}
+		case o.SQL.Fixed > oldSQL.Fixed+1:
+			c.Status = "worse"
+		case o.SQL.Fixed < oldSQL.Fixed-1:
+			c.Status = "better"
 		default:
 			continue
 		}

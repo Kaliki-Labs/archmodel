@@ -39,7 +39,9 @@ func classifyProbe(runs []probe.Run) (growth string, slope float64, ok bool) {
 	}
 	first, last := pts[0], pts[len(pts)-1]
 	slope = float64(last.Queries-first.Queries) / float64(last.Rows-first.Rows)
-	if math.Abs(slope) < 1e-9 {
+	// A handful of extra queries across a large row delta is not a per-row
+	// cost (a count query, a warm-up), and fewer queries is never growth.
+	if slope < 0.25 {
 		return "constant", 0, true
 	}
 	// Segment slopes: a steady slope is linear; a slope that keeps climbing

@@ -551,10 +551,25 @@ func (ix *Index) SQLAttention() any {
 		}
 	}
 	for _, o := range ix.M.Operations {
-		if o.SQL != nil && len(o.SQL.Findings) > 0 {
-			ans.Operations = append(ans.Operations, opSQLEntry(o))
+		if o.SQL == nil {
+			continue
+		}
+		for _, f := range o.SQL.Findings {
+			if f.Code != "n-plus-one-not-observed" { // measured fine: nothing left to do
+				ans.Operations = append(ans.Operations, opSQLEntry(o))
+				break
+			}
 		}
 	}
-	sort.SliceStable(ans.Operations, func(i, j int) bool { return ans.Operations[i].ID < ans.Operations[j].ID })
+	sort.SliceStable(ans.Operations, func(i, j int) bool {
+		a, b := ans.Operations[i], ans.Operations[j]
+		if a.PerItem != b.PerItem {
+			return a.PerItem > b.PerItem
+		}
+		if a.Fixed != b.Fixed {
+			return a.Fixed > b.Fixed
+		}
+		return a.ID < b.ID
+	})
 	return ans
 }

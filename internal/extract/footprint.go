@@ -208,6 +208,22 @@ func (w *footprintWalker) call(c *ast.CallExpr, fd *fnDecl, ctx loopCtx) {
 	// if it shares a name with a query; any other X.Name that is a sqlc query
 	// name is a query call.
 	own := w.ix.byMethod[fd.file.pkgDir+"|"+fd.recv+"|"+name]
+	// s.store.X where the store type has its own method X (a wrapper that may
+	// run several queries, or a transaction) is walked into, even when X is
+	// also a query name. Generated code is never walked: it is the query.
+	if sel, ok := c.Fun.(*ast.SelectorExpr); ok {
+		if _, nested := sel.X.(*ast.SelectorExpr); nested {
+			if m := w.fieldMethod(sel, name, fd); m != nil && !m.file.generated && w.queries[name] {
+				// Only a wrapper that itself reaches queries replaces the call;
+				// a bare stub of the query is the query.
+				n := len(w.out)
+				w.walkFn(m, ctx)
+				if len(w.out) > n {
+					return
+				}
+			}
+		}
+	}
 	if !bare && !(viaRecv && own != nil) && w.queries[name] {
 		pos := fd.file.fset.Position(c.Pos())
 		w.out = append(w.out, model.OperationQuery{
@@ -290,6 +306,24 @@ func (b *builder) summarizeFootprint(op *model.Operation, qs []model.OperationQu
 // uses the receiver struct's field type; otherwise it accepts a name that is
 // unique in the Module once the caller's own type is excluded (so
 // s.store.DeleteSection is not mistaken for the handler's own DeleteSection).
+// fieldMethod resolves s.field.Name(...) through the receiver struct's field
+// type; nil when the receiver, field or method is not found in the package.
+func (w *footprintWalker) fieldMethod(sel *ast.SelectorExpr, name string, fd *fnDecl) *fnDecl {
+	inner, ok := sel.X.(*ast.SelectorExpr)
+	if !ok {
+		return nil
+	}
+	id, ok := inner.X.(*ast.Ident)
+	if !ok || fd.rcv == "" || id.Name != fd.rcv {
+		return nil
+	}
+	t := w.ix.fields[fd.file.pkgDir+"|"+fd.recv+"|"+inner.Sel.Name]
+	if t == "" {
+		return nil
+	}
+	return w.ix.byMethod[fd.file.pkgDir+"|"+t+"|"+name]
+}
+
 func (w *footprintWalker) resolveSelector(sel *ast.SelectorExpr, name string, fd *fnDecl) *fnDecl {
 	if inner, ok := sel.X.(*ast.SelectorExpr); ok {
 		if id, ok := inner.X.(*ast.Ident); ok && fd.rcv != "" && id.Name == fd.rcv {
@@ -299,6 +333,11 @@ func (w *footprintWalker) resolveSelector(sel *ast.SelectorExpr, name string, fd
 				}
 			}
 		}
+	}
+	// pkg.Name where pkg is an import is outside this Module's own functions;
+	// never match it to a same-named function here (uuid.New, errors.New).
+	if id, ok := sel.X.(*ast.Ident); ok && isImportName(fd.file.ast, id.Name) {
+		return nil
 	}
 	var cands []*fnDecl
 	for _, c := range w.ix.byName[fd.file.module+"|"+name] {
@@ -310,4 +349,22 @@ func (w *footprintWalker) resolveSelector(sel *ast.SelectorExpr, name string, fd
 		return cands[0]
 	}
 	return nil
+}
+
+// isImportName reports whether name is the local name of an import in f.
+func isImportName(f *ast.File, name string) bool {
+	for _, im := range f.Imports {
+		if im.Name != nil {
+			if im.Name.Name == name {
+				return true
+			}
+			continue
+		}
+		path := strings.Trim(im.Path.Value, `"`)
+		base := path[strings.LastIndex(path, "/")+1:]
+		if base == name || (strings.HasPrefix(base, "v") && len(base) <= 3 && strings.Contains(path, "/"+name+"/")) {
+			return true
+		}
+	}
+	return false
 }

@@ -312,6 +312,9 @@ func analyzeStmt(text, kind string, isMain bool, tables map[string]model.Table) 
 				continue
 			}
 			col, op := ident(m[2]), strings.ToLower(m[3])
+			if !columnExists(&tbl, col) {
+				continue // an unqualified column of a joined table
+			}
 			// "t.a = p.b" relates two tables; it is a join condition, not a filter.
 			if rhs := reColRHS.FindStringSubmatch(c[len(m[0]):]); rhs != nil && !own(rhs[1]) {
 				continue
@@ -324,9 +327,6 @@ func analyzeStmt(text, kind string, isMain bool, tables map[string]model.Table) 
 				cmp[col] = true
 			}
 		}
-	}
-	if hasOr {
-		add("or-filter", "info", 5, "filter combines columns with OR", "split into a UNION of indexed lookups if this is hot")
 	}
 	if known && !complex {
 		if m := reFuncCol.FindStringSubmatch(where); m != nil && own(m[2]) {
@@ -352,6 +352,9 @@ func analyzeStmt(text, kind string, isMain bool, tables map[string]model.Table) 
 	ctx := predCtx{norm: stripQualifiers(where + " " + st.clauses["from"]), cmp: cmp}
 	filtered := len(filter) > 0
 	served := filtered && filterServed(&tbl, filter, ctx)
+	if hasOr && !served {
+		add("or-filter", "info", 5, "filter combines columns with OR", "split into a UNION of indexed lookups if this is hot")
+	}
 	if filtered && !served {
 		cols := sortedKeys(filter)
 		fix := fmt.Sprintf("CREATE INDEX idx_%s_%s ON %s (%s)", tbl.Name, strings.Join(cols, "_"), tbl.Name, strings.Join(cols, ", "))
@@ -478,7 +481,7 @@ func (c predCtx) usable(ix model.Index) (bool, map[string]bool) {
 		if m := reConjunct.FindStringSubmatch(p); m != nil {
 			pinned[ident(m[2])] = true
 		}
-		if strings.Contains(c.norm, p) {
+		if containsWord(c.norm, p) {
 			continue
 		}
 		if m := reIsNotNull.FindStringSubmatch(p); m != nil && c.cmp[m[1]] {
@@ -545,4 +548,26 @@ func hasExprIndex(t *model.Table, expr string) bool {
 		}
 	}
 	return false
+}
+
+// containsWord reports whether sub occurs in s not glued to identifier
+// characters, so "user_id is null" does not match "parent_user_id is null".
+func containsWord(s, sub string) bool {
+	for i := 0; ; {
+		j := strings.Index(s[i:], sub)
+		if j < 0 {
+			return false
+		}
+		a, z := i+j, i+j+len(sub)
+		okL := a == 0 || !isIdentByte(s[a-1])
+		okR := z == len(s) || !isIdentByte(s[z])
+		if okL && okR {
+			return true
+		}
+		i = a + 1
+	}
+}
+
+func isIdentByte(b byte) bool {
+	return b == '_' || b >= '0' && b <= '9' || b >= 'a' && b <= 'z' || b >= 'A' && b <= 'Z'
 }
